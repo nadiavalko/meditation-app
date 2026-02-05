@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stillwave · Breathing</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="navbar">
+        <div class="brand"><span></span>Stillwave</div>
+        <nav class="nav-links">
+          <a href="/">Sign up</a>
+          <a class="active" href="/breathing">Breathing</a>
+          <a href="/stats">Stats</a>
+          <a href="/settings">Settings</a>
+        </nav>
+      </header>
+
+      <main class="main">
+        <section class="panel">
+          <div class="panel-split">
+            <h1>4-6 Breathing</h1>
+            <p>
+              Inhale for 4 seconds, exhale for 6. The slower exhale calms the nervous system and helps
+              your mind settle.
+            </p>
+            <div class="notice">
+              Try this for 3 minutes to reset your focus. Keep your shoulders relaxed.
+            </div>
+          </div>
+
+          <div class="panel-split breathing-wrap">
+            <div class="breath-orb" aria-hidden="true"></div>
+            <div>
+              <div class="breath-text" data-breath-text>Inhale</div>
+              <div class="timer" data-breath-timer>Slow inhale · 4s</div>
+            </div>
+            <button class="button" id="log-session">Log this session</button>
+            <div class="helper" id="session-status">We’ll save a 3-minute session.</div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">Stillwave · Guided breathing for real life</footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stillwave · Stats</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="navbar">
+        <div class="brand"><span></span>Stillwave</div>
+        <nav class="nav-links">
+          <a href="/">Sign up</a>
+          <a href="/breathing">Breathing</a>
+          <a class="active" href="/stats">Stats</a>
+          <a href="/settings">Settings</a>
+        </nav>
+      </header>
+
+      <main class="main">
+        <section class="panel">
+          <div class="panel-split">
+            <h1>Your calm momentum</h1>
+            <p>
+              Track your practice and celebrate the small wins. Consistency matters more than length.
+            </p>
+            <div class="chart">
+              <svg viewBox="0 0 500 180" role="img" aria-label="Weekly calm trend">
+                <path
+                  d="M10 150 L90 120 L170 110 L250 70 L330 90 L410 50 L490 40"
+                  fill="none"
+                  stroke="#22c7a9"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M10 150 L90 120 L170 110 L250 70 L330 90 L410 50 L490 40 L490 170 L10 170 Z"
+                  fill="rgba(34, 199, 169, 0.08)"
+                />
+              </svg>
+              <p class="helper">Last 7 days · minutes spent breathing</p>
+            </div>
+          </div>
+
+          <div class="panel-split" data-stats>
+            <div class="card-grid">
+              <div class="card">
+                <h3>Total minutes</h3>
+                <div class="value" data-minutes>0</div>
+              </div>
+              <div class="card">
+                <h3>Current streak</h3>
+                <div class="value" data-streak>0</div>
+              </div>
+              <div class="card">
+                <h3>Breaths completed</h3>
+                <div class="value" data-breaths>0</div>
+              </div>
+              <div class="card">
+                <h3>Calm score</h3>
+                <div class="value" data-calm>0</div>
+              </div>
+            </div>
+            <div class="notice">Tip: short daily sessions build the strongest streak.</div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">Stillwave · Guided breathing for real life</footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
