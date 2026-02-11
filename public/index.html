@@ -3,55 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stillwave · Sign up</title>
+    <title>Meditation Journey · Welcome</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <div class="app">
-      <header class="navbar">
-        <div class="brand"><span></span>Stillwave</div>
-        <nav class="nav-links">
-          <a class="active" href="/">Sign up</a>
-          <a href="/breathing/">Breathing</a>
-          <a href="/stats/">Stats</a>
-          <a href="/settings/">Settings</a>
-        </nav>
-      </header>
-
-      <main class="main">
-        <section class="panel">
-          <div class="panel-split">
-            <div class="badge">Designed for calm focus</div>
-            <h1>Breathe better, think clearer.</h1>
-            <p>
-              Stillwave is your guided breathing and reflection space. We translate simple rituals into a
-              daily practice that steadies your mind.
-            </p>
-            <div class="notice">
-              New here? Create your account and we’ll build a 7-day breathing plan tailored to you.
-            </div>
-          </div>
-
-          <div class="panel-split">
-            <h2>Create your account</h2>
-            <form class="form" data-signup-form>
-              <div class="input">
-                <label for="name">Name</label>
-                <input id="name" name="name" type="text" placeholder="Your name" required />
-              </div>
-              <div class="input">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" placeholder="you@example.com" required />
-              </div>
-              <button class="button" type="submit">Get started</button>
-              <div class="helper" data-signup-status>We’ll never share your email.</div>
-            </form>
-          </div>
-        </section>
-      </main>
-
-      <footer class="footer">Stillwave · Guided breathing for real life</footer>
-    </div>
-    <script src="app.js"></script>
+  <body class="theme-dark">
+    <main class="screen screen-welcome">
+      <div class="welcome">
+        <h1 class="welcome-title">
+          Welcome<br />
+          Get a deep guided reset<br />
+          Ready?
+        </h1>
+        <a class="button button-primary" href="/burn/">Start my journey</a>
+      </div>
+    </main>
   </body>
 </html>

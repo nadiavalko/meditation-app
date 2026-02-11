@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meditation Journey · Burn</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="theme-dark">
+    <main class="screen screen-burn">
+      <h1 class="burn-title">Burn a thought you no longer need</h1>
+      <section class="burn-area">
+        <div class="paper" data-paper>
+          <div class="paper-texture" aria-hidden="true"></div>
+          <textarea
+            class="paper-input"
+            name="burn-note"
+            placeholder="Write it here..."
+            aria-label="Write a thought to burn"
+            data-burn-input
+          ></textarea>
+          <div class="paper-flames" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="paper-smoke" aria-hidden="true"></div>
+        </div>
+        <button class="button button-flame" data-burn-button hidden>🔥🔥🔥</button>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

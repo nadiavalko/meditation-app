@@ -117,3 +117,107 @@ settings.forEach((setting) => {
     setting.setAttribute("data-on", String(!on));
   });
 });
+
+const burnInput = document.querySelector("[data-burn-input]");
+const burnButton = document.querySelector("[data-burn-button]");
+const burnPaper = document.querySelector("[data-paper]");
+
+if (burnInput && burnButton && burnPaper) {
+  const updateBurnButton = () => {
+    burnButton.hidden = burnInput.value.trim().length === 0;
+  };
+
+  updateBurnButton();
+  burnInput.addEventListener("input", updateBurnButton);
+
+  burnButton.addEventListener("click", () => {
+    if (burnPaper.classList.contains("is-burning")) {
+      return;
+    }
+    burnPaper.classList.add("is-burning");
+    burnInput.setAttribute("disabled", "true");
+    burnButton.setAttribute("disabled", "true");
+
+    setTimeout(() => {
+      window.location.href = "/breathing/";
+    }, 2300);
+  });
+}
+
+const roundDisplay = document.querySelector("[data-round-display]");
+
+if (roundDisplay) {
+  const inhaleSeconds = 4;
+  const exhaleSeconds = 6;
+  const roundsTotal = 5;
+  const cycleSeconds = inhaleSeconds + exhaleSeconds;
+  let currentRound = 1;
+
+  roundDisplay.textContent = `Round ${currentRound} of ${roundsTotal}`;
+
+  const roundInterval = setInterval(() => {
+    currentRound += 1;
+    if (currentRound > roundsTotal) {
+      clearInterval(roundInterval);
+      roundDisplay.textContent = "Pause...";
+      setTimeout(() => {
+        window.location.href = "/body-scan/";
+      }, 1200);
+      return;
+    }
+    roundDisplay.textContent = `Round ${currentRound} of ${roundsTotal}`;
+  }, cycleSeconds * 1000);
+}
+
+const bodyScan = document.querySelector("[data-body-scan]");
+
+if (bodyScan) {
+  const bodyText = document.querySelector("[data-body-text]");
+  const highlights = Array.from(document.querySelectorAll("[data-highlight]"));
+
+  const steps = [
+    { text: "Relax your forehead.", highlight: "forehead" },
+    { text: "Soften your eyes.", highlight: "eyes" },
+    { text: "Unclench your jaw.", highlight: "jaw" },
+    { text: "Notice your neck.", highlight: "neck" },
+    { text: "Release your shoulders.", highlight: "shoulders" },
+    { text: "Feel your arms.", highlight: "arms" },
+    { text: "Warmth in both hands.", highlight: "hands" },
+    { text: "Ease into your chest.", highlight: "chest" },
+    { text: "Soften your stomach.", highlight: "stomach" },
+    { text: "Ground your hips.", highlight: "hips" },
+    { text: "Notice your thighs.", highlight: "thighs" },
+    { text: "Relax your knees.", highlight: "knees" },
+    { text: "Release your calves.", highlight: "calves" },
+    { text: "Feel both feet.", highlight: "feet" }
+  ];
+
+  const stepDuration = 2600;
+
+  const setHighlight = (name) => {
+    highlights.forEach((el) => {
+      el.classList.toggle("is-active", el.getAttribute("data-highlight") === name);
+    });
+  };
+
+  steps.forEach((step, index) => {
+    setTimeout(() => {
+      if (bodyText) {
+        bodyText.textContent = step.text;
+      }
+      setHighlight(step.highlight);
+    }, index * stepDuration);
+  });
+
+  const totalDuration = steps.length * stepDuration;
+  setTimeout(() => {
+    if (bodyText) {
+      bodyText.textContent = "Well done.";
+    }
+    setHighlight(null);
+  }, totalDuration + 300);
+
+  setTimeout(() => {
+    window.location.href = "/finish/";
+  }, totalDuration + 1800);
+}
