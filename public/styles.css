@@ -10,6 +10,10 @@
   --intro-line-1-delay: 1s;
   --intro-line-2-delay: 2s;
   --intro-figure-delay: 3.2s;
+  --seq-fade-duration: 1.6s;
+  --seq-step-1-delay: 1s;
+  --seq-step-2-delay: 2s;
+  --seq-step-3-delay: 3.2s;
 }
 
 * {
@@ -147,6 +151,7 @@ body {
   line-height: 24px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
 }
 
 @keyframes introFadeUp {
@@ -160,9 +165,28 @@ body {
   }
 }
 
+.burn-seq {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: introFadeUp var(--seq-fade-duration) ease forwards;
+}
+
+.burn-seq-1 {
+  animation-delay: var(--seq-step-1-delay);
+}
+
+.burn-seq-2 {
+  animation-delay: var(--seq-step-2-delay);
+}
+
+.burn-seq-3 {
+  animation-delay: var(--seq-step-3-delay);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .intro-line,
-  .intro-figure {
+  .intro-figure,
+  .burn-seq {
     animation: none;
     opacity: 1;
     transform: none;
@@ -302,228 +326,97 @@ body {
 
 /* Burn screen */
 .screen-burn {
-  padding: 66px 219px 120px;
+  width: 1440px;
+  max-width: 100%;
+  height: 780px;
+  min-height: 780px;
+  padding: 130px 300px 0;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
+  margin: 0 auto;
 }
 
 .burn-title {
   margin: 0;
-  font-size: 60px;
-  line-height: 72px;
+  font-family: "Cormorant", serif;
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 600;
   text-align: center;
-  max-width: 1002px;
+  color: #ffffff;
 }
 
-.burn-area {
+.burn-input-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 60px;
+  gap: 32px;
+  width: 360px;
 }
 
-.paper {
-  position: relative;
-  width: 523px;
-  height: 309px;
-  background: #c9c7bb;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
-  transform: translateZ(0);
+.burn-input-frame {
+  width: 360px;
+  height: 280px;
+  background: #1e203b;
+  border: 1px solid #242960;
+  border-radius: 12px;
+  padding: 24px 18px;
+  box-sizing: border-box;
 }
 
-.paper-texture {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.35), transparent 45%),
-    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.25), transparent 50%),
-    linear-gradient(140deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.08));
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-}
-
-.paper-input {
-  position: relative;
-  z-index: 2;
+.burn-input {
   width: 100%;
   height: 100%;
-  padding: 28px 32px;
   border: none;
   background: transparent;
   resize: none;
-  font-size: 26px;
-  line-height: 1.4;
-  color: #3f3a2f;
-  font-family: "Inter", sans-serif;
-}
-
-.paper-input:focus {
+  font-family: "Cormorant", serif;
+  font-size: 24px;
+  line-height: 32px;
+  color: #ffffff;
   outline: none;
 }
 
-.button-flame {
-  width: 200px;
-  height: 88px;
-  font-size: 40px;
-  line-height: 48px;
-  padding: 20px 40px;
+.burn-input::placeholder {
+  color: #ffffff;
 }
 
-.paper-flames,
-.paper-smoke {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -10px;
-  height: 120px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.paper-flames span {
-  position: absolute;
-  bottom: 0;
-  width: 70px;
-  height: 90px;
-  background: radial-gradient(circle at 50% 80%, rgba(255, 140, 0, 0.9), rgba(255, 80, 0, 0.6), rgba(255, 200, 0, 0.2));
-  filter: blur(1px);
-  border-radius: 50% 50% 40% 40%;
-  animation: flameFlicker 1.2s ease-in-out infinite;
-}
-
-.paper-flames span:nth-child(1) {
-  left: 120px;
-  height: 80px;
-  animation-delay: 0s;
-}
-
-.paper-flames span:nth-child(2) {
-  left: 220px;
-  height: 100px;
-  animation-delay: 0.2s;
-}
-
-.paper-flames span:nth-child(3) {
-  left: 320px;
-  height: 70px;
-  animation-delay: 0.4s;
-}
-
-.paper-smoke {
-  background: radial-gradient(circle at 50% 70%, rgba(200, 200, 200, 0.5), transparent 70%);
-  filter: blur(6px);
-  animation: smokeRise 2.2s ease-in-out infinite;
-}
-
-.paper.is-burning .paper-input {
-  animation: textBurn 1.6s ease forwards;
-}
-
-.paper.is-burning {
-  animation: paperBurn 1.8s ease forwards;
-}
-
-.paper.is-burning .paper-flames,
-.paper.is-burning .paper-smoke {
-  opacity: 1;
-}
-
-@keyframes paperBurn {
-  0% {
-    transform: scale(1);
-    filter: brightness(1);
-  }
-  45% {
-    transform: scale(0.98) translateY(10px);
-    filter: brightness(0.9);
-  }
-  100% {
-    transform: scale(0.2) translateY(120px);
-    filter: brightness(0.4);
-    opacity: 0;
-  }
-}
-
-@keyframes textBurn {
-  0% {
-    opacity: 1;
-    filter: blur(0);
-  }
-  60% {
-    opacity: 0.4;
-    filter: blur(2px);
-  }
-  100% {
-    opacity: 0;
-    filter: blur(6px);
-  }
-}
-
-@keyframes flameFlicker {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-12px) scale(1.08);
-  }
-}
-
-@keyframes smokeRise {
-  0% {
-    transform: translateY(20px);
-    opacity: 0.2;
-  }
-  50% {
-    transform: translateY(-10px);
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateY(-30px);
-    opacity: 0.1;
-  }
+.burn-button {
+  width: 136px;
+  height: 60px;
+  border: none;
+  border-radius: 20px;
+  background: #1b205a;
+  color: #ffffff;
+  font-family: "Cormorant", serif;
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 20px;
 }
 
 @media (max-width: 1200px) {
   .screen-burn {
-    padding: 80px 80px 120px;
+    padding: 120px 120px 0;
   }
 
   .burn-title {
-    font-size: 52px;
-    line-height: 64px;
+    font-size: 34px;
+    line-height: 44px;
   }
 }
 
 @media (max-width: 700px) {
   .screen-burn {
-    padding: 80px 24px 120px;
-    gap: 32px;
+    padding: 96px 24px 0;
   }
 
-  .burn-title {
-    font-size: 36px;
-    line-height: 46px;
-  }
-
-  .paper {
+  .burn-input-stack,
+  .burn-input-frame {
     width: 100%;
     max-width: 360px;
-    height: 240px;
-  }
-
-  .paper-input {
-    font-size: 20px;
-  }
-
-  .button-flame {
-    width: 180px;
-    height: 72px;
-    font-size: 32px;
   }
 }
 

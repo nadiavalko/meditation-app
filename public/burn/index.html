@@ -8,27 +8,20 @@
   </head>
   <body class="theme-dark">
     <main class="screen screen-burn">
-      <h1 class="burn-title">Burn a thought you no longer need</h1>
-      <section class="burn-area">
-        <div class="paper" data-paper>
-          <div class="paper-texture" aria-hidden="true"></div>
+      <h1 class="burn-title burn-seq burn-seq-1">
+        Write something you’d like to let go of.
+      </h1>
+      <section class="burn-input-stack">
+        <div class="burn-input-frame burn-seq burn-seq-2">
           <textarea
-            class="paper-input"
+            class="burn-input"
             name="burn-note"
-            placeholder="Write it here..."
-            aria-label="Write a thought to burn"
-            data-burn-input
+            placeholder="|"
+            aria-label="Write something you’d like to let go of"
           ></textarea>
-          <div class="paper-flames" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <div class="paper-smoke" aria-hidden="true"></div>
         </div>
-        <button class="button button-flame" data-burn-button hidden>🔥🔥🔥</button>
+        <button class="burn-button burn-seq burn-seq-3" type="button">🔥🔥🔥</button>
       </section>
     </main>
-    <script src="/app.js"></script>
   </body>
 </html>
