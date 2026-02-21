@@ -6,6 +6,10 @@
   --button: #1b265a;
   --button-hover: #23306f;
   --radius-xl: 20px;
+  --intro-fade-duration: 1.35s;
+  --intro-line-1-delay: 0.8s;
+  --intro-line-2-delay: 1.6s;
+  --intro-figure-delay: 2.5s;
 }
 
 * {
@@ -42,24 +46,26 @@ body {
   min-height: 780px;
   padding: 130px 300px 0;
   overflow: hidden;
+  background: var(--bg-deep);
 }
 
 .intro-gradient {
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: 768px;
-  height: 780px;
-  transform: translateX(-50%);
+  top: -156px;
+  left: 336px;
+  width: 1135px;
+  height: 768px;
+  transform: rotate(-90deg);
   border-radius: 50%;
   background: radial-gradient(
-    circle at 50% 50%,
+    ellipse at 50% 50%,
     #171b44 0%,
     #0c0e2a 33.333%,
     #04061c 66.666%,
     #0c0e1c 100%
   );
   z-index: 0;
+  pointer-events: none;
 }
 
 .intro {
@@ -86,15 +92,15 @@ body {
   display: block;
   opacity: 0;
   transform: translateY(10px);
-  animation: introFadeUp 0.9s ease forwards;
+  animation: introFadeUp var(--intro-fade-duration) ease forwards;
 }
 
 .intro-line-1 {
-  animation-delay: 0.45s;
+  animation-delay: var(--intro-line-1-delay);
 }
 
 .intro-line-2 {
-  animation-delay: 0.9s;
+  animation-delay: var(--intro-line-2-delay);
 }
 
 .intro-figure {
@@ -103,8 +109,8 @@ body {
   height: 347px;
   opacity: 0;
   transform: translateY(12px);
-  animation: introFadeUp 1s ease forwards;
-  animation-delay: 1.35s;
+  animation: introFadeUp var(--intro-fade-duration) ease forwards;
+  animation-delay: var(--intro-figure-delay);
 }
 
 .intro-image {
@@ -198,8 +204,11 @@ body {
   }
 
   .intro-gradient {
-    width: 640px;
-    height: 640px;
+    left: 50%;
+    top: -120px;
+    width: 860px;
+    height: 582px;
+    transform: translateX(-50%) rotate(-90deg);
   }
 
   .intro-copy {
@@ -230,8 +239,11 @@ body {
   }
 
   .intro-gradient {
-    width: 520px;
-    height: 520px;
+    left: 50%;
+    top: -120px;
+    width: 700px;
+    height: 480px;
+    transform: translateX(-50%) rotate(-90deg);
   }
 
   .intro-copy {
