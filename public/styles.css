@@ -360,7 +360,8 @@ body {
   font-weight: 600;
   text-align: center;
   color: #ffffff;
-  transition: opacity 1.2s ease;
+  transition: opacity 1.6s ease-in-out;
+  will-change: opacity;
 }
 
 .burn-title.is-fading {
@@ -436,6 +437,7 @@ body {
   opacity: 0;
   transform: translateY(6px);
   pointer-events: none;
+  visibility: hidden;
 }
 
 @media (max-width: 1200px) {
