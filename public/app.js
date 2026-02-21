@@ -120,26 +120,40 @@ settings.forEach((setting) => {
 
 const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
-const burnPaper = document.querySelector("[data-paper]");
+const burnFrame = document.querySelector("[data-burn-frame]");
+const burnTitle = document.querySelector("[data-burn-title]");
 
-if (burnInput && burnButton && burnPaper) {
-  const updateBurnButton = () => {
-    burnButton.hidden = burnInput.value.trim().length === 0;
+if (burnInput && burnButton && burnFrame && burnTitle) {
+  let lastValue = "";
+
+  const clampToField = () => {
+    if (burnInput.scrollHeight > burnInput.clientHeight) {
+      burnInput.value = lastValue;
+    } else {
+      lastValue = burnInput.value;
+    }
   };
 
-  updateBurnButton();
-  burnInput.addEventListener("input", updateBurnButton);
+  burnInput.addEventListener("input", clampToField);
 
   burnButton.addEventListener("click", () => {
-    if (burnPaper.classList.contains("is-burning")) {
+    if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    burnPaper.classList.add("is-burning");
+    burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
 
     setTimeout(() => {
-      window.location.href = "/breathing/";
+      burnFrame.classList.add("is-hidden");
+    }, 1600);
+
+    setTimeout(() => {
+      burnButton.classList.add("is-hidden");
+    }, 1900);
+
+    setTimeout(() => {
+      burnTitle.textContent = "It’s gone forever now.";
     }, 2300);
   });
 }

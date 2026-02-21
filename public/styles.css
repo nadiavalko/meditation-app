@@ -165,6 +165,17 @@ body {
   }
 }
 
+@keyframes burnField {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
 .burn-seq {
   opacity: 0;
   transform: translateY(12px);
@@ -181,6 +192,10 @@ body {
 
 .burn-seq-3 {
   animation-delay: var(--seq-step-3-delay);
+}
+
+.screen-burn .burn-seq-1 {
+  animation-delay: 0.6s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -356,6 +371,7 @@ body {
 }
 
 .burn-input-frame {
+  position: relative;
   width: 360px;
   height: 280px;
   background: #1e203b;
@@ -363,6 +379,8 @@ body {
   border-radius: 12px;
   padding: 24px 18px;
   box-sizing: border-box;
+  overflow: hidden;
+  transition: opacity 0.4s ease;
 }
 
 .burn-input {
@@ -376,6 +394,8 @@ body {
   line-height: 32px;
   color: #ffffff;
   outline: none;
+  overflow: hidden;
+  caret-color: #ffffff;
 }
 
 .burn-input::placeholder {
@@ -395,6 +415,22 @@ body {
   font-weight: 600;
   cursor: pointer;
   padding: 10px 20px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.burn-input-frame.is-burning {
+  animation: burnField 1.6s ease forwards;
+  pointer-events: none;
+}
+
+.burn-input-frame.is-hidden {
+  opacity: 0;
+}
+
+.burn-button.is-hidden {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
 }
 
 @media (max-width: 1200px) {
