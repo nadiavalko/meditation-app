@@ -6,10 +6,10 @@
   --button: #1b265a;
   --button-hover: #23306f;
   --radius-xl: 20px;
-  --intro-fade-duration: 1.35s;
-  --intro-line-1-delay: 0.8s;
-  --intro-line-2-delay: 1.6s;
-  --intro-figure-delay: 2.5s;
+  --intro-fade-duration: 1.6s;
+  --intro-line-1-delay: 1s;
+  --intro-line-2-delay: 2s;
+  --intro-figure-delay: 3.2s;
 }
 
 * {
