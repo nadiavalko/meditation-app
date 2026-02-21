@@ -360,7 +360,7 @@ body {
   font-weight: 600;
   text-align: center;
   color: #ffffff;
-  transition: opacity 2.2s ease-in-out;
+  transition: opacity 1.6s ease-in-out;
   will-change: opacity;
 }
 
