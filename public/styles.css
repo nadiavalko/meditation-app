@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant:wght@600&family=Inter:wght@400;600&display=swap");
 
 :root {
-  --bg-deep: #04061c;
+  --bg-deep: #0c0e1c;
   --text-light: #ffffff;
   --button: #1b265a;
   --button-hover: #23306f;
@@ -18,6 +18,8 @@ body {
   color: var(--text-light);
   background: var(--bg-deep);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 .theme-dark {
@@ -33,6 +35,124 @@ body {
 
 .screen-welcome {
   padding: 176px 373px 240px 372px;
+}
+
+.screen-intro {
+  position: relative;
+  min-height: 780px;
+  padding: 130px 300px 0;
+  overflow: hidden;
+}
+
+.intro-gradient {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 768px;
+  height: 780px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #171b44 0%,
+    #0c0e2a 33.333%,
+    #04061c 66.666%,
+    #0c0e1c 100%
+  );
+  z-index: 0;
+}
+
+.intro {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;
+  text-align: center;
+}
+
+.intro-copy {
+  margin: 0;
+  max-width: 692px;
+  font-family: "Cormorant", serif;
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.intro-line {
+  display: block;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: introFadeUp 0.9s ease forwards;
+}
+
+.intro-line-1 {
+  animation-delay: 0.45s;
+}
+
+.intro-line-2 {
+  animation-delay: 0.9s;
+}
+
+.intro-figure {
+  position: relative;
+  width: 166px;
+  height: 347px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: introFadeUp 1s ease forwards;
+  animation-delay: 1.35s;
+}
+
+.intro-image {
+  display: block;
+  width: 166px;
+  height: 346px;
+  object-fit: contain;
+}
+
+.intro-button {
+  position: absolute;
+  left: 56px;
+  top: 134px;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-family: "Cormorant", serif;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes introFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-line,
+  .intro-figure {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .welcome {
@@ -73,6 +193,20 @@ body {
 }
 
 @media (max-width: 1200px) {
+  .screen-intro {
+    padding: 120px 120px 0;
+  }
+
+  .intro-gradient {
+    width: 640px;
+    height: 640px;
+  }
+
+  .intro-copy {
+    font-size: 34px;
+    line-height: 44px;
+  }
+
   .screen-welcome {
     padding: 140px 120px 200px;
   }
@@ -91,6 +225,39 @@ body {
 }
 
 @media (max-width: 700px) {
+  .screen-intro {
+    padding: 96px 24px 0;
+  }
+
+  .intro-gradient {
+    width: 520px;
+    height: 520px;
+  }
+
+  .intro-copy {
+    font-size: 28px;
+    line-height: 36px;
+  }
+
+  .intro-figure {
+    width: 140px;
+    height: 300px;
+  }
+
+  .intro-image {
+    width: 140px;
+    height: 292px;
+  }
+
+  .intro-button {
+    left: 43px;
+    top: 110px;
+    width: 46px;
+    height: 46px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
   .screen-welcome {
     padding: 96px 24px 140px;
   }
