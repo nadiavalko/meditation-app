@@ -150,11 +150,16 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnButton.classList.add("is-hidden");
-    }, 1900);
+    }, 1000);
+
+    setTimeout(() => {
+      burnTitle.classList.add("is-fading");
+    }, 1500);
 
     setTimeout(() => {
       burnTitle.textContent = "It’s gone forever now.";
-    }, 2300);
+      burnTitle.classList.remove("is-fading");
+    }, 2000);
   });
 }
 

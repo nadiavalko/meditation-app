@@ -360,6 +360,11 @@ body {
   font-weight: 600;
   text-align: center;
   color: #ffffff;
+  transition: opacity 0.5s ease;
+}
+
+.burn-title.is-fading {
+  opacity: 0;
 }
 
 .burn-input-stack {
