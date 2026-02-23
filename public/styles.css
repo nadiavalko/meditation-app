@@ -6,11 +6,14 @@
   --button: #1b265a;
   --button-hover: #23306f;
   --radius-xl: 20px;
-  --intro-fade-duration: 1.6s;
+  --motion-duration: 1.6s;
+  --motion-ease: ease;
+  --motion-distance: 12px;
+  --intro-fade-duration: var(--motion-duration);
   --intro-line-1-delay: 1s;
   --intro-line-2-delay: 2s;
   --intro-figure-delay: 3.2s;
-  --seq-fade-duration: 1.6s;
+  --seq-fade-duration: var(--motion-duration);
   --seq-step-1-delay: 1s;
   --seq-step-2-delay: 2s;
   --seq-step-3-delay: 3.2s;
@@ -99,8 +102,8 @@ body {
 .intro-line {
   display: block;
   opacity: 0;
-  transform: translateY(10px);
-  animation: introFadeUp var(--intro-fade-duration) ease forwards;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--intro-fade-duration) var(--motion-ease) forwards;
 }
 
 .intro-line-1 {
@@ -116,8 +119,8 @@ body {
   width: 166px;
   height: 347px;
   opacity: 0;
-  transform: translateY(12px);
-  animation: introFadeUp var(--intro-fade-duration) ease forwards;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--intro-fade-duration) var(--motion-ease) forwards;
   animation-delay: var(--intro-figure-delay);
 }
 
@@ -154,7 +157,7 @@ body {
 @keyframes introFadeUp {
   0% {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(var(--motion-distance));
   }
   100% {
     opacity: 1;
@@ -169,7 +172,7 @@ body {
   }
   100% {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(var(--motion-distance));
   }
 }
 
@@ -186,8 +189,8 @@ body {
 
 .burn-seq {
   opacity: 0;
-  transform: translateY(12px);
-  animation: introFadeUp var(--seq-fade-duration) ease forwards;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
 }
 
 .burn-seq-1 {
@@ -324,13 +327,13 @@ body {
 }
 
 .burn-title.is-fading {
-  animation: introFadeUpOut 2.6s ease forwards;
+  animation: introFadeUpOut var(--seq-fade-duration) var(--motion-ease) forwards;
 }
 
 .burn-title.is-revealing {
   opacity: 0;
-  transform: translateY(12px);
-  animation: introFadeUp var(--seq-fade-duration) ease forwards;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
 }
 
 .burn-input-stack {

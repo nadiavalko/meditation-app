@@ -1,1 +1,1 @@
-Add explicit intro fade-out animation for journey text
+Unify journey text animation parameters
