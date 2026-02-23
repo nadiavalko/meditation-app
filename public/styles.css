@@ -55,7 +55,10 @@ body {
   min-height: 780px;
   padding: 130px 300px 0;
   overflow: hidden;
-  background: url("assets/screen-1-background.png") center / cover no-repeat;
+  background-image: url("/assets/screen-1-background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   margin: 0 auto;
 }
 
