@@ -140,6 +140,9 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
+    const fadeOutDelay = 400;
+    const fadeOutDuration = 2600;
+    const revealDuration = 1600;
     burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
@@ -155,7 +158,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       burnTitle.classList.remove("is-fading");
       void burnTitle.offsetWidth;
       burnTitle.classList.add("is-fading");
-    }, 400);
+    }, fadeOutDelay);
 
     setTimeout(() => {
       burnTitle.textContent = "It’s gone forever now.";
@@ -163,11 +166,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       burnTitle.classList.remove("is-revealing");
       void burnTitle.offsetWidth;
       burnTitle.classList.add("is-revealing");
-    }, 2000);
+    }, fadeOutDelay + fadeOutDuration);
 
     setTimeout(() => {
       burnTitle.classList.remove("is-revealing");
-    }, 3600);
+    }, fadeOutDelay + fadeOutDuration + revealDuration);
   });
 }
 

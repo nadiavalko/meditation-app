@@ -162,6 +162,17 @@ body {
   }
 }
 
+@keyframes introFadeUpOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
 @keyframes burnField {
   0% {
     opacity: 1;
@@ -313,7 +324,7 @@ body {
 }
 
 .burn-title.is-fading {
-  animation: introFadeUp 2.6s ease reverse forwards;
+  animation: introFadeUpOut 2.6s ease forwards;
 }
 
 .burn-title.is-revealing {

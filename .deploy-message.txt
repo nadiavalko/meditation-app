@@ -1,1 +1,1 @@
-Fix journey text fade-out animation trigger
+Add explicit intro fade-out animation for journey text
