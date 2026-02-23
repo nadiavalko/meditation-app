@@ -313,7 +313,7 @@ body {
 }
 
 .burn-title.is-fading {
-  animation: introFadeUp var(--seq-fade-duration) ease reverse forwards;
+  animation: introFadeUp 2.6s ease reverse forwards;
 }
 
 .burn-title.is-revealing {
