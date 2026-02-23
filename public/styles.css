@@ -7,6 +7,7 @@
   --button-hover: #23306f;
   --radius-xl: 20px;
   --motion-duration: 1.6s;
+  --motion-fade-out-duration: 1.2s;
   --motion-ease: ease;
   --motion-distance: 12px;
   --intro-fade-duration: var(--motion-duration);
@@ -172,7 +173,7 @@ body {
   }
   100% {
     opacity: 0;
-    transform: translateY(var(--motion-distance));
+    transform: translateY(0);
   }
 }
 
@@ -327,7 +328,7 @@ body {
 }
 
 .burn-title.is-fading {
-  animation: introFadeUpOut var(--seq-fade-duration) var(--motion-ease) forwards;
+  animation: introFadeUpOut var(--motion-fade-out-duration) var(--motion-ease) forwards;
 }
 
 .burn-title.is-revealing {
