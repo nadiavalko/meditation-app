@@ -41,6 +41,7 @@ body {
   justify-content: center;
   width: 100%;
   background: var(--bg-deep);
+  padding-top: 20vh;
 }
 
 .screen-welcome {
@@ -52,7 +53,7 @@ body {
   width: 100%;
   height: 100vh;
   min-height: 780px;
-  padding: 20vh 300px 0;
+  padding: 0 300px 0;
   overflow: hidden;
   background-image: url("/assets/screen-1-background.png");
   background-size: cover;
@@ -229,7 +230,7 @@ body {
 
 @media (max-width: 1200px) {
   .screen-intro {
-    padding: 20vh 120px 0;
+    padding: 0 120px 0;
   }
 
   .intro-copy {
@@ -256,7 +257,7 @@ body {
 
 @media (max-width: 700px) {
   .screen-intro {
-    padding: 20vh 24px 0;
+    padding: 0 24px 0;
   }
 
   .intro-copy {
@@ -311,7 +312,7 @@ body {
   max-width: 100%;
   height: 100vh;
   min-height: 780px;
-  padding: 20vh 300px 0;
+  padding: 0 300px 0;
   flex-direction: column;
   align-items: center;
   gap: 60px;
@@ -408,7 +409,7 @@ body {
 
 @media (max-width: 1200px) {
   .screen-burn {
-    padding: 20vh 120px 0;
+    padding: 0 120px 0;
   }
 
   .burn-title {
@@ -419,7 +420,7 @@ body {
 
 @media (max-width: 700px) {
   .screen-burn {
-    padding: 20vh 24px 0;
+    padding: 0 24px 0;
   }
 
   .burn-input-stack,
