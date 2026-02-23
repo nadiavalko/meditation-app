@@ -61,12 +61,12 @@ body {
 
 .intro-gradient {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 211px;
+  left: 336px;
   width: 1135px;
   height: 768px;
-  transform: translate(336px, -156px) rotate(-90deg);
-  transform-origin: top left;
+  transform: none;
+  transform-origin: center;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at 50% 50%,
