@@ -309,12 +309,11 @@ body {
   font-weight: 600;
   text-align: center;
   color: #ffffff;
-  transition: opacity 1.6s ease-in-out;
-  will-change: opacity;
+  will-change: opacity, transform;
 }
 
 .burn-title.is-fading {
-  opacity: 0;
+  animation: introFadeUp var(--seq-fade-duration) ease reverse forwards;
 }
 
 .burn-title.is-revealing {
