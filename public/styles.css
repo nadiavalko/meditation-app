@@ -55,7 +55,7 @@ body {
   padding: 130px 300px 0;
   overflow: hidden;
   background-image: url("/assets/screen-1-background.png");
-  background-size: 100% 100%;
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   margin: 0 auto;
