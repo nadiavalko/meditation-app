@@ -55,28 +55,8 @@ body {
   min-height: 780px;
   padding: 130px 300px 0;
   overflow: hidden;
-  background: var(--bg-deep);
+  background: url("assets/screen-1-background.png") center / cover no-repeat;
   margin: 0 auto;
-}
-
-.intro-gradient {
-  position: absolute;
-  top: 211px;
-  left: 336px;
-  width: 1135px;
-  height: 768px;
-  transform: none;
-  transform-origin: center;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    #171b44 0%,
-    #0c0e2a 33.333%,
-    #04061c 66.666%,
-    #0c0e1c 100%
-  );
-  z-index: 0;
-  pointer-events: none;
 }
 
 .intro {
@@ -250,14 +230,6 @@ body {
     padding: 120px 120px 0;
   }
 
-  .intro-gradient {
-    left: 50%;
-    top: 0;
-    width: 640px;
-    height: 640px;
-    transform: translateX(-50%);
-  }
-
   .intro-copy {
     font-size: 34px;
     line-height: 44px;
@@ -283,14 +255,6 @@ body {
 @media (max-width: 700px) {
   .screen-intro {
     padding: 96px 24px 0;
-  }
-
-  .intro-gradient {
-    left: 50%;
-    top: 0;
-    width: 520px;
-    height: 520px;
-    transform: translateX(-50%);
   }
 
   .intro-copy {
