@@ -152,6 +152,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     burnButton.style.display = "none";
 
     setTimeout(() => {
+      burnTitle.classList.remove("is-fading");
+      void burnTitle.offsetWidth;
       burnTitle.classList.add("is-fading");
     }, 400);
 
