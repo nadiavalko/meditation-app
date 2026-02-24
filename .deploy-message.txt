@@ -1,1 +1,1 @@
-Add framed breath dot styling
+Split breathing screen from journey and restore 60px gap

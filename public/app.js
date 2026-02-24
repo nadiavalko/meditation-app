@@ -122,7 +122,6 @@ const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
 const burnTitle = document.querySelector("[data-burn-title]");
-const breathDot = document.querySelector("[data-breath-dot]");
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
@@ -144,7 +143,6 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
-    const holdDuration = 1200;
     burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
@@ -173,29 +171,6 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     setTimeout(() => {
       burnTitle.classList.remove("is-revealing");
     }, fadeOutDelay + fadeOutDuration + revealDuration);
-
-    const secondFadeStart =
-      fadeOutDelay + fadeOutDuration + revealDuration + holdDuration;
-    const secondRevealStart = secondFadeStart + fadeOutDuration;
-
-    setTimeout(() => {
-      burnTitle.classList.remove("is-fading");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-fading");
-    }, secondFadeStart);
-
-    setTimeout(() => {
-      burnTitle.textContent = "Let’s take three deep breaths together.";
-      burnTitle.classList.remove("is-fading");
-      burnTitle.classList.remove("is-revealing");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-revealing");
-      if (breathDot) {
-        breathDot.classList.remove("is-revealing");
-        void breathDot.offsetWidth;
-        breathDot.classList.add("is-revealing");
-      }
-    }, secondRevealStart);
   });
 }
 
