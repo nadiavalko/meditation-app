@@ -329,7 +329,11 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       breathingCanvas.dataset.round = String(Math.min(cycleIndex + 1, config.rounds));
 
       ctx.clearRect(0, 0, state.width, state.height);
-      const centerAlpha = clamp(0.2 + (1 - breathAmount) * 0.8, 0.2, 1);
+      const centerAlpha =
+        breathAmount >= 0.7
+          ? 0
+          : clamp(Math.pow(1 - breathAmount / 0.7, 1.6), 0, 1);
+      breathingCanvas.dataset.centerAlpha = centerAlpha.toFixed(3);
       drawCenterDot(centerAlpha);
 
       const time = elapsedMs;

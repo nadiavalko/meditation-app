@@ -1,1 +1,1 @@
-Tune breathing sphere timing smoothness and distribution
+Hide center dot while breathing sphere is expanded
