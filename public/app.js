@@ -185,7 +185,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       rounds: 3,
       inhaleMs: 4000,
       exhaleMs: 6000,
-      preRollMs: 300,
+      preRollMs: 120,
       dotCount: 220,
       sphereSizePx: 400,
       baseDotSizePx: 9,
@@ -355,28 +355,30 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
         );
         const localEase = easeInOut(localPhase);
         const amount = phase === "inhale" ? localEase : 1 - localEase;
+        const amountVisual = Math.pow(amount, 0.82);
 
-        if (amount <= 0.0001) {
+        if (amountVisual <= 0.0001) {
           continue;
         }
 
         const jitterTime = time * 0.001 * p.jitterFreq + p.jitterPhase;
         const jitterA = Math.sin(jitterTime);
         const jitterB = Math.cos(jitterTime * 1.37);
-        const pathCurve = Math.sin(localPhase * Math.PI) * p.curveStrength * amount;
-        const radiusPx = state.radius * p.radiusNorm * amount;
+        const pathCurve =
+          Math.sin(localPhase * Math.PI) * p.curveStrength * amountVisual;
+        const radiusPx = state.radius * p.radiusNorm * amountVisual;
 
         let x3 =
           p.x * radiusPx +
           Math.cos(p.curveAngle) * pathCurve * state.radius +
-          jitterA * p.jitterAmp * state.radius * amount;
+          jitterA * p.jitterAmp * state.radius * amountVisual;
         let y3 =
           p.y * radiusPx +
           Math.sin(p.curveAngle) * pathCurve * state.radius +
-          jitterB * p.jitterAmp * state.radius * amount;
+          jitterB * p.jitterAmp * state.radius * amountVisual;
         let z3 =
           p.z * radiusPx +
-          Math.sin(jitterTime * 0.83) * p.jitterAmp * state.radius * amount;
+          Math.sin(jitterTime * 0.83) * p.jitterAmp * state.radius * amountVisual;
 
         const xYaw = x3 * cosYaw - z3 * sinYaw;
         const zYaw = x3 * sinYaw + z3 * cosYaw;
@@ -395,8 +397,12 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
           (config.baseDotSizePx / 2) *
           p.sizeJitter *
           (0.88 + depth * 0.26) *
-          (0.92 + amount * 0.08);
-        const alpha = clamp(p.alphaBase * (0.6 + depth * 0.55), 0.18, 1);
+          (0.9 + amountVisual * 0.1);
+        const alpha = clamp(
+          p.alphaBase * (0.55 + depth * 0.5) * (0.35 + amountVisual * 0.65),
+          0.06,
+          1
+        );
 
         renderDots.push({ x2, y2, z3, size, alpha });
       }

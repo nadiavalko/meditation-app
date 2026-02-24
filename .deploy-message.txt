@@ -1,1 +1,1 @@
-Hide center dot while breathing sphere is expanded
+Shorten center-dot hold and prioritize sphere motion
