@@ -337,6 +337,31 @@ body {
   animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
 }
 
+.breath-dot {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 14, 28, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(var(--motion-distance));
+}
+
+.breath-dot::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #f2f2f2;
+}
+
+.breath-dot.is-revealing {
+  animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+}
+
 .burn-input-stack {
   display: flex;
   flex-direction: column;

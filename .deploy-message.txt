@@ -1,1 +1,1 @@
-Align journey text animations with intro and soften fade-out
+Add framed breath dot styling
