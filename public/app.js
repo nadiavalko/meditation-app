@@ -185,8 +185,9 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       rounds: 3,
       inhaleMs: 4000,
       exhaleMs: 6000,
+      preRollMs: 300,
       dotCount: 220,
-      sphereSizePx: 375,
+      sphereSizePx: 400,
       baseDotSizePx: 9,
       centerDotSizePx: 18,
       dotColor: "#93BBED",
@@ -198,14 +199,14 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     const stage = breathingCanvas.parentElement;
     const particles = [];
     const cycleMs = config.inhaleMs + config.exhaleMs;
-    const totalMs = cycleMs * config.rounds;
+    const totalMs = config.preRollMs + cycleMs * config.rounds;
     const state = {
       width: 0,
       height: 0,
       cx: 0,
       cy: 0,
       radius: 0,
-      startTime: performance.now(),
+      startTime: 0,
       rafId: 0,
       done: false
     };
@@ -222,21 +223,37 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       };
     };
     const dotRgb = hexToRgb(config.dotColor);
+    const parseCssTimeMs = (value) => {
+      if (!value) {
+        return 0;
+      }
+      const first = value.split(",")[0].trim();
+      if (first.endsWith("ms")) {
+        return Number.parseFloat(first);
+      }
+      if (first.endsWith("s")) {
+        return Number.parseFloat(first) * 1000;
+      }
+      return 0;
+    };
 
     const createParticles = () => {
       particles.length = 0;
-      const goldenAngle = Math.PI * (3 - Math.sqrt(5));
 
       for (let i = 0; i < config.dotCount; i += 1) {
-        const t = (i + 0.5) / config.dotCount;
-        const y = 1 - 2 * t;
-        const radial = Math.sqrt(Math.max(0, 1 - y * y));
-        const theta = i * goldenAngle;
-        const x = Math.cos(theta) * radial;
-        const z = Math.sin(theta) * radial;
+        const u = Math.random();
+        const v = Math.random();
+        const theta = 2 * Math.PI * u;
+        const phi = Math.acos(2 * v - 1);
+        const sinPhi = Math.sin(phi);
+        const x = Math.cos(theta) * sinPhi;
+        const y = Math.cos(phi);
+        const z = Math.sin(theta) * sinPhi;
 
-        const shellJitter = (Math.random() - 0.5) * 0.18;
-        const radiusNorm = clamp(0.92 + shellJitter, 0.72, 1.05);
+        const shellHeavy = Math.random() < 0.82;
+        const radiusNorm = shellHeavy
+          ? clamp(0.88 + Math.pow(Math.random(), 2.8) * 0.2, 0.82, 1.08)
+          : clamp(0.48 + Math.pow(Math.random(), 1.5) * 0.34, 0.42, 0.86);
         const curveAngle = Math.random() * Math.PI * 2;
 
         particles.push({
@@ -244,12 +261,12 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
           y,
           z,
           radiusNorm,
-          speedFactor: 0.86 + Math.random() * 0.34,
-          phaseOffset: (Math.random() - 0.5) * 0.14,
-          jitterAmp: 0.008 + Math.random() * 0.014,
+          speedFactor: 0.92 + Math.random() * 0.18,
+          phaseOffset: (Math.random() - 0.5) * 0.07,
+          jitterAmp: 0.006 + Math.random() * 0.012,
           jitterFreq: 0.6 + Math.random() * 0.9,
           jitterPhase: Math.random() * Math.PI * 2,
-          curveStrength: 0.02 + Math.random() * 0.03,
+          curveStrength: 0.03 + Math.random() * 0.045,
           curveAngle,
           alphaBase: 0.62 + Math.random() * 0.28,
           sizeJitter: 0.93 + Math.random() * 0.14
@@ -272,7 +289,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       state.cx = state.width / 2;
       state.cy = state.height / 2;
-      state.radius = Math.min(state.width, state.height) * 0.41;
+      state.radius = Math.min(state.width, state.height) * 0.45;
     };
 
     const drawCenterDot = (alpha = 1) => {
@@ -289,8 +306,17 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     };
 
     const renderSphere = (elapsedMs) => {
-      const cycleIndex = Math.floor(elapsedMs / cycleMs);
-      const cycleTime = elapsedMs % cycleMs;
+      if (elapsedMs < config.preRollMs) {
+        breathingCanvas.dataset.phase = "intro";
+        breathingCanvas.dataset.round = "1";
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawCenterDot(1);
+        return;
+      }
+
+      const activeElapsed = elapsedMs - config.preRollMs;
+      const cycleIndex = Math.floor(activeElapsed / cycleMs);
+      const cycleTime = activeElapsed % cycleMs;
       const phase = cycleTime < config.inhaleMs ? "inhale" : "exhale";
       const phaseTime =
         phase === "inhale" ? cycleTime : cycleTime - config.inhaleMs;
@@ -303,12 +329,8 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       breathingCanvas.dataset.round = String(Math.min(cycleIndex + 1, config.rounds));
 
       ctx.clearRect(0, 0, state.width, state.height);
-
-      if (breathAmount < 0.06) {
-        drawCenterDot(1);
-      } else {
-        drawCenterDot(0.18);
-      }
+      const centerAlpha = clamp(0.2 + (1 - breathAmount) * 0.8, 0.2, 1);
+      drawCenterDot(centerAlpha);
 
       const time = elapsedMs;
       const yaw = time * config.driftSpeed;
@@ -321,12 +343,16 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       const renderDots = [];
 
       for (const p of particles) {
-        const localPhase = clamp(phaseProgress * p.speedFactor + p.phaseOffset, 0, 1);
+        const envelope = Math.sin(phaseProgress * Math.PI);
+        const localPhase = clamp(
+          phaseProgress * p.speedFactor + envelope * p.phaseOffset,
+          0,
+          1
+        );
         const localEase = easeInOut(localPhase);
-        const localAmount = phase === "inhale" ? localEase : 1 - localEase;
-        const amount = localAmount * breathAmount;
+        const amount = phase === "inhale" ? localEase : 1 - localEase;
 
-        if (amount <= 0.001) {
+        if (amount <= 0.0001) {
           continue;
         }
 
@@ -389,7 +415,8 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     };
 
     const frame = (timestamp) => {
-      const elapsed = performance.now() - state.startTime;
+      const now = performance.now();
+      const elapsed = now - state.startTime;
       if (elapsed >= totalMs) {
         state.done = true;
         breathingCanvas.dataset.phase = "complete";
@@ -405,6 +432,13 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
 
     createParticles();
     resizeCanvas();
+    if (stage) {
+      const stageStyles = window.getComputedStyle(stage);
+      const stageDelayMs = parseCssTimeMs(stageStyles.animationDelay);
+      state.startTime = performance.now() + stageDelayMs;
+    } else {
+      state.startTime = performance.now();
+    }
 
     if (reducedMotion) {
       renderReduced();

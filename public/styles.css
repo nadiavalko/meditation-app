@@ -363,7 +363,7 @@ body {
 }
 
 .breathing-stage {
-  width: min(375px, calc(100vw - 48px));
+  width: min(400px, calc(100vw - 48px));
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
