@@ -1,1 +1,1 @@
-Complete breathing exercise text sequence with inhale exhale phase sync
+Smooth breathing labels and delay inhale exhale text transitions

@@ -177,6 +177,28 @@ body {
   }
 }
 
+@keyframes fadeOnlyIn {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOnlyOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
 @keyframes burnField {
   0% {
     opacity: 1;
@@ -335,6 +357,27 @@ body {
   opacity: 0;
   transform: translateY(var(--motion-distance));
   animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+}
+
+.breathing-title {
+  --motion-fade-out-duration: 0.55s;
+  --seq-fade-duration: 0.8s;
+}
+
+.breathing-title.is-phase-label {
+  will-change: opacity;
+  transform: none;
+}
+
+.breathing-title.is-breath-fading {
+  transform: none;
+  animation: fadeOnlyOut var(--motion-fade-out-duration) ease-in-out forwards;
+}
+
+.breathing-title.is-breath-revealing {
+  opacity: 0;
+  transform: none;
+  animation: fadeOnlyIn var(--seq-fade-duration) ease-in-out forwards;
 }
 
 .breath-dot {
