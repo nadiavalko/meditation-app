@@ -174,6 +174,248 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
   });
 }
 
+const breathingCanvas = document.querySelector("[data-breathing-canvas]");
+
+if (breathingCanvas instanceof HTMLCanvasElement) {
+  const ctx = breathingCanvas.getContext("2d");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (ctx) {
+    const config = {
+      rounds: 3,
+      inhaleMs: 4000,
+      exhaleMs: 6000,
+      dotCount: 220,
+      sphereSizePx: 375,
+      baseDotSizePx: 9,
+      centerDotSizePx: 18,
+      dotColor: "#93BBED",
+      dprCap: 2,
+      driftSpeed: 0.00028,
+      driftTiltSpeed: 0.00017
+    };
+
+    const stage = breathingCanvas.parentElement;
+    const particles = [];
+    const cycleMs = config.inhaleMs + config.exhaleMs;
+    const totalMs = cycleMs * config.rounds;
+    const state = {
+      width: 0,
+      height: 0,
+      cx: 0,
+      cy: 0,
+      radius: 0,
+      startTime: performance.now(),
+      rafId: 0,
+      done: false
+    };
+
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const easeInOut = (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const hexToRgb = (hex) => {
+      const value = hex.replace("#", "");
+      return {
+        r: Number.parseInt(value.slice(0, 2), 16),
+        g: Number.parseInt(value.slice(2, 4), 16),
+        b: Number.parseInt(value.slice(4, 6), 16)
+      };
+    };
+    const dotRgb = hexToRgb(config.dotColor);
+
+    const createParticles = () => {
+      particles.length = 0;
+      const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+      for (let i = 0; i < config.dotCount; i += 1) {
+        const t = (i + 0.5) / config.dotCount;
+        const y = 1 - 2 * t;
+        const radial = Math.sqrt(Math.max(0, 1 - y * y));
+        const theta = i * goldenAngle;
+        const x = Math.cos(theta) * radial;
+        const z = Math.sin(theta) * radial;
+
+        const shellJitter = (Math.random() - 0.5) * 0.18;
+        const radiusNorm = clamp(0.92 + shellJitter, 0.72, 1.05);
+        const curveAngle = Math.random() * Math.PI * 2;
+
+        particles.push({
+          x,
+          y,
+          z,
+          radiusNorm,
+          speedFactor: 0.86 + Math.random() * 0.34,
+          phaseOffset: (Math.random() - 0.5) * 0.14,
+          jitterAmp: 0.008 + Math.random() * 0.014,
+          jitterFreq: 0.6 + Math.random() * 0.9,
+          jitterPhase: Math.random() * Math.PI * 2,
+          curveStrength: 0.02 + Math.random() * 0.03,
+          curveAngle,
+          alphaBase: 0.62 + Math.random() * 0.28,
+          sizeJitter: 0.93 + Math.random() * 0.14
+        });
+      }
+    };
+
+    const resizeCanvas = () => {
+      if (!stage) {
+        return;
+      }
+      const rect = stage.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, config.dprCap);
+      state.width = Math.max(1, Math.round(rect.width));
+      state.height = Math.max(1, Math.round(rect.height));
+      breathingCanvas.width = Math.round(state.width * dpr);
+      breathingCanvas.height = Math.round(state.height * dpr);
+      breathingCanvas.style.width = `${state.width}px`;
+      breathingCanvas.style.height = `${state.height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      state.cx = state.width / 2;
+      state.cy = state.height / 2;
+      state.radius = Math.min(state.width, state.height) * 0.41;
+    };
+
+    const drawCenterDot = (alpha = 1) => {
+      ctx.fillStyle = `rgba(${dotRgb.r}, ${dotRgb.g}, ${dotRgb.b}, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(
+        state.cx,
+        state.cy,
+        config.centerDotSizePx / 2,
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+    };
+
+    const renderSphere = (elapsedMs) => {
+      const cycleIndex = Math.floor(elapsedMs / cycleMs);
+      const cycleTime = elapsedMs % cycleMs;
+      const phase = cycleTime < config.inhaleMs ? "inhale" : "exhale";
+      const phaseTime =
+        phase === "inhale" ? cycleTime : cycleTime - config.inhaleMs;
+      const phaseDuration = phase === "inhale" ? config.inhaleMs : config.exhaleMs;
+      const phaseProgress = clamp(phaseTime / phaseDuration, 0, 1);
+      const easedPhase = easeInOut(phaseProgress);
+      const breathAmount = phase === "inhale" ? easedPhase : 1 - easedPhase;
+
+      breathingCanvas.dataset.phase = phase;
+      breathingCanvas.dataset.round = String(Math.min(cycleIndex + 1, config.rounds));
+
+      ctx.clearRect(0, 0, state.width, state.height);
+
+      if (breathAmount < 0.06) {
+        drawCenterDot(1);
+      } else {
+        drawCenterDot(0.18);
+      }
+
+      const time = elapsedMs;
+      const yaw = time * config.driftSpeed;
+      const pitch = Math.sin(time * config.driftTiltSpeed) * 0.23;
+      const cosYaw = Math.cos(yaw);
+      const sinYaw = Math.sin(yaw);
+      const cosPitch = Math.cos(pitch);
+      const sinPitch = Math.sin(pitch);
+      const perspective = state.radius * 2.8;
+      const renderDots = [];
+
+      for (const p of particles) {
+        const localPhase = clamp(phaseProgress * p.speedFactor + p.phaseOffset, 0, 1);
+        const localEase = easeInOut(localPhase);
+        const localAmount = phase === "inhale" ? localEase : 1 - localEase;
+        const amount = localAmount * breathAmount;
+
+        if (amount <= 0.001) {
+          continue;
+        }
+
+        const jitterTime = time * 0.001 * p.jitterFreq + p.jitterPhase;
+        const jitterA = Math.sin(jitterTime);
+        const jitterB = Math.cos(jitterTime * 1.37);
+        const pathCurve = Math.sin(localPhase * Math.PI) * p.curveStrength * amount;
+        const radiusPx = state.radius * p.radiusNorm * amount;
+
+        let x3 =
+          p.x * radiusPx +
+          Math.cos(p.curveAngle) * pathCurve * state.radius +
+          jitterA * p.jitterAmp * state.radius * amount;
+        let y3 =
+          p.y * radiusPx +
+          Math.sin(p.curveAngle) * pathCurve * state.radius +
+          jitterB * p.jitterAmp * state.radius * amount;
+        let z3 =
+          p.z * radiusPx +
+          Math.sin(jitterTime * 0.83) * p.jitterAmp * state.radius * amount;
+
+        const xYaw = x3 * cosYaw - z3 * sinYaw;
+        const zYaw = x3 * sinYaw + z3 * cosYaw;
+        const yPitch = y3 * cosPitch - zYaw * sinPitch;
+        const zPitch = y3 * sinPitch + zYaw * cosPitch;
+
+        x3 = xYaw;
+        y3 = yPitch;
+        z3 = zPitch;
+
+        const scale = perspective / (perspective + z3 + state.radius * 1.2);
+        const x2 = state.cx + x3 * scale;
+        const y2 = state.cy + y3 * scale;
+        const depth = clamp((z3 / (state.radius || 1) + 1) / 2, 0, 1);
+        const size =
+          (config.baseDotSizePx / 2) *
+          p.sizeJitter *
+          (0.88 + depth * 0.26) *
+          (0.92 + amount * 0.08);
+        const alpha = clamp(p.alphaBase * (0.6 + depth * 0.55), 0.18, 1);
+
+        renderDots.push({ x2, y2, z3, size, alpha });
+      }
+
+      renderDots.sort((a, b) => a.z3 - b.z3);
+
+      for (const dot of renderDots) {
+        ctx.fillStyle = `rgba(${dotRgb.r}, ${dotRgb.g}, ${dotRgb.b}, ${dot.alpha})`;
+        ctx.beginPath();
+        ctx.arc(dot.x2, dot.y2, dot.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const renderReduced = () => {
+      breathingCanvas.dataset.phase = "complete";
+      breathingCanvas.dataset.round = String(config.rounds);
+      ctx.clearRect(0, 0, state.width, state.height);
+      drawCenterDot(1);
+    };
+
+    const frame = (timestamp) => {
+      const elapsed = performance.now() - state.startTime;
+      if (elapsed >= totalMs) {
+        state.done = true;
+        breathingCanvas.dataset.phase = "complete";
+        breathingCanvas.dataset.round = String(config.rounds);
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawCenterDot(1);
+        return;
+      }
+
+      renderSphere(elapsed);
+      state.rafId = window.requestAnimationFrame(frame);
+    };
+
+    createParticles();
+    resizeCanvas();
+
+    if (reducedMotion) {
+      renderReduced();
+    } else {
+      state.rafId = window.requestAnimationFrame(frame);
+    }
+
+    window.addEventListener("resize", resizeCanvas, { passive: true });
+  }
+}
+
 const roundDisplay = document.querySelector("[data-round-display]");
 
 if (roundDisplay) {

@@ -1,1 +1,1 @@
-Split breathing screen from journey and restore 60px gap
+Implement 3-round breathing sphere canvas animation
