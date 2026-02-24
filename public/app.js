@@ -179,13 +179,14 @@ const breathingCanvas = document.querySelector("[data-breathing-canvas]");
 if (breathingCanvas instanceof HTMLCanvasElement) {
   const ctx = breathingCanvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const breathingTitle = document.querySelector("[data-breathing-title]");
 
   if (ctx) {
     const config = {
       rounds: 3,
       inhaleMs: 4000,
       exhaleMs: 6000,
-      preRollMs: 120,
+      introDotHoldMs: 120,
       dotCount: 220,
       sphereSizePx: 400,
       baseDotSizePx: 9,
@@ -199,7 +200,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     const stage = breathingCanvas.parentElement;
     const particles = [];
     const cycleMs = config.inhaleMs + config.exhaleMs;
-    const totalMs = config.preRollMs + cycleMs * config.rounds;
+    const totalMs = cycleMs * config.rounds;
     const state = {
       width: 0,
       height: 0,
@@ -210,6 +211,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       rafId: 0,
       done: false
     };
+    const titleTimers = [];
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
     const easeInOut = (t) =>
@@ -235,6 +237,70 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
         return Number.parseFloat(first) * 1000;
       }
       return 0;
+    };
+    const titleFadeOutMs = breathingTitle
+      ? parseCssTimeMs(
+          window
+            .getComputedStyle(breathingTitle)
+            .getPropertyValue("--motion-fade-out-duration")
+        ) || 450
+      : 450;
+    const titleRevealMs = breathingTitle
+      ? parseCssTimeMs(
+          window
+            .getComputedStyle(breathingTitle)
+            .getPropertyValue("--seq-fade-duration")
+        ) || 700
+      : 700;
+    let titleTransitionToken = 0;
+
+    const transitionBreathingTitle = (nextText) => {
+      if (!breathingTitle) {
+        return;
+      }
+      const currentText = breathingTitle.textContent.trim();
+      if (
+        currentText === nextText &&
+        !breathingTitle.classList.contains("is-fading")
+      ) {
+        return;
+      }
+
+      titleTransitionToken += 1;
+      const token = titleTransitionToken;
+      breathingTitle.classList.remove("is-fading", "is-revealing");
+      void breathingTitle.offsetWidth;
+      breathingTitle.classList.add("is-fading");
+
+      const swapTimer = window.setTimeout(() => {
+        if (token !== titleTransitionToken) {
+          return;
+        }
+        breathingTitle.textContent = nextText;
+        breathingTitle.classList.remove("is-fading", "is-revealing");
+        void breathingTitle.offsetWidth;
+        breathingTitle.classList.add("is-revealing");
+
+        const revealCleanupTimer = window.setTimeout(() => {
+          if (token !== titleTransitionToken) {
+            return;
+          }
+          breathingTitle.classList.remove("is-revealing");
+        }, titleRevealMs);
+        titleTimers.push(revealCleanupTimer);
+      }, titleFadeOutMs);
+      titleTimers.push(swapTimer);
+    };
+
+    const scheduleTitleBoundarySwap = (nextText, swapAtMs) => {
+      if (!breathingTitle) {
+        return;
+      }
+      const delay = Math.max(0, swapAtMs - titleFadeOutMs - performance.now());
+      const timer = window.setTimeout(() => {
+        transitionBreathingTitle(nextText);
+      }, delay);
+      titleTimers.push(timer);
     };
 
     const createParticles = () => {
@@ -306,17 +372,8 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     };
 
     const renderSphere = (elapsedMs) => {
-      if (elapsedMs < config.preRollMs) {
-        breathingCanvas.dataset.phase = "intro";
-        breathingCanvas.dataset.round = "1";
-        ctx.clearRect(0, 0, state.width, state.height);
-        drawCenterDot(1);
-        return;
-      }
-
-      const activeElapsed = elapsedMs - config.preRollMs;
-      const cycleIndex = Math.floor(activeElapsed / cycleMs);
-      const cycleTime = activeElapsed % cycleMs;
+      const cycleIndex = Math.floor(elapsedMs / cycleMs);
+      const cycleTime = elapsedMs % cycleMs;
       const phase = cycleTime < config.inhaleMs ? "inhale" : "exhale";
       const phaseTime =
         phase === "inhale" ? cycleTime : cycleTime - config.inhaleMs;
@@ -427,6 +484,15 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     const frame = (timestamp) => {
       const now = performance.now();
       const elapsed = now - state.startTime;
+      if (elapsed < 0) {
+        breathingCanvas.dataset.phase = "intro";
+        breathingCanvas.dataset.round = "1";
+        breathingCanvas.dataset.centerAlpha = "1.000";
+        ctx.clearRect(0, 0, state.width, state.height);
+        drawCenterDot(1);
+        state.rafId = window.requestAnimationFrame(frame);
+        return;
+      }
       if (elapsed >= totalMs) {
         state.done = true;
         breathingCanvas.dataset.phase = "complete";
@@ -445,7 +511,21 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
     if (stage) {
       const stageStyles = window.getComputedStyle(stage);
       const stageDelayMs = parseCssTimeMs(stageStyles.animationDelay);
-      state.startTime = performance.now() + stageDelayMs;
+      const stageDurationMs = parseCssTimeMs(stageStyles.animationDuration);
+      const now = performance.now();
+      const firstInhaleStartMs =
+        now + stageDelayMs + stageDurationMs + config.introDotHoldMs + titleFadeOutMs;
+      state.startTime = firstInhaleStartMs;
+
+      scheduleTitleBoundarySwap("Inhale", firstInhaleStartMs);
+      for (let roundIndex = 0; roundIndex < config.rounds; roundIndex += 1) {
+        const inhaleStartMs = firstInhaleStartMs + roundIndex * cycleMs;
+        const exhaleStartMs = inhaleStartMs + config.inhaleMs;
+        if (roundIndex > 0) {
+          scheduleTitleBoundarySwap("Inhale", inhaleStartMs);
+        }
+        scheduleTitleBoundarySwap("Exhale", exhaleStartMs);
+      }
     } else {
       state.startTime = performance.now();
     }
