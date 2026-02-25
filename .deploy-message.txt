@@ -1,1 +1,1 @@
-Slow down guidance text reveal before breathing handoff
+Fade in initial breathing center dot

@@ -279,6 +279,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       inhaleMs: 4000,
       exhaleMs: 6000,
       introDotHoldMs: 120,
+      introDotFadeInMs: 420,
       phaseLabelLagMs: 180,
       dotCount: 220,
       sphereSizePx: 400,
@@ -301,6 +302,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       cy: 0,
       radius: 0,
       startTime: 0,
+      sequenceKickoffTime: 0,
       rafId: 0,
       done: false,
       started: false
@@ -593,11 +595,15 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       const now = performance.now();
       const elapsed = now - state.startTime;
       if (elapsed < 0) {
+        const introElapsed = Math.max(0, now - state.sequenceKickoffTime);
+        const introAlpha = easeInOut(
+          clamp(introElapsed / config.introDotFadeInMs, 0, 1)
+        );
         breathingCanvas.dataset.phase = "intro";
         breathingCanvas.dataset.round = "1";
-        breathingCanvas.dataset.centerAlpha = "1.000";
+        breathingCanvas.dataset.centerAlpha = introAlpha.toFixed(3);
         ctx.clearRect(0, 0, state.width, state.height);
-        drawCenterDot(1);
+        drawCenterDot(introAlpha);
         state.rafId = window.requestAnimationFrame(frame);
         return;
       }
@@ -631,6 +637,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       }
       state.started = true;
       state.done = false;
+      state.sequenceKickoffTime = performance.now();
       resizeCanvas();
       clearTitleTimers();
       titleTransitionToken += 1;
@@ -640,6 +647,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
         const stageDelayMs = parseCssTimeMs(stageStyles.animationDelay);
         const stageDurationMs = parseCssTimeMs(stageStyles.animationDuration);
         const now = performance.now();
+        state.sequenceKickoffTime = now;
         const firstInhaleStartMs =
           now + stageDelayMs + stageDurationMs + config.introDotHoldMs + genericTitleFadeOutMs;
         state.startTime = firstInhaleStartMs;
