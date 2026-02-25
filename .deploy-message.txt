@@ -1,1 +1,1 @@
-Increase body outline reveal delay further after body scan prompt
+Change final stop phrase to Now, last stop.

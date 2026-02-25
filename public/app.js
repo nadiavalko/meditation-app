@@ -287,7 +287,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           const finalStopRevealAt = revealDuration + holdAfterWellDoneMs + fadeOutDuration;
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
-            revealJourneyTitle("Now, your final stop.");
+            revealJourneyTitle("Now, last stop.");
           }, finalStopRevealAt);
 
           window.setTimeout(() => {
