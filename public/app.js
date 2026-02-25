@@ -310,7 +310,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
               void journeyBodyFigure.offsetWidth;
               journeyBodyFigure.classList.add("is-revealing");
             }
-          }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration + 650);
+          }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration + 950);
         }, fadeOutDuration);
       };
     }

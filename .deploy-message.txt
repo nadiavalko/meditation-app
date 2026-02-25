@@ -1,1 +1,1 @@
-Increase body outline reveal delay after body scan prompt
+Increase body outline reveal delay further after body scan prompt
