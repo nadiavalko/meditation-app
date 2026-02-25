@@ -1,1 +1,1 @@
-Add body outline reveal after body scan prompt with hidden gradients
+Increase body outline reveal delay after body scan prompt
