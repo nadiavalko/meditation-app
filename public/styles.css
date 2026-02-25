@@ -360,11 +360,11 @@ body {
 }
 
 .breathing-title {
-  --motion-fade-out-duration: 0.55s;
-  --seq-fade-duration: 0.8s;
 }
 
 .breathing-title.is-phase-label {
+  --motion-fade-out-duration: 0.55s;
+  --seq-fade-duration: 0.8s;
   will-change: opacity;
   transform: none;
 }
