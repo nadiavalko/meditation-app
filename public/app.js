@@ -188,7 +188,6 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnTitle.textContent = "Let’s take three deep breaths together.";
-      burnTitle.classList.add("is-guidance-message");
       burnTitle.classList.remove("is-fading");
       burnTitle.classList.remove("is-revealing");
       void burnTitle.offsetWidth;
@@ -212,7 +211,6 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       if (journeyBreathingStage) {
         journeyBreathingStage.classList.remove("is-revealing");
       }
-      burnTitle.classList.remove("is-guidance-message");
       const startBreathing = journeyBreathingCanvas?.__startBreathingSequence;
       if (typeof startBreathing === "function") {
         startBreathing();
@@ -308,11 +306,14 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       if (!breathingTitle) {
         return;
       }
-      const isPhaseLabel = nextText === "Inhale" || nextText === "Exhale";
       const currentText = breathingTitle.textContent.trim();
+      const currentIsPhaseLabel =
+        currentText === "Inhale" || currentText === "Exhale";
+      const nextIsPhaseLabel = nextText === "Inhale" || nextText === "Exhale";
       if (
         currentText === nextText &&
-        !breathingTitle.classList.contains("is-breath-fading")
+        !breathingTitle.classList.contains("is-breath-fading") &&
+        !breathingTitle.classList.contains("is-fading")
       ) {
         return;
       }
@@ -320,26 +321,40 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       titleTransitionToken += 1;
       const token = titleTransitionToken;
       breathingTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
-      breathingTitle.classList.toggle("is-phase-label", isPhaseLabel);
-      breathingTitle.classList.remove("is-breath-fading", "is-breath-revealing");
+      breathingTitle.classList.toggle("is-phase-label", currentIsPhaseLabel);
+      breathingTitle.classList.remove(
+        "is-breath-fading",
+        "is-breath-revealing",
+        "is-fading",
+        "is-revealing"
+      );
       void breathingTitle.offsetWidth;
-      breathingTitle.classList.add("is-breath-fading");
+      breathingTitle.classList.add(
+        currentIsPhaseLabel ? "is-breath-fading" : "is-fading"
+      );
 
       const swapTimer = window.setTimeout(() => {
         if (token !== titleTransitionToken) {
           return;
         }
         breathingTitle.textContent = nextText;
-        breathingTitle.classList.toggle("is-phase-label", isPhaseLabel);
-        breathingTitle.classList.remove("is-breath-fading", "is-breath-revealing");
+        breathingTitle.classList.toggle("is-phase-label", nextIsPhaseLabel);
+        breathingTitle.classList.remove(
+          "is-breath-fading",
+          "is-breath-revealing",
+          "is-fading",
+          "is-revealing"
+        );
         void breathingTitle.offsetWidth;
-        breathingTitle.classList.add("is-breath-revealing");
+        breathingTitle.classList.add(
+          nextIsPhaseLabel ? "is-breath-revealing" : "is-revealing"
+        );
 
         const revealCleanupTimer = window.setTimeout(() => {
           if (token !== titleTransitionToken) {
             return;
           }
-          breathingTitle.classList.remove("is-breath-revealing");
+          breathingTitle.classList.remove("is-breath-revealing", "is-revealing");
         }, titleRevealMs);
         titleTimers.push(revealCleanupTimer);
       }, titleFadeOutMs);

@@ -1,1 +1,1 @@
-Smooth journey guidance text reveal before breathing phase starts
+Unify journey guidance text transition with gone forever animation
