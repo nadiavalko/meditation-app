@@ -122,6 +122,7 @@ const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
 const burnTitle = document.querySelector("[data-burn-title]");
+const burnInputStack = document.querySelector(".burn-input-stack");
 const journeyBreathingStage = document.querySelector("[data-journey-breathing-stage]");
 const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breathing-canvas]");
 
@@ -195,6 +196,9 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnTitle.classList.remove("is-revealing");
+      if (burnInputStack) {
+        burnInputStack.classList.add("is-hidden");
+      }
       if (journeyBreathingStage) {
         journeyBreathingStage.classList.remove("is-hidden");
         journeyBreathingStage.classList.remove("is-revealing");

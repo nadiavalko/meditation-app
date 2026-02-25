@@ -1,1 +1,1 @@
-Integrate breathing exercise back into journey flow
+Fix journey breathing text size and sphere spacing

@@ -436,6 +436,10 @@ body {
   width: 360px;
 }
 
+.burn-input-stack.is-hidden {
+  display: none;
+}
+
 .burn-input-frame {
   position: relative;
   width: 360px;
@@ -500,13 +504,6 @@ body {
   visibility: hidden;
 }
 
-@media (max-width: 1200px) {
-  .burn-title {
-    font-size: 34px;
-    line-height: 44px;
-  }
-}
-
 @media (max-width: 700px) {
   .burn-input-stack,
   .burn-input-frame {
@@ -560,8 +557,8 @@ body {
 
 @media (max-width: 1200px) {
   .breathing-title {
-    font-size: 52px;
-    line-height: 64px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .breathing-circle {
@@ -572,8 +569,8 @@ body {
 
 @media (max-width: 700px) {
   .breathing-title {
-    font-size: 36px;
-    line-height: 46px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .breathing-circle {
