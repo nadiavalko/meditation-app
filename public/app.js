@@ -126,6 +126,8 @@ const journeyBreathingPhaseTitle = document.querySelector("[data-breathing-phase
 const burnInputStack = document.querySelector(".burn-input-stack");
 const journeyBreathingStage = document.querySelector("[data-journey-breathing-stage]");
 const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breathing-canvas]");
+const journeyBodyFigureStage = document.querySelector("[data-journey-body-figure-stage]");
+const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
@@ -188,6 +190,15 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
     burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
+    if (journeyBodyFigureStage) {
+      journeyBodyFigureStage.classList.remove("is-revealing");
+      journeyBodyFigureStage.classList.add("is-hidden");
+      journeyBodyFigureStage.setAttribute("aria-hidden", "true");
+    }
+    if (journeyBodyFigure) {
+      journeyBodyFigure.classList.remove("is-revealing");
+      journeyBodyFigure.style.removeProperty("--seq-fade-duration");
+    }
 
     setTimeout(() => {
       burnFrame.classList.add("is-hidden");
@@ -287,6 +298,19 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("I’ll guide you through a quick body scan.");
           }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration);
+
+          window.setTimeout(() => {
+            if (journeyBodyFigureStage) {
+              journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing");
+              journeyBodyFigureStage.setAttribute("aria-hidden", "false");
+            }
+            if (journeyBodyFigure) {
+              journeyBodyFigure.classList.remove("is-revealing");
+              journeyBodyFigure.style.setProperty("--seq-fade-duration", "1600ms");
+              void journeyBodyFigure.offsetWidth;
+              journeyBodyFigure.classList.add("is-revealing");
+            }
+          }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration + 350);
         }, fadeOutDuration);
       };
     }

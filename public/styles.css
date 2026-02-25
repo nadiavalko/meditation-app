@@ -435,6 +435,35 @@ body {
   animation: fadeOnlyOut var(--motion-fade-out-duration) ease-in-out forwards;
 }
 
+.body-figure-stage {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.body-figure-stage.is-hidden {
+  display: none;
+}
+
+.body-figure-stage.is-revealing {
+  opacity: 0;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+}
+
+.body-figure {
+  display: block;
+  width: auto;
+  height: min(420px, 52vh);
+  max-width: min(135px, calc(100vw - 48px));
+}
+
+.body-figure.is-revealing {
+  opacity: 0;
+  transform: translateY(var(--motion-distance));
+  animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+}
+
 .breathing-canvas {
   width: 100%;
   height: 100%;

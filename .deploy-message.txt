@@ -1,1 +1,1 @@
-Add final stop text between Well done and body scan prompt
+Add body outline reveal after body scan prompt with hidden gradients
