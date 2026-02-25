@@ -1,1 +1,1 @@
-Fade in initial breathing center dot
+Add post-breath journey text sequence and fade out exhale with center dot

@@ -149,6 +149,41 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const revealDuration = 1600;
     const guidanceRevealDuration = 2200;
     const stageRevealDuration = 1600;
+    const holdAfterWellDoneMs = 900;
+
+    const revealJourneyTitle = (text, revealMs = revealDuration) => {
+      burnTitle.textContent = text;
+      burnTitle.style.display = "";
+      burnTitle.style.setProperty("--seq-fade-duration", `${revealMs}ms`);
+      burnTitle.classList.remove(
+        "is-phase-label",
+        "is-breath-fading",
+        "is-breath-revealing",
+        "is-fading",
+        "is-revealing"
+      );
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-revealing");
+      window.setTimeout(() => {
+        burnTitle.classList.remove("is-revealing");
+        burnTitle.style.removeProperty("--seq-fade-duration");
+      }, revealMs);
+    };
+
+    const fadeOutJourneyTitle = (delayMs = 0) => {
+      window.setTimeout(() => {
+        burnTitle.style.removeProperty("--seq-fade-duration");
+        burnTitle.classList.remove(
+          "is-phase-label",
+          "is-breath-fading",
+          "is-breath-revealing",
+          "is-fading",
+          "is-revealing"
+        );
+        void burnTitle.offsetWidth;
+        burnTitle.classList.add("is-fading");
+      }, delayMs);
+    };
     burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
@@ -168,16 +203,9 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }, fadeOutDelay);
 
     setTimeout(() => {
-      burnTitle.textContent = "It’s gone forever now.";
       burnTitle.classList.remove("is-fading");
-      burnTitle.classList.remove("is-revealing");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-revealing");
+      revealJourneyTitle("It’s gone forever now.");
     }, fadeOutDelay + fadeOutDuration);
-
-    setTimeout(() => {
-      burnTitle.classList.remove("is-revealing");
-    }, fadeOutDelay + fadeOutDuration + revealDuration);
 
     const breathingIntroStart = fadeOutDelay + fadeOutDuration + revealDuration + 900;
     const breathingIntroSwap = breathingIntroStart + fadeOutDuration;
@@ -190,18 +218,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       );
 
     setTimeout(() => {
-      burnTitle.classList.remove("is-fading");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-fading");
+      fadeOutJourneyTitle();
     }, breathingIntroStart);
 
     setTimeout(() => {
-      burnTitle.textContent = "Let’s take three deep breaths together.";
       burnTitle.classList.remove("is-fading");
-      burnTitle.classList.remove("is-revealing");
-      burnTitle.style.setProperty("--seq-fade-duration", `${guidanceRevealDuration}ms`);
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-revealing");
+      revealJourneyTitle("Let’s take three deep breaths together.", guidanceRevealDuration);
     }, breathingIntroSwap);
 
     setTimeout(() => {
@@ -218,17 +240,46 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }, breathingStageRevealDelay);
 
     setTimeout(() => {
-      burnTitle.classList.remove(
-        "is-phase-label",
-        "is-breath-fading",
-        "is-breath-revealing",
-        "is-fading",
-        "is-revealing"
-      );
-      burnTitle.style.removeProperty("--seq-fade-duration");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-fading");
+      fadeOutJourneyTitle();
     }, breathingGuidanceFadeOutStart);
+
+    if (journeyBreathingCanvas) {
+      journeyBreathingCanvas.__onBreathingComplete = () => {
+        if (journeyBreathingPhaseTitle) {
+          journeyBreathingPhaseTitle.classList.remove("is-breath-revealing", "is-revealing");
+          journeyBreathingPhaseTitle.classList.add("is-breath-fading");
+        }
+        if (journeyBreathingStage) {
+          journeyBreathingStage.classList.remove("is-revealing");
+          journeyBreathingStage.classList.add("is-fading");
+        }
+
+        window.setTimeout(() => {
+          if (journeyBreathingPhaseTitle) {
+            journeyBreathingPhaseTitle.classList.remove("is-breath-fading");
+            journeyBreathingPhaseTitle.classList.add("is-hidden");
+            journeyBreathingPhaseTitle.style.display = "none";
+            journeyBreathingPhaseTitle.textContent = "";
+          }
+          if (journeyBreathingStage) {
+            journeyBreathingStage.classList.remove("is-fading");
+            journeyBreathingStage.classList.add("is-hidden");
+            journeyBreathingStage.setAttribute("aria-hidden", "true");
+          }
+
+          revealJourneyTitle("Well done.");
+
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, revealDuration + holdAfterWellDoneMs);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("I’ll guide you through a quick body scan.");
+          }, revealDuration + holdAfterWellDoneMs + fadeOutDuration);
+        }, fadeOutDuration);
+      };
+    }
 
     setTimeout(() => {
       burnTitle.classList.remove(
@@ -253,6 +304,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         journeyBreathingPhaseTitle.textContent = "";
       }
       if (journeyBreathingStage) {
+        journeyBreathingStage.setAttribute("aria-hidden", "false");
         journeyBreathingStage.classList.remove("is-revealing");
       }
       const startBreathing = journeyBreathingCanvas?.__startBreathingSequence;
@@ -305,7 +357,8 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       sequenceKickoffTime: 0,
       rafId: 0,
       done: false,
-      started: false
+      started: false,
+      completeNotified: false
     };
     const titleTimers = [];
 
@@ -613,6 +666,13 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
         breathingCanvas.dataset.round = String(config.rounds);
         ctx.clearRect(0, 0, state.width, state.height);
         drawCenterDot(1);
+        if (!state.completeNotified) {
+          state.completeNotified = true;
+          const onComplete = breathingCanvas.__onBreathingComplete;
+          if (typeof onComplete === "function") {
+            onComplete();
+          }
+        }
         return;
       }
 
@@ -637,6 +697,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       }
       state.started = true;
       state.done = false;
+      state.completeNotified = false;
       state.sequenceKickoffTime = performance.now();
       resizeCanvas();
       clearTitleTimers();

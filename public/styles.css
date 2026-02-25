@@ -431,6 +431,10 @@ body {
   animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
 }
 
+.breathing-stage.is-fading {
+  animation: fadeOnlyOut var(--motion-fade-out-duration) ease-in-out forwards;
+}
+
 .breathing-canvas {
   width: 100%;
   height: 100%;
