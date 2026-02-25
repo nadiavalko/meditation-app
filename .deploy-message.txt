@@ -1,1 +1,1 @@
-Unify journey guidance text transition with gone forever animation
+Use one generic journey title transition helper for gone forever and guidance text
