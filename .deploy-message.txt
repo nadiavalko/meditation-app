@@ -1,1 +1,1 @@
-Fix journey breathing text size and sphere spacing
+Unify all page header text sizes to 40px 48px

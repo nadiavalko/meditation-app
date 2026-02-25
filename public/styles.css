@@ -252,8 +252,8 @@ body {
 
 .welcome-title {
   margin: 0;
-  font-size: 60px;
-  line-height: 72px;
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 600;
   max-width: 700px;
 }
@@ -281,13 +281,13 @@ body {
 
 @media (max-width: 1200px) {
   .intro-copy {
-    font-size: 34px;
-    line-height: 44px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .welcome-title {
-    font-size: 52px;
-    line-height: 64px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .button {
@@ -300,8 +300,8 @@ body {
 
 @media (max-width: 700px) {
   .intro-copy {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .intro-figure {
@@ -519,8 +519,8 @@ body {
 
 .breathing-title {
   margin: 0;
-  font-size: 60px;
-  line-height: 72px;
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 600;
   text-align: center;
 }
@@ -590,8 +590,8 @@ body {
 
 .body-title {
   margin: 0;
-  font-size: 60px;
-  line-height: 72px;
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 600;
   text-align: center;
   max-width: 780px;
@@ -713,15 +713,15 @@ body {
 
 @media (max-width: 1200px) {
   .body-title {
-    font-size: 52px;
-    line-height: 64px;
+    font-size: 40px;
+    line-height: 48px;
   }
 }
 
 @media (max-width: 700px) {
   .body-title {
-    font-size: 36px;
-    line-height: 46px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .body-highlight {
@@ -736,8 +736,8 @@ body {
 
 .finish-title {
   margin: 0;
-  font-size: 60px;
-  line-height: 72px;
+  font-size: 40px;
+  line-height: 48px;
   font-weight: 600;
   text-align: center;
   max-width: 1019px;
@@ -761,8 +761,8 @@ body {
 
 @media (max-width: 1200px) {
   .finish-title {
-    font-size: 52px;
-    line-height: 64px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .button-finish {
@@ -774,8 +774,8 @@ body {
 
 @media (max-width: 700px) {
   .finish-title {
-    font-size: 36px;
-    line-height: 46px;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .button-finish {
