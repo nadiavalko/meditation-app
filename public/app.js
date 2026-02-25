@@ -128,58 +128,6 @@ const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breat
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
-  let burnTitleTransitionToken = 0;
-
-  const runJourneyTitleGenericTransition = (nextText, delayMs = 0) => {
-    const fadeOutDuration = 1200;
-    const revealDuration = 1600;
-    burnTitleTransitionToken += 1;
-    const token = burnTitleTransitionToken;
-
-    setTimeout(() => {
-      if (token !== burnTitleTransitionToken) {
-        return;
-      }
-      burnTitle.classList.remove(
-        "is-phase-label",
-        "is-breath-fading",
-        "is-breath-revealing",
-        "is-fading",
-        "is-revealing"
-      );
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-fading");
-    }, delayMs);
-
-    setTimeout(() => {
-      if (token !== burnTitleTransitionToken) {
-        return;
-      }
-      burnTitle.textContent = nextText;
-      burnTitle.classList.remove(
-        "is-phase-label",
-        "is-breath-fading",
-        "is-breath-revealing",
-        "is-fading",
-        "is-revealing"
-      );
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-revealing");
-    }, delayMs + fadeOutDuration);
-
-    setTimeout(() => {
-      if (token !== burnTitleTransitionToken) {
-        return;
-      }
-      burnTitle.classList.remove("is-revealing");
-    }, delayMs + fadeOutDuration + revealDuration);
-
-    return {
-      fadeOutDuration,
-      revealDuration,
-      totalDuration: fadeOutDuration + revealDuration
-    };
-  };
 
   const clampToField = () => {
     if (burnInput.scrollHeight > burnInput.clientHeight) {
@@ -196,6 +144,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       return;
     }
     const fadeOutDelay = 400;
+    const fadeOutDuration = 1200;
+    const revealDuration = 1600;
     burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
@@ -207,19 +157,42 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     burnButton.classList.add("is-hidden");
     burnButton.style.display = "none";
 
-    const firstTransition = runJourneyTitleGenericTransition(
-      "It’s gone forever now.",
-      fadeOutDelay
-    );
+    setTimeout(() => {
+      burnTitle.classList.remove("is-fading");
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-fading");
+    }, fadeOutDelay);
 
-    const breathingIntroStart = fadeOutDelay + firstTransition.totalDuration + 900;
-    const breathingIntroTransition = runJourneyTitleGenericTransition(
-      "Let’s take three deep breaths together.",
-      breathingIntroStart
-    );
-    const breathingIntroSwap = breathingIntroStart + breathingIntroTransition.fadeOutDuration;
+    setTimeout(() => {
+      burnTitle.textContent = "It’s gone forever now.";
+      burnTitle.classList.remove("is-fading");
+      burnTitle.classList.remove("is-revealing");
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-revealing");
+    }, fadeOutDelay + fadeOutDuration);
+
+    setTimeout(() => {
+      burnTitle.classList.remove("is-revealing");
+    }, fadeOutDelay + fadeOutDuration + revealDuration);
+
+    const breathingIntroStart = fadeOutDelay + fadeOutDuration + revealDuration + 900;
+    const breathingIntroSwap = breathingIntroStart + fadeOutDuration;
     const breathingStageRevealDelay = breathingIntroSwap + 250;
     const breathingSequenceStartDelay = breathingStageRevealDelay + 500;
+
+    setTimeout(() => {
+      burnTitle.classList.remove("is-fading");
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-fading");
+    }, breathingIntroStart);
+
+    setTimeout(() => {
+      burnTitle.textContent = "Let’s take three deep breaths together.";
+      burnTitle.classList.remove("is-fading");
+      burnTitle.classList.remove("is-revealing");
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-revealing");
+    }, breathingIntroSwap);
 
     setTimeout(() => {
       burnTitle.classList.remove("is-revealing");
