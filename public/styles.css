@@ -380,6 +380,10 @@ body {
   animation: fadeOnlyIn var(--seq-fade-duration) ease-in-out forwards;
 }
 
+.breathing-title.is-guidance-message {
+  --seq-fade-duration: var(--motion-duration);
+}
+
 .breath-dot {
   width: 72px;
   height: 72px;

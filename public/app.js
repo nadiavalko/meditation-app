@@ -188,6 +188,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnTitle.textContent = "Let’s take three deep breaths together.";
+      burnTitle.classList.add("is-guidance-message");
       burnTitle.classList.remove("is-fading");
       burnTitle.classList.remove("is-revealing");
       void burnTitle.offsetWidth;
@@ -211,6 +212,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       if (journeyBreathingStage) {
         journeyBreathingStage.classList.remove("is-revealing");
       }
+      burnTitle.classList.remove("is-guidance-message");
       const startBreathing = journeyBreathingCanvas?.__startBreathingSequence;
       if (typeof startBreathing === "function") {
         startBreathing();
