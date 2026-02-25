@@ -1,1 +1,1 @@
-Add post-breath journey text sequence and fade out exhale with center dot
+Add final stop text between Well done and body scan prompt

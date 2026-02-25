@@ -273,10 +273,20 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             fadeOutJourneyTitle();
           }, revealDuration + holdAfterWellDoneMs);
 
+          const finalStopRevealAt = revealDuration + holdAfterWellDoneMs + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Now, your final stop.");
+          }, finalStopRevealAt);
+
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs);
+
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("I’ll guide you through a quick body scan.");
-          }, revealDuration + holdAfterWellDoneMs + fadeOutDuration);
+          }, finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration);
         }, fadeOutDuration);
       };
     }
