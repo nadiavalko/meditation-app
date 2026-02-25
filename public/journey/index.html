@@ -9,7 +9,7 @@
   <body class="theme-dark">
     <main class="screen screen-burn">
       <div class="screen-content">
-        <h1 class="burn-title burn-seq burn-seq-1" data-burn-title>
+        <h1 class="burn-title burn-seq burn-seq-1 breathing-title" data-burn-title data-breathing-title>
           Write something you’d like to let go of.
         </h1>
         <section class="burn-input-stack">
@@ -29,6 +29,17 @@
           >
             🔥🔥🔥
           </button>
+        </section>
+        <section
+          class="breathing-stage is-hidden"
+          aria-hidden="true"
+          data-journey-breathing-stage
+        >
+          <canvas
+            class="breathing-canvas"
+            data-breathing-canvas
+            data-breathing-autostart="false"
+          ></canvas>
         </section>
       </div>
     </main>

@@ -1,1 +1,1 @@
-Smooth breathing labels and delay inhale exhale text transitions
+Integrate breathing exercise back into journey flow
