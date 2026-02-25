@@ -122,6 +122,7 @@ const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
 const burnTitle = document.querySelector("[data-burn-title]");
+const journeyBreathingPhaseTitle = document.querySelector("[data-breathing-phase-title]");
 const burnInputStack = document.querySelector(".burn-input-stack");
 const journeyBreathingStage = document.querySelector("[data-journey-breathing-stage]");
 const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breathing-canvas]");
@@ -146,9 +147,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
+    const guidanceRevealDuration = 2200;
+    const stageRevealDuration = 1600;
     burnFrame.classList.add("is-burning");
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
+    burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
 
     setTimeout(() => {
       burnFrame.classList.add("is-hidden");
@@ -177,8 +181,13 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     const breathingIntroStart = fadeOutDelay + fadeOutDuration + revealDuration + 900;
     const breathingIntroSwap = breathingIntroStart + fadeOutDuration;
-    const breathingStageRevealDelay = breathingIntroSwap + 250;
-    const breathingSequenceStartDelay = breathingStageRevealDelay + 500;
+    const breathingStageRevealDelay = breathingIntroSwap + guidanceRevealDuration + 250;
+    const breathingGuidanceFadeOutStart = breathingIntroSwap + guidanceRevealDuration + 500;
+    const breathingSequenceStartDelay =
+      Math.max(
+        breathingGuidanceFadeOutStart + fadeOutDuration + 180,
+        breathingStageRevealDelay + stageRevealDuration + 120
+      );
 
     setTimeout(() => {
       burnTitle.classList.remove("is-fading");
@@ -190,6 +199,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       burnTitle.textContent = "Let’s take three deep breaths together.";
       burnTitle.classList.remove("is-fading");
       burnTitle.classList.remove("is-revealing");
+      burnTitle.style.setProperty("--seq-fade-duration", `${guidanceRevealDuration}ms`);
       void burnTitle.offsetWidth;
       burnTitle.classList.add("is-revealing");
     }, breathingIntroSwap);
@@ -208,6 +218,40 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }, breathingStageRevealDelay);
 
     setTimeout(() => {
+      burnTitle.classList.remove(
+        "is-phase-label",
+        "is-breath-fading",
+        "is-breath-revealing",
+        "is-fading",
+        "is-revealing"
+      );
+      burnTitle.style.removeProperty("--seq-fade-duration");
+      void burnTitle.offsetWidth;
+      burnTitle.classList.add("is-fading");
+    }, breathingGuidanceFadeOutStart);
+
+    setTimeout(() => {
+      burnTitle.classList.remove(
+        "is-phase-label",
+        "is-breath-fading",
+        "is-breath-revealing",
+        "is-fading",
+        "is-revealing"
+      );
+      burnTitle.style.removeProperty("--seq-fade-duration");
+      burnTitle.style.display = "none";
+      if (journeyBreathingPhaseTitle) {
+        journeyBreathingPhaseTitle.style.display = "";
+        journeyBreathingPhaseTitle.classList.remove("is-hidden");
+        journeyBreathingPhaseTitle.classList.remove(
+          "is-phase-label",
+          "is-breath-fading",
+          "is-breath-revealing",
+          "is-fading",
+          "is-revealing"
+        );
+        journeyBreathingPhaseTitle.textContent = "";
+      }
       if (journeyBreathingStage) {
         journeyBreathingStage.classList.remove("is-revealing");
       }
@@ -224,7 +268,9 @@ const breathingCanvas = document.querySelector("[data-breathing-canvas]");
 if (breathingCanvas instanceof HTMLCanvasElement) {
   const ctx = breathingCanvas.getContext("2d");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const breathingTitle = document.querySelector("[data-breathing-title]");
+  const breathingTitle =
+    document.querySelector("[data-breathing-phase-title]") ||
+    document.querySelector("[data-breathing-title]");
   const breathingAutoStart = breathingCanvas.dataset.breathingAutostart !== "false";
 
   if (ctx) {
@@ -286,20 +332,10 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       }
       return 0;
     };
-    const titleFadeOutMs = breathingTitle
-      ? parseCssTimeMs(
-          window
-            .getComputedStyle(breathingTitle)
-            .getPropertyValue("--motion-fade-out-duration")
-        ) || 450
-      : 450;
-    const titleRevealMs = breathingTitle
-      ? parseCssTimeMs(
-          window
-            .getComputedStyle(breathingTitle)
-            .getPropertyValue("--seq-fade-duration")
-        ) || 700
-      : 700;
+    const genericTitleFadeOutMs = 1200;
+    const genericTitleRevealMs = 1600;
+    const phaseTitleFadeOutMs = 550;
+    const phaseTitleRevealMs = 800;
     let titleTransitionToken = 0;
 
     const transitionBreathingTitle = (nextText) => {
@@ -310,6 +346,8 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       const currentIsPhaseLabel =
         currentText === "Inhale" || currentText === "Exhale";
       const nextIsPhaseLabel = nextText === "Inhale" || nextText === "Exhale";
+      const fadeOutMs = currentIsPhaseLabel ? phaseTitleFadeOutMs : genericTitleFadeOutMs;
+      const revealMs = nextIsPhaseLabel ? phaseTitleRevealMs : genericTitleRevealMs;
       if (
         currentText === nextText &&
         !breathingTitle.classList.contains("is-breath-fading") &&
@@ -355,17 +393,17 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
             return;
           }
           breathingTitle.classList.remove("is-breath-revealing", "is-revealing");
-        }, titleRevealMs);
+        }, revealMs);
         titleTimers.push(revealCleanupTimer);
-      }, titleFadeOutMs);
+      }, fadeOutMs);
       titleTimers.push(swapTimer);
     };
 
-    const scheduleTitleBoundarySwap = (nextText, swapAtMs) => {
+    const scheduleTitleBoundarySwap = (nextText, swapAtMs, leadMs) => {
       if (!breathingTitle) {
         return;
       }
-      const delay = Math.max(0, swapAtMs - titleFadeOutMs - performance.now());
+      const delay = Math.max(0, swapAtMs - leadMs - performance.now());
       const timer = window.setTimeout(() => {
         transitionBreathingTitle(nextText);
       }, delay);
@@ -603,17 +641,29 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
         const stageDurationMs = parseCssTimeMs(stageStyles.animationDuration);
         const now = performance.now();
         const firstInhaleStartMs =
-          now + stageDelayMs + stageDurationMs + config.introDotHoldMs + titleFadeOutMs;
+          now + stageDelayMs + stageDurationMs + config.introDotHoldMs + genericTitleFadeOutMs;
         state.startTime = firstInhaleStartMs;
 
-        scheduleTitleBoundarySwap("Inhale", firstInhaleStartMs + config.phaseLabelLagMs);
+        scheduleTitleBoundarySwap(
+          "Inhale",
+          firstInhaleStartMs + config.phaseLabelLagMs,
+          genericTitleFadeOutMs
+        );
         for (let roundIndex = 0; roundIndex < config.rounds; roundIndex += 1) {
           const inhaleStartMs = firstInhaleStartMs + roundIndex * cycleMs;
           const exhaleStartMs = inhaleStartMs + config.inhaleMs;
           if (roundIndex > 0) {
-            scheduleTitleBoundarySwap("Inhale", inhaleStartMs + config.phaseLabelLagMs);
+            scheduleTitleBoundarySwap(
+              "Inhale",
+              inhaleStartMs + config.phaseLabelLagMs,
+              phaseTitleFadeOutMs
+            );
           }
-          scheduleTitleBoundarySwap("Exhale", exhaleStartMs + config.phaseLabelLagMs);
+          scheduleTitleBoundarySwap(
+            "Exhale",
+            exhaleStartMs + config.phaseLabelLagMs,
+            phaseTitleFadeOutMs
+          );
         }
       } else {
         state.startTime = performance.now();
@@ -635,6 +685,9 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
       breathingCanvas.dataset.round = "0";
       breathingCanvas.dataset.centerAlpha = "0.000";
       ctx.clearRect(0, 0, state.width, state.height);
+      if (breathingTitle?.matches("[data-breathing-phase-title]")) {
+        breathingTitle.classList.add("is-hidden");
+      }
     }
 
     window.addEventListener("resize", resizeCanvas, { passive: true });

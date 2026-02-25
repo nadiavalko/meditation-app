@@ -362,6 +362,14 @@ body {
 .breathing-title {
 }
 
+.journey-phase-title.is-hidden {
+  display: none;
+}
+
+.journey-phase-title {
+  min-height: 48px;
+}
+
 .breathing-title.is-phase-label {
   --motion-fade-out-duration: 0.55s;
   --seq-fade-duration: 0.8s;

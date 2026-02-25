@@ -1,1 +1,1 @@
-Revert generic journey title transition helper change
+Slow down guidance text reveal before breathing handoff
