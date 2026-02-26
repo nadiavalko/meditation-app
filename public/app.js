@@ -156,6 +156,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const shortBodyScanStepDurationMs = 15000;
     const longBodyScanStepDurationMs = 15000;
     const longBodyScanMidTextSwapMs = 7000;
+    const closingBodyScanStepDurationMs = 15000;
     const gradientFadeLeadMs = 2200;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
@@ -597,6 +598,41 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Relax your jaw, eyes, and forehead.");
           }, faceMidFadeAt + fadeOutDuration);
+
+          const wholeBodyPromptFadeAt = facePromptRevealAt + longBodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutBodyGradients();
+          }, Math.max(0, wholeBodyPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, wholeBodyPromptFadeAt);
+
+          const wholeBodyPromptRevealAt = wholeBodyPromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Bring awareness to your whole body.");
+          }, wholeBodyPromptRevealAt);
+
+          const gratitudePromptFadeAt = wholeBodyPromptRevealAt + closingBodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, gratitudePromptFadeAt);
+
+          const gratitudePromptRevealAt = gratitudePromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Send gratitude to your vessel, your home.");
+          }, gratitudePromptRevealAt);
+
+          const completePromptFadeAt = gratitudePromptRevealAt + closingBodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, completePromptFadeAt);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Notice how complete you are.");
+          }, completePromptFadeAt + fadeOutDuration);
         }, fadeOutDuration);
       };
     }

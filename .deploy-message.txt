@@ -1,1 +1,1 @@
-Set all body scan steps to 15s and move second text to 7s
+Add final whole-body body-scan text sequence after face step
