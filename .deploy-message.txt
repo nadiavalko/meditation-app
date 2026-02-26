@@ -1,1 +1,1 @@
-Redirect to finish page after final body scan closing text
+Extend final three body-scan closing phrases to 6s each
