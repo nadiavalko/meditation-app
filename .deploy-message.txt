@@ -1,1 +1,1 @@
-Use gradients 1 and 2 for feet body scan step
+Reset body SVG gradients to opacity 0 and keep body outline fade-in
