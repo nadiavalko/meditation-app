@@ -671,7 +671,7 @@ body {
 }
 
 .burn-input-frame.is-burning {
-  animation: burnField 6s ease forwards;
+  animation: burnField 1.2s ease forwards;
   pointer-events: none;
 }
 

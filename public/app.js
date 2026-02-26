@@ -136,10 +136,67 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
   if (!canvasEl || !frameEl || !inputEl || typeof canvasEl.getContext !== "function") {
     return null;
   }
-  const ctx = canvasEl.getContext("2d");
+  const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
   if (!ctx) {
     return null;
   }
+
+  const EFFECT_WIDTH = 360;
+  const EFFECT_HEIGHT = 280;
+  const EDGE_SEGMENTS = 128;
+  const MAX_PARTICLES = 30;
+
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const smoothstep = (edge0, edge1, x) => {
+    const t = clamp01((x - edge0) / Math.max(1e-6, edge1 - edge0));
+    return t * t * (3 - 2 * t);
+  };
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  const hashNoise = (x, y, z) => {
+    const n = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453123;
+    return n - Math.floor(n);
+  };
+
+  const valueNoise3 = (x, y, z) => {
+    const x0 = Math.floor(x);
+    const y0 = Math.floor(y);
+    const z0 = Math.floor(z);
+    const xf = x - x0;
+    const yf = y - y0;
+    const zf = z - z0;
+    const u = xf * xf * (3 - 2 * xf);
+    const v = yf * yf * (3 - 2 * yf);
+    const w = zf * zf * (3 - 2 * zf);
+    const n000 = hashNoise(x0, y0, z0);
+    const n100 = hashNoise(x0 + 1, y0, z0);
+    const n010 = hashNoise(x0, y0 + 1, z0);
+    const n110 = hashNoise(x0 + 1, y0 + 1, z0);
+    const n001 = hashNoise(x0, y0, z0 + 1);
+    const n101 = hashNoise(x0 + 1, y0, z0 + 1);
+    const n011 = hashNoise(x0, y0 + 1, z0 + 1);
+    const n111 = hashNoise(x0 + 1, y0 + 1, z0 + 1);
+    const x00 = lerp(n000, n100, u);
+    const x10 = lerp(n010, n110, u);
+    const x01 = lerp(n001, n101, u);
+    const x11 = lerp(n011, n111, u);
+    return lerp(lerp(x00, x10, v), lerp(x01, x11, v), w);
+  };
+
+  const fbmNoise = (x, y, t) => {
+    let amp = 0.5;
+    let freq = 1;
+    let total = 0;
+    let norm = 0;
+    for (let octave = 0; octave < 3; octave += 1) {
+      total += valueNoise3(x * freq, y * freq, t * freq * 0.4) * amp;
+      norm += amp;
+      amp *= 0.5;
+      freq *= 2;
+    }
+    return norm > 0 ? total / norm : 0;
+  };
 
   const wrapCanvasText = (context, text, maxWidth) => {
     const normalized = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
@@ -148,35 +205,26 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
     paragraphs.forEach((paragraph, paragraphIndex) => {
       if (paragraph.length === 0) {
         lines.push("");
-        return;
-      }
-      const words = paragraph.split(/\s+/);
-      let line = "";
-      words.forEach((word) => {
-        const candidate = line ? `${line} ${word}` : word;
-        if (context.measureText(candidate).width <= maxWidth) {
-          line = candidate;
-          return;
-        }
+      } else {
+        const words = paragraph.split(/\s+/);
+        let line = "";
+        words.forEach((word) => {
+          const candidate = line ? `${line} ${word}` : word;
+          if (context.measureText(candidate).width <= maxWidth) {
+            line = candidate;
+            return;
+          }
+          if (line) {
+            lines.push(line);
+            line = word;
+          } else {
+            lines.push(word);
+            line = "";
+          }
+        });
         if (line) {
           lines.push(line);
-          line = word;
-          return;
         }
-        let chunk = "";
-        for (const char of word) {
-          const nextChunk = chunk + char;
-          if (context.measureText(nextChunk).width > maxWidth && chunk) {
-            lines.push(chunk);
-            chunk = char;
-          } else {
-            chunk = nextChunk;
-          }
-        }
-        line = chunk;
-      });
-      if (line) {
-        lines.push(line);
       }
       if (paragraphIndex < paragraphs.length - 1) {
         lines.push("");
@@ -199,165 +247,316 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
     context.closePath();
   };
 
-  return (durationMs = 4200) => {
-    const frameRect = frameEl.getBoundingClientRect();
-    if (frameRect.width <= 0 || frameRect.height <= 0) {
-      return false;
+  const fallbackSnapshotCanvas = () => {
+    const offscreen = document.createElement("canvas");
+    offscreen.width = EFFECT_WIDTH;
+    offscreen.height = EFFECT_HEIGHT;
+    const sctx = offscreen.getContext("2d");
+    if (!sctx) {
+      return offscreen;
     }
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const width = Math.round(frameRect.width);
-    const height = Math.round(frameRect.height);
-    canvasEl.width = Math.max(1, Math.round(width * dpr));
-    canvasEl.height = Math.max(1, Math.round(height * dpr));
-    canvasEl.style.width = `${width}px`;
-    canvasEl.style.height = `${height}px`;
-
     const computedFrame = window.getComputedStyle(frameEl);
     const computedInput = window.getComputedStyle(inputEl);
+    const borderRadius = Number.parseFloat(computedFrame.borderTopLeftRadius) || 12;
+    const borderWidth = Number.parseFloat(computedFrame.borderTopWidth) || 1;
     const paddingLeft = Number.parseFloat(computedFrame.paddingLeft) || 0;
     const paddingRight = Number.parseFloat(computedFrame.paddingRight) || 0;
     const paddingTop = Number.parseFloat(computedFrame.paddingTop) || 0;
-    const borderRadius = Number.parseFloat(computedFrame.borderTopLeftRadius) || 12;
-    const borderWidth = Number.parseFloat(computedFrame.borderTopWidth) || 1;
     const fontSize = Number.parseFloat(computedInput.fontSize) || 24;
     const lineHeight = Number.parseFloat(computedInput.lineHeight) || 32;
     const textColor = computedInput.color || "#ffffff";
     const frameBg = computedFrame.backgroundColor || "#1e203b";
     const frameBorder = computedFrame.borderTopColor || "#242960";
-    const textMaxWidth = Math.max(0, width - paddingLeft - paddingRight);
-    const lines = wrapCanvasText(ctx, inputEl.value, textMaxWidth);
-
-    const edgeNoise = Array.from({ length: 20 }, (_, i) => {
-      const t = i / 19;
-      return {
-        t,
-        amp: 7 + ((i * 11) % 9),
-        phase: (i * 1.37) % (Math.PI * 2)
-      };
+    roundedRectPath(sctx, 0.5, 0.5, EFFECT_WIDTH - 1, EFFECT_HEIGHT - 1, borderRadius);
+    sctx.fillStyle = frameBg;
+    sctx.fill();
+    sctx.strokeStyle = frameBorder;
+    sctx.lineWidth = borderWidth;
+    sctx.stroke();
+    sctx.font = `${computedInput.fontStyle} ${computedInput.fontWeight} ${fontSize}px ${computedInput.fontFamily}`;
+    sctx.fillStyle = textColor;
+    sctx.textBaseline = "top";
+    const lines = wrapCanvasText(
+      sctx,
+      inputEl.value,
+      Math.max(0, EFFECT_WIDTH - paddingLeft - paddingRight)
+    );
+    lines.forEach((line, index) => {
+      const y = paddingTop + index * lineHeight;
+      if (y + lineHeight <= EFFECT_HEIGHT - 6) {
+        sctx.fillText(line, paddingLeft, y);
+      }
     });
+    return offscreen;
+  };
 
-    const buildBurnEdgePoints = (progress, timeMs) => {
-      const baseY = height - height * progress;
-      return edgeNoise.map((node) => {
-        const undulate =
-          Math.sin(node.phase + timeMs * 0.006 + node.t * Math.PI * 2.8) * node.amp +
-          Math.sin(node.phase * 0.7 + timeMs * 0.003 + node.t * Math.PI * 8) * (node.amp * 0.35);
-        const x = node.t * width;
-        const y = Math.max(0, Math.min(height, baseY + undulate));
-        return { x, y };
-      });
-    };
+  const makeSnapshot = async (element) => {
+    if (typeof window.html2canvas === "function") {
+      try {
+        return await window.html2canvas(element, {
+          backgroundColor: null,
+          logging: false,
+          scale: 1,
+          useCORS: true
+        });
+      } catch {
+        return fallbackSnapshotCanvas();
+      }
+    }
+    return fallbackSnapshotCanvas();
+  };
 
-    const fillBurnRegion = (points) => {
-      if (points.length === 0) {
+  return ({ element, effectWidth, effectHeight, duration, origin, onComplete }) => {
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (reducedMotion) {
+      if (inputEl) {
+        inputEl.style.visibility = "hidden";
+      }
+      onComplete?.();
+      return { cancel: () => {} };
+    }
+
+    const targetElement = element || frameEl;
+    const effectW = effectWidth || EFFECT_WIDTH;
+    const effectH = effectHeight || EFFECT_HEIGHT;
+    const burnDurationMs = duration || 1200;
+    const noiseAmplitude = 0.08;
+    const edgeSoftness = 0.05;
+    const rimWidth = 0.03;
+    const frameRect = targetElement.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvasEl.width = Math.max(1, Math.round(effectW * dpr));
+    canvasEl.height = Math.max(1, Math.round(effectH * dpr));
+    canvasEl.style.width = `${frameRect.width}px`;
+    canvasEl.style.height = `${frameRect.height}px`;
+
+    const ox = origin?.x ?? effectW * 0.5;
+    const oy = origin?.y ?? effectH;
+    const maxDistance = Math.hypot(Math.max(ox, effectW - ox), Math.max(oy, effectH - oy));
+
+    const pixelCount = effectW * effectH;
+    const normalizedDistances = new Float32Array(pixelCount);
+    const angleIndexes = new Uint16Array(pixelCount);
+    for (let y = 0; y < effectH; y += 1) {
+      for (let x = 0; x < effectW; x += 1) {
+        const idx = y * effectW + x;
+        const dx = x - ox;
+        const dy = y - oy;
+        normalizedDistances[idx] = Math.hypot(dx, dy) / maxDistance;
+        const theta = Math.max(-Math.PI, Math.min(0, Math.atan2(dy, dx)));
+        const normalizedAngle = (theta + Math.PI) / Math.PI;
+        angleIndexes[idx] = Math.max(0, Math.min(EDGE_SEGMENTS - 1, Math.floor(normalizedAngle * EDGE_SEGMENTS)));
+      }
+    }
+
+    const renderCanvas = document.createElement("canvas");
+    renderCanvas.width = effectW;
+    renderCanvas.height = effectH;
+    const rctx = renderCanvas.getContext("2d");
+    if (!rctx) {
+      onComplete?.();
+      return { cancel: () => {} };
+    }
+
+    let cancelled = false;
+    let rafId = 0;
+    const particles = [];
+    let lastParticleSpawn = 0;
+    let baseImageData = null;
+    const rimEdges = new Float32Array(EDGE_SEGMENTS);
+
+    const spawnParticles = (elapsedMs) => {
+      if (particles.length >= MAX_PARTICLES || elapsedMs - lastParticleSpawn < 55) {
         return;
       }
-      ctx.beginPath();
-      ctx.moveTo(0, height);
-      points.forEach((point) => ctx.lineTo(point.x, point.y));
-      ctx.lineTo(width, height);
-      ctx.closePath();
-      ctx.fill();
+      lastParticleSpawn = elapsedMs;
+      const count = Math.min(2, MAX_PARTICLES - particles.length);
+      for (let i = 0; i < count; i += 1) {
+        const seg = Math.floor(Math.random() * EDGE_SEGMENTS);
+        const theta = -Math.PI + ((seg + 0.5) / EDGE_SEGMENTS) * Math.PI;
+        const r = rimEdges[seg] * maxDistance;
+        particles.push({
+          x: ox + Math.cos(theta) * r,
+          y: oy + Math.sin(theta) * r,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: -(0.35 + Math.random() * 0.55),
+          lifeMs: 420 + Math.random() * 420,
+          ageMs: 0,
+          size: 1.5 + Math.random() * 2.2
+        });
+      }
     };
 
-    const drawSnapshot = () => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      roundedRectPath(ctx, 0.5, 0.5, width - 1, height - 1, borderRadius);
-      ctx.fillStyle = frameBg;
-      ctx.fill();
-      ctx.strokeStyle = frameBorder;
-      ctx.lineWidth = borderWidth;
-      ctx.stroke();
-      ctx.restore();
+    const updateParticles = (deltaMs) => {
+      for (let i = particles.length - 1; i >= 0; i -= 1) {
+        const p = particles[i];
+        p.ageMs += deltaMs;
+        if (p.ageMs >= p.lifeMs) {
+          particles.splice(i, 1);
+          continue;
+        }
+        p.x += p.vx * (deltaMs / 16.666);
+        p.y += p.vy * (deltaMs / 16.666);
+        p.vx *= 0.994;
+        p.vy *= 0.996;
+      }
+    };
 
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.font = `${computedInput.fontStyle} ${computedInput.fontWeight} ${fontSize}px ${computedInput.fontFamily}`;
-      ctx.fillStyle = textColor;
-      ctx.textBaseline = "top";
-      lines.forEach((line, index) => {
-        const y = paddingTop + index * lineHeight;
-        if (y + lineHeight > height - 6) {
+    const drawParticles = () => {
+      if (particles.length === 0) {
+        return;
+      }
+      rctx.save();
+      rctx.globalCompositeOperation = "lighter";
+      particles.forEach((p) => {
+        const lifeT = clamp01(p.ageMs / p.lifeMs);
+        const alpha = (1 - lifeT) * 0.5;
+        if (alpha <= 0) {
           return;
         }
-        ctx.fillText(line, paddingLeft, y);
+        const grad = rctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
+        grad.addColorStop(0, `rgba(255, 216, 132, ${alpha})`);
+        grad.addColorStop(0.45, `rgba(255, 123, 58, ${alpha * 0.8})`);
+        grad.addColorStop(1, "rgba(255, 123, 58, 0)");
+        rctx.fillStyle = grad;
+        rctx.beginPath();
+        rctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+        rctx.fill();
       });
-      ctx.restore();
+      rctx.restore();
     };
 
-    let rafId = 0;
-    let startTime = 0;
-    let completed = false;
-
-    const step = (ts) => {
-      if (!startTime) {
-        startTime = ts;
+    (async () => {
+      const snapshotCanvas = await makeSnapshot(targetElement);
+      if (cancelled) {
+        return;
       }
-      const elapsed = ts - startTime;
-      const t = Math.min(1, elapsed / durationMs);
-      const eased = 1 - Math.pow(1 - t, 1.35);
-      drawSnapshot();
 
-      const points = buildBurnEdgePoints(eased, elapsed);
-
-      ctx.save();
-      ctx.scale(dpr, dpr);
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-
-      // Warm glow and charred edge just above the erase line.
-      ctx.strokeStyle = "rgba(255, 164, 84, 0.95)";
-      ctx.lineWidth = 8;
-      ctx.shadowColor = "rgba(255, 117, 24, 0.65)";
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      points.forEach((point, index) => {
-        if (index === 0) {
-          ctx.moveTo(point.x, point.y);
-        } else {
-          const prev = points[index - 1];
-          const cx = (prev.x + point.x) * 0.5;
-          const cy = (prev.y + point.y) * 0.5;
-          ctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
-        }
-      });
-      const last = points[points.length - 1];
-      ctx.lineTo(last.x, last.y);
-      ctx.stroke();
-
-      ctx.shadowBlur = 0;
-      ctx.strokeStyle = "rgba(59, 28, 10, 0.85)";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      points.forEach((point, index) => {
-        if (index === 0) {
-          ctx.moveTo(point.x, point.y);
-        } else {
-          ctx.lineTo(point.x, point.y);
-        }
-      });
-      ctx.stroke();
-
-      // Erase the consumed region.
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.fillStyle = "rgba(255,255,255,1)";
-      fillBurnRegion(points);
-      ctx.restore();
-
-      if (t < 1) {
-        rafId = window.requestAnimationFrame(step);
-      } else {
-        completed = true;
+      const snapshotSource = document.createElement("canvas");
+      snapshotSource.width = effectW;
+      snapshotSource.height = effectH;
+      const sctx = snapshotSource.getContext("2d", { willReadFrequently: true });
+      if (!sctx) {
+        onComplete?.();
+        return;
       }
-    };
+      sctx.clearRect(0, 0, effectW, effectH);
+      sctx.drawImage(snapshotCanvas, 0, 0, effectW, effectH);
+      baseImageData = sctx.getImageData(0, 0, effectW, effectH);
 
-    window.requestAnimationFrame(step);
+      inputEl.style.visibility = "hidden";
+      let startTs = 0;
+      let lastTs = 0;
+
+      const frame = (ts) => {
+        if (cancelled || !baseImageData) {
+          return;
+        }
+        if (!startTs) {
+          startTs = ts;
+          lastTs = ts;
+        }
+        const elapsed = ts - startTs;
+        const delta = ts - lastTs;
+        lastTs = ts;
+        const t = clamp01(elapsed / burnDurationMs);
+        const front = easeOutCubic(t);
+
+        const timeNoise = elapsed * 0.0015;
+        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
+          const u = i / EDGE_SEGMENTS;
+          const n = fbmNoise(u * 6.2, u * 1.8 + 10.3, timeNoise);
+          rimEdges[i] = clamp01(front + (n - 0.5) * noiseAmplitude);
+        }
+
+        const out = new Uint8ClampedArray(baseImageData.data);
+        for (let i = 0; i < pixelCount; i += 1) {
+          const edge = rimEdges[angleIndexes[i]];
+          const nd = normalizedDistances[i];
+          const diff = edge - nd;
+          let alphaMul = 1;
+          if (diff > edgeSoftness) {
+            alphaMul = 0;
+          } else if (diff > -edgeSoftness) {
+            alphaMul = 1 - smoothstep(-edgeSoftness, edgeSoftness, diff);
+          }
+          const aIndex = i * 4 + 3;
+          out[aIndex] = Math.round(out[aIndex] * alphaMul);
+        }
+
+        const imgData = new ImageData(out, effectW, effectH);
+        rctx.setTransform(1, 0, 0, 1, 0, 0);
+        rctx.clearRect(0, 0, effectW, effectH);
+        rctx.putImageData(imgData, 0, 0);
+
+        // Burn rim glow/char.
+        rctx.save();
+        rctx.lineCap = "round";
+        rctx.lineJoin = "round";
+        rctx.globalCompositeOperation = "lighter";
+        rctx.shadowColor = "rgba(255, 108, 36, 0.45)";
+        rctx.shadowBlur = 10;
+        rctx.strokeStyle = "rgba(255, 176, 96, 0.28)";
+        rctx.lineWidth = Math.max(1.2, effectW * 0.006);
+        rctx.beginPath();
+        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
+          const theta = -Math.PI + (i / (EDGE_SEGMENTS - 1)) * Math.PI;
+          const r = rimEdges[i] * maxDistance;
+          const x = ox + Math.cos(theta) * r;
+          const y = oy + Math.sin(theta) * r;
+          if (i === 0) {
+            rctx.moveTo(x, y);
+          } else {
+            rctx.lineTo(x, y);
+          }
+        }
+        rctx.stroke();
+
+        rctx.shadowBlur = 0;
+        rctx.globalCompositeOperation = "source-over";
+        rctx.strokeStyle = "rgba(66, 33, 16, 0.45)";
+        rctx.lineWidth = Math.max(0.8, effectW * 0.003);
+        rctx.beginPath();
+        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
+          const theta = -Math.PI + (i / (EDGE_SEGMENTS - 1)) * Math.PI;
+          const r = rimEdges[i] * maxDistance;
+          const x = ox + Math.cos(theta) * r;
+          const y = oy + Math.sin(theta) * r;
+          if (i === 0) {
+            rctx.moveTo(x, y);
+          } else {
+            rctx.lineTo(x, y);
+          }
+        }
+        rctx.stroke();
+        rctx.restore();
+
+        if (t < 1) {
+          spawnParticles(elapsed);
+          updateParticles(delta);
+          drawParticles();
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+          ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
+          rafId = window.requestAnimationFrame(frame);
+          return;
+        }
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+        ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
+        particles.length = 0;
+        onComplete?.();
+      };
+
+      rafId = window.requestAnimationFrame(frame);
+    })();
+
     return {
       cancel: () => {
-        if (!completed && rafId) {
+        cancelled = true;
+        if (rafId) {
           window.cancelAnimationFrame(rafId);
         }
       }
@@ -383,7 +582,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 6000;
+    const burnFieldDurationMs = 1200;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -592,7 +791,18 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     let burnAnimationController = null;
     if (typeof runCanvasBurn === "function") {
       burnFrame.classList.add("is-burning-canvas");
-      burnAnimationController = runCanvasBurn(burnFieldDurationMs);
+      burnAnimationController = runCanvasBurn({
+        element: burnFrame,
+        effectWidth: 360,
+        effectHeight: 280,
+        duration: burnFieldDurationMs,
+        origin: { x: 180, y: 280 },
+        onComplete: () => {
+          if (burnCanvas) {
+            burnCanvas.style.opacity = "0";
+          }
+        }
+      });
     }
     if (!burnAnimationController && burnMask) {
       burnMask.style.height = "0%";

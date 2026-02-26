@@ -1,1 +1,1 @@
-Rebuild input burn animation with slow canvas destination-out paper-burn effect
+Rebuild input burn effect with canvas destination-out overlay, glow rim, and ember particles
