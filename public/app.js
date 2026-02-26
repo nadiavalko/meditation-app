@@ -153,8 +153,36 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const stageRevealDuration = 1600;
     const holdAfterWellDoneMs = 900;
     const holdAfterBodyScanIntroMs = 1200;
-    const bodyScanStepDurationMs = 4000;
+    const bodyScanStepDurationMs = 6000;
     let pendingBodyGradientIndexes = [];
+    let bodyGradientPulseTimer = 0;
+
+    const clearBodyGradientPulseTimer = () => {
+      if (bodyGradientPulseTimer) {
+        window.clearTimeout(bodyGradientPulseTimer);
+        bodyGradientPulseTimer = 0;
+      }
+    };
+
+    const ensureBodyGradientPulseStyles = (svgDoc) => {
+      if (!svgDoc || svgDoc.getElementById("body-gradient-pulse-style")) {
+        return;
+      }
+      const style = svgDoc.createElementNS("http://www.w3.org/2000/svg", "style");
+      style.setAttribute("id", "body-gradient-pulse-style");
+      style.textContent = `
+        @keyframes bodyGradientPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.82; }
+        }
+        ellipse[data-pulse-active="true"] {
+          animation: bodyGradientPulse 3.6s ease-in-out infinite;
+          animation-delay: var(--pulse-delay, 0s);
+        }
+      `;
+      const root = svgDoc.querySelector("svg");
+      root?.appendChild(style);
+    };
 
     const applyBodyGradientVisibility = (indexes, opacity = "1") => {
       if (!journeyBodyFigure || !("contentDocument" in journeyBodyFigure)) {
@@ -194,11 +222,25 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         pendingBodyGradientIndexes = indexes.slice();
         return;
       }
+      ensureBodyGradientPulseStyles(svgDoc);
+      clearBodyGradientPulseTimer();
       const targetSet = new Set(indexes);
       ellipses.forEach((ellipse, idx) => {
+        ellipse.removeAttribute("data-pulse-active");
+        ellipse.style.removeProperty("--pulse-delay");
         ellipse.style.transition = "opacity 1.2s ease";
         ellipse.style.opacity = targetSet.has(idx) ? "1" : "0";
       });
+      bodyGradientPulseTimer = window.setTimeout(() => {
+        ellipses.forEach((ellipse, idx) => {
+          if (!targetSet.has(idx)) {
+            ellipse.removeAttribute("data-pulse-active");
+            return;
+          }
+          ellipse.setAttribute("data-pulse-active", "true");
+          ellipse.style.setProperty("--pulse-delay", `${(idx % 3) * 0.35}s`);
+        });
+      }, 1250);
       pendingBodyGradientIndexes = [];
     };
 
@@ -210,6 +252,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     const resetBodyGradients = () => {
       pendingBodyGradientIndexes = [];
+      clearBodyGradientPulseTimer();
       if (!journeyBodyFigure || !("contentDocument" in journeyBodyFigure)) {
         return;
       }
@@ -219,6 +262,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }
       const ellipses = svgDoc.querySelectorAll("ellipse");
       ellipses.forEach((ellipse) => {
+        ellipse.removeAttribute("data-pulse-active");
+        ellipse.style.removeProperty("--pulse-delay");
         ellipse.style.transition = "";
         ellipse.style.opacity = "0";
       });

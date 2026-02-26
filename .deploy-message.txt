@@ -1,1 +1,1 @@
-Add legs body scan step with gradient crossfade after 4s feet step
+Extend feet step to 6s and add gentle gradient pulse
