@@ -498,6 +498,30 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Feel its emptiness or fullness.");
           }, stomachMidFadeAt + fadeOutDuration);
+
+          const armsPromptFadeAt = stomachPromptRevealAt + stomachStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, armsPromptFadeAt);
+
+          const armsPromptRevealAt = armsPromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("See if you can relax your arms.");
+            setBodyGradients([4, 5]);
+          }, armsPromptRevealAt);
+
+          const chestPromptFadeAt = armsPromptRevealAt + bodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, chestPromptFadeAt);
+
+          const chestPromptRevealAt = chestPromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Feel your chest rise and fall.");
+            setBodyGradients([3]);
+          }, chestPromptRevealAt);
         }, fadeOutDuration);
       };
     }

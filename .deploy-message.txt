@@ -1,1 +1,1 @@
-Slow body outline reveal and gradient fades for body scan steps
+Add arms and chest body scan steps with gradients 5/6 and 4
