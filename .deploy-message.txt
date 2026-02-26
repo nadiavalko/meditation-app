@@ -1,1 +1,1 @@
-Add shoulders and face body scan steps with timed text swaps and gradients
+Make gradient fade-outs match fade-in smoothness by freezing pulse opacity before transitions

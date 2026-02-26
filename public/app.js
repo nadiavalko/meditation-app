@@ -228,8 +228,16 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       clearBodyGradientPulseTimer();
       const targetSet = new Set(indexes);
       ellipses.forEach((ellipse, idx) => {
+        const currentOpacity = window.getComputedStyle(ellipse).opacity;
         ellipse.removeAttribute("data-pulse-active");
         ellipse.style.removeProperty("--pulse-delay");
+        // Freeze the current visual opacity before changing targets so pulse shutdown
+        // doesn't make fade-outs appear abrupt.
+        ellipse.style.transition = "none";
+        ellipse.style.opacity = currentOpacity;
+      });
+      void svgDoc.documentElement?.getBoundingClientRect();
+      ellipses.forEach((ellipse, idx) => {
         ellipse.style.transition = "opacity 3.2s ease-in-out";
         ellipse.style.opacity = targetSet.has(idx) ? "1" : "0";
       });
