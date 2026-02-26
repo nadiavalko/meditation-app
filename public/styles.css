@@ -609,6 +609,84 @@ body {
   transition: opacity 0.2s ease;
 }
 
+.burn-input-mask::after {
+  content: "";
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: -28px;
+  height: 46px;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 7% 70%, #ffffff 0 8px, transparent 9px),
+    radial-gradient(circle at 17% 55%, #ffffff 0 7px, transparent 8px),
+    radial-gradient(circle at 28% 75%, #ffffff 0 9px, transparent 10px),
+    radial-gradient(circle at 40% 52%, #ffffff 0 7px, transparent 8px),
+    radial-gradient(circle at 52% 74%, #ffffff 0 10px, transparent 11px),
+    radial-gradient(circle at 64% 58%, #ffffff 0 8px, transparent 9px),
+    radial-gradient(circle at 75% 76%, #ffffff 0 9px, transparent 10px),
+    radial-gradient(circle at 86% 54%, #ffffff 0 7px, transparent 8px),
+    radial-gradient(circle at 95% 72%, #ffffff 0 8px, transparent 9px),
+    linear-gradient(to bottom, #ffffff 42%, rgba(255, 255, 255, 0.95) 100%);
+  filter: blur(0.35px);
+  transform: translateY(0);
+}
+
+@keyframes burnEdgeFlicker {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.92;
+  }
+  35% {
+    transform: translateY(-1px) scaleX(1.005);
+    opacity: 0.98;
+  }
+  65% {
+    transform: translateY(1px) scaleX(0.997);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.95;
+  }
+}
+
+@keyframes burnSparkDrift {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-7px);
+    background-position:
+      -2px -2px,
+      2px -4px,
+      -3px -3px,
+      3px -4px,
+      -2px -5px,
+      2px -3px,
+      -3px -4px,
+      2px -5px,
+      -2px -3px,
+      0 -2px;
+  }
+}
+
 .burn-button {
   width: 136px;
   height: 60px;
@@ -632,6 +710,13 @@ body {
 
 .burn-input-frame.is-burning .burn-input-mask::before {
   opacity: 1;
+}
+
+.burn-input-frame.is-burning .burn-input-mask::after {
+  opacity: 0.95;
+  animation:
+    burnEdgeFlicker 220ms ease-in-out infinite,
+    burnSparkDrift 900ms ease-out infinite;
 }
 
 .burn-input-frame.is-hidden {
