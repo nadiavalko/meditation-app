@@ -1,1 +1,1 @@
-Lengthen body scan step durations and start gradient fade-outs earlier
+Set all body scan steps to 15s and move second text to 7s
