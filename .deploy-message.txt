@@ -1,1 +1,1 @@
-Add stomach body scan step and mid-step text change with gradient 7
+Make body gradient pulse more visible and slower

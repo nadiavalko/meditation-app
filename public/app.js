@@ -175,10 +175,10 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       style.textContent = `
         @keyframes bodyGradientPulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.82; }
+          50% { opacity: 0.7; }
         }
         ellipse[data-pulse-active="true"] {
-          animation: bodyGradientPulse 3.6s ease-in-out infinite;
+          animation: bodyGradientPulse 4.2s ease-in-out infinite;
           animation-delay: var(--pulse-delay, 0s);
         }
       `;
