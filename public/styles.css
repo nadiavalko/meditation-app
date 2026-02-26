@@ -575,6 +575,16 @@ body {
   caret-color: #ffffff;
 }
 
+.burn-input-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 3;
+}
+
 .burn-input::placeholder {
   color: #ffffff;
 }
@@ -661,8 +671,25 @@ body {
 }
 
 .burn-input-frame.is-burning {
-  animation: burnField 4.2s ease forwards;
+  animation: burnField 6s ease forwards;
   pointer-events: none;
+}
+
+.burn-input-frame.is-burning-canvas {
+  animation: none;
+}
+
+.burn-input-frame.is-burning-canvas .burn-input {
+  opacity: 0;
+  caret-color: transparent;
+}
+
+.burn-input-frame.is-burning-canvas .burn-input-canvas {
+  opacity: 1;
+}
+
+.burn-input-frame.is-burning-canvas .burn-input-mask {
+  opacity: 0;
 }
 
 .burn-input-frame.is-burning .burn-input-mask::before {

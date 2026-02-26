@@ -121,6 +121,7 @@ settings.forEach((setting) => {
 const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
+const burnCanvas = document.querySelector("[data-burn-canvas]");
 const burnMask = document.querySelector("[data-burn-mask]");
 const burnTitle = document.querySelector("[data-burn-title]");
 const journeyBreathingPhaseTitle = document.querySelector("[data-breathing-phase-title]");
@@ -131,8 +132,242 @@ const journeyBodyFigureStage = document.querySelector("[data-journey-body-figure
 const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
 
+const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
+  if (!canvasEl || !frameEl || !inputEl || typeof canvasEl.getContext !== "function") {
+    return null;
+  }
+  const ctx = canvasEl.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
+
+  const wrapCanvasText = (context, text, maxWidth) => {
+    const normalized = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+    const paragraphs = normalized.split("\n");
+    const lines = [];
+    paragraphs.forEach((paragraph, paragraphIndex) => {
+      if (paragraph.length === 0) {
+        lines.push("");
+        return;
+      }
+      const words = paragraph.split(/\s+/);
+      let line = "";
+      words.forEach((word) => {
+        const candidate = line ? `${line} ${word}` : word;
+        if (context.measureText(candidate).width <= maxWidth) {
+          line = candidate;
+          return;
+        }
+        if (line) {
+          lines.push(line);
+          line = word;
+          return;
+        }
+        let chunk = "";
+        for (const char of word) {
+          const nextChunk = chunk + char;
+          if (context.measureText(nextChunk).width > maxWidth && chunk) {
+            lines.push(chunk);
+            chunk = char;
+          } else {
+            chunk = nextChunk;
+          }
+        }
+        line = chunk;
+      });
+      if (line) {
+        lines.push(line);
+      }
+      if (paragraphIndex < paragraphs.length - 1) {
+        lines.push("");
+      }
+    });
+    return lines;
+  };
+
+  const roundedRectPath = (context, x, y, width, height, radius) => {
+    context.beginPath();
+    context.moveTo(x + radius, y);
+    context.lineTo(x + width - radius, y);
+    context.quadraticCurveTo(x + width, y, x + width, y + radius);
+    context.lineTo(x + width, y + height - radius);
+    context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    context.lineTo(x + radius, y + height);
+    context.quadraticCurveTo(x, y + height, x, y + height - radius);
+    context.lineTo(x, y + radius);
+    context.quadraticCurveTo(x, y, x + radius, y);
+    context.closePath();
+  };
+
+  return (durationMs = 4200) => {
+    const frameRect = frameEl.getBoundingClientRect();
+    if (frameRect.width <= 0 || frameRect.height <= 0) {
+      return false;
+    }
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(frameRect.width);
+    const height = Math.round(frameRect.height);
+    canvasEl.width = Math.max(1, Math.round(width * dpr));
+    canvasEl.height = Math.max(1, Math.round(height * dpr));
+    canvasEl.style.width = `${width}px`;
+    canvasEl.style.height = `${height}px`;
+
+    const computedFrame = window.getComputedStyle(frameEl);
+    const computedInput = window.getComputedStyle(inputEl);
+    const paddingLeft = Number.parseFloat(computedFrame.paddingLeft) || 0;
+    const paddingRight = Number.parseFloat(computedFrame.paddingRight) || 0;
+    const paddingTop = Number.parseFloat(computedFrame.paddingTop) || 0;
+    const borderRadius = Number.parseFloat(computedFrame.borderTopLeftRadius) || 12;
+    const borderWidth = Number.parseFloat(computedFrame.borderTopWidth) || 1;
+    const fontSize = Number.parseFloat(computedInput.fontSize) || 24;
+    const lineHeight = Number.parseFloat(computedInput.lineHeight) || 32;
+    const textColor = computedInput.color || "#ffffff";
+    const frameBg = computedFrame.backgroundColor || "#1e203b";
+    const frameBorder = computedFrame.borderTopColor || "#242960";
+    const textMaxWidth = Math.max(0, width - paddingLeft - paddingRight);
+    const lines = wrapCanvasText(ctx, inputEl.value, textMaxWidth);
+
+    const edgeNoise = Array.from({ length: 20 }, (_, i) => {
+      const t = i / 19;
+      return {
+        t,
+        amp: 7 + ((i * 11) % 9),
+        phase: (i * 1.37) % (Math.PI * 2)
+      };
+    });
+
+    const buildBurnEdgePoints = (progress, timeMs) => {
+      const baseY = height - height * progress;
+      return edgeNoise.map((node) => {
+        const undulate =
+          Math.sin(node.phase + timeMs * 0.006 + node.t * Math.PI * 2.8) * node.amp +
+          Math.sin(node.phase * 0.7 + timeMs * 0.003 + node.t * Math.PI * 8) * (node.amp * 0.35);
+        const x = node.t * width;
+        const y = Math.max(0, Math.min(height, baseY + undulate));
+        return { x, y };
+      });
+    };
+
+    const fillBurnRegion = (points) => {
+      if (points.length === 0) {
+        return;
+      }
+      ctx.beginPath();
+      ctx.moveTo(0, height);
+      points.forEach((point) => ctx.lineTo(point.x, point.y));
+      ctx.lineTo(width, height);
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    const drawSnapshot = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      roundedRectPath(ctx, 0.5, 0.5, width - 1, height - 1, borderRadius);
+      ctx.fillStyle = frameBg;
+      ctx.fill();
+      ctx.strokeStyle = frameBorder;
+      ctx.lineWidth = borderWidth;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.font = `${computedInput.fontStyle} ${computedInput.fontWeight} ${fontSize}px ${computedInput.fontFamily}`;
+      ctx.fillStyle = textColor;
+      ctx.textBaseline = "top";
+      lines.forEach((line, index) => {
+        const y = paddingTop + index * lineHeight;
+        if (y + lineHeight > height - 6) {
+          return;
+        }
+        ctx.fillText(line, paddingLeft, y);
+      });
+      ctx.restore();
+    };
+
+    let rafId = 0;
+    let startTime = 0;
+    let completed = false;
+
+    const step = (ts) => {
+      if (!startTime) {
+        startTime = ts;
+      }
+      const elapsed = ts - startTime;
+      const t = Math.min(1, elapsed / durationMs);
+      const eased = 1 - Math.pow(1 - t, 1.35);
+      drawSnapshot();
+
+      const points = buildBurnEdgePoints(eased, elapsed);
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+
+      // Warm glow and charred edge just above the erase line.
+      ctx.strokeStyle = "rgba(255, 164, 84, 0.95)";
+      ctx.lineWidth = 8;
+      ctx.shadowColor = "rgba(255, 117, 24, 0.65)";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(point.x, point.y);
+        } else {
+          const prev = points[index - 1];
+          const cx = (prev.x + point.x) * 0.5;
+          const cy = (prev.y + point.y) * 0.5;
+          ctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
+        }
+      });
+      const last = points[points.length - 1];
+      ctx.lineTo(last.x, last.y);
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(59, 28, 10, 0.85)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      points.forEach((point, index) => {
+        if (index === 0) {
+          ctx.moveTo(point.x, point.y);
+        } else {
+          ctx.lineTo(point.x, point.y);
+        }
+      });
+      ctx.stroke();
+
+      // Erase the consumed region.
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(255,255,255,1)";
+      fillBurnRegion(points);
+      ctx.restore();
+
+      if (t < 1) {
+        rafId = window.requestAnimationFrame(step);
+      } else {
+        completed = true;
+      }
+    };
+
+    window.requestAnimationFrame(step);
+    return {
+      cancel: () => {
+        if (!completed && rafId) {
+          window.cancelAnimationFrame(rafId);
+        }
+      }
+    };
+  };
+};
+
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
+  const runCanvasBurn = createBurnInputCanvasAnimator(burnCanvas, burnFrame, burnInput);
 
   const clampToField = () => {
     if (burnInput.scrollHeight > burnInput.clientHeight) {
@@ -148,7 +383,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 4200;
+    const burnFieldDurationMs = 6000;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -354,7 +589,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }, delayMs);
     };
     burnFrame.classList.add("is-burning");
-    if (burnMask) {
+    let burnAnimationController = null;
+    if (typeof runCanvasBurn === "function") {
+      burnFrame.classList.add("is-burning-canvas");
+      burnAnimationController = runCanvasBurn(burnFieldDurationMs);
+    }
+    if (!burnAnimationController && burnMask) {
       burnMask.style.height = "0%";
       if (typeof burnMask.animate === "function") {
         burnMask.animate(
@@ -388,6 +628,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     resetJourneyGratitudeGradient();
 
     setTimeout(() => {
+      burnAnimationController?.cancel?.();
       burnFrame.classList.add("is-hidden");
     }, burnFieldDurationMs);
 

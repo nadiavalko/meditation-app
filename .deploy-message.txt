@@ -1,1 +1,1 @@
-Slow input burn animation and add uneven paper-burn edge mask
+Rebuild input burn animation with slow canvas destination-out paper-burn effect
