@@ -148,6 +148,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
+    const burnFieldDurationMs = 4200;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -359,13 +360,13 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         burnMask.animate(
           [{ height: "0%" }, { height: "100%" }],
           {
-            duration: 1600,
+            duration: burnFieldDurationMs,
             easing: "linear",
             fill: "forwards"
           }
         );
       } else {
-        burnMask.style.transition = "height 1.6s linear";
+        burnMask.style.transition = `height ${burnFieldDurationMs}ms linear`;
         requestAnimationFrame(() => {
           burnMask.style.height = "100%";
         });
@@ -388,7 +389,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnFrame.classList.add("is-hidden");
-    }, 1600);
+    }, burnFieldDurationMs);
 
     burnButton.classList.add("is-hidden");
     burnButton.style.display = "none";

@@ -1,1 +1,1 @@
-Revert advanced burn edge and spark effect for input burn animation
+Slow input burn animation and add uneven paper-burn edge mask

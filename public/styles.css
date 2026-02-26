@@ -609,6 +609,41 @@ body {
   transition: opacity 0.2s ease;
 }
 
+.burn-input-mask::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: -14px;
+  height: 28px;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 5% 75%, #fff 0 7px, transparent 8px),
+    radial-gradient(circle at 14% 45%, #fff 0 6px, transparent 7px),
+    radial-gradient(circle at 24% 78%, #fff 0 8px, transparent 9px),
+    radial-gradient(circle at 35% 42%, #fff 0 6px, transparent 7px),
+    radial-gradient(circle at 46% 74%, #fff 0 8px, transparent 9px),
+    radial-gradient(circle at 58% 44%, #fff 0 7px, transparent 8px),
+    radial-gradient(circle at 69% 76%, #fff 0 8px, transparent 9px),
+    radial-gradient(circle at 80% 43%, #fff 0 6px, transparent 7px),
+    radial-gradient(circle at 91% 73%, #fff 0 7px, transparent 8px),
+    linear-gradient(to bottom, #fff 40%, rgba(255, 255, 255, 0.95) 100%);
+  filter: blur(0.4px);
+  transform: translateY(0);
+}
+
+@keyframes burnEdgeUndulate {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .burn-button {
   width: 136px;
   height: 60px;
@@ -626,12 +661,17 @@ body {
 }
 
 .burn-input-frame.is-burning {
-  animation: burnField 1.6s ease forwards;
+  animation: burnField 4.2s ease forwards;
   pointer-events: none;
 }
 
 .burn-input-frame.is-burning .burn-input-mask::before {
   opacity: 1;
+}
+
+.burn-input-frame.is-burning .burn-input-mask::after {
+  opacity: 0.95;
+  animation: burnEdgeUndulate 280ms ease-in-out infinite;
 }
 
 .burn-input-frame.is-hidden {
