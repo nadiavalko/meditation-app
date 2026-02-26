@@ -1,1 +1,1 @@
-Adjust welcome radial gradient second stop to 30 percent
+Adjust welcome radial gradient stops to 10 and 50 percent

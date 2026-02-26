@@ -88,8 +88,8 @@ body {
   background: radial-gradient(
     circle,
     #171638 0%,
-    #141929 30%,
-    #0c0e1c 100%
+    #141929 10%,
+    #0c0e1c 50%
   );
   pointer-events: none;
   z-index: 0;
