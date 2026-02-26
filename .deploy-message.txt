@@ -1,1 +1,1 @@
-Extend feet step to 9s and slow gradient fade transitions
+Add stomach body scan step and mid-step text change with gradient 7

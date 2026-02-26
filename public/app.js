@@ -154,6 +154,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const holdAfterWellDoneMs = 900;
     const holdAfterBodyScanIntroMs = 1200;
     const bodyScanStepDurationMs = 9000;
+    const stomachStepDurationMs = 10000;
+    const stomachMidTextSwapMs = 5000;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
 
@@ -468,11 +470,34 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             fadeOutJourneyTitle();
           }, legsPromptFadeAt);
 
+          const legsPromptRevealAt = legsPromptFadeAt + fadeOutDuration;
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Feel your legs grow heavy.");
             setBodyGradients([7, 8]);
-          }, legsPromptFadeAt + fadeOutDuration);
+          }, legsPromptRevealAt);
+
+          const stomachPromptFadeAt = legsPromptRevealAt + bodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, stomachPromptFadeAt);
+
+          const stomachPromptRevealAt = stomachPromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Notice your stomach.");
+            setBodyGradients([6]);
+          }, stomachPromptRevealAt);
+
+          const stomachMidFadeAt = stomachPromptRevealAt + stomachMidTextSwapMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, stomachMidFadeAt);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Feel its emptiness or fullness.");
+          }, stomachMidFadeAt + fadeOutDuration);
         }, fadeOutDuration);
       };
     }
