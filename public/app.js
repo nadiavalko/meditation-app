@@ -633,6 +633,10 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Notice how complete you are.");
           }, completePromptFadeAt + fadeOutDuration);
+
+          window.setTimeout(() => {
+            window.location.href = "/finish/";
+          }, completePromptFadeAt + fadeOutDuration + closingBodyScanStepDurationMs + fadeOutDuration);
         }, fadeOutDuration);
       };
     }
