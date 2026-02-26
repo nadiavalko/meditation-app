@@ -349,7 +349,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     setTimeout(() => {
       burnTitle.classList.remove("is-fading");
-      revealJourneyTitle("It’s gone forever now.");
+      revealJourneyTitle("It’s gone forever.");
     }, fadeOutDelay + fadeOutDuration);
 
     const breathingIntroStart = fadeOutDelay + fadeOutDuration + revealDuration + 900;
