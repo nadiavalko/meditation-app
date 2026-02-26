@@ -1,1 +1,1 @@
-Use gradients 10 and 11 for feet body scan step
+Add legs body scan step with gradient crossfade after 4s feet step

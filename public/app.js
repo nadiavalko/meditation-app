@@ -153,6 +153,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const stageRevealDuration = 1600;
     const holdAfterWellDoneMs = 900;
     const holdAfterBodyScanIntroMs = 1200;
+    const bodyScanStepDurationMs = 4000;
     let pendingBodyGradientIndexes = [];
 
     const applyBodyGradientVisibility = (indexes, opacity = "1") => {
@@ -176,6 +177,29 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         ellipse.style.opacity = opacity;
       }
       return true;
+    };
+
+    const setBodyGradients = (indexes) => {
+      if (!journeyBodyFigure || !("contentDocument" in journeyBodyFigure)) {
+        pendingBodyGradientIndexes = indexes.slice();
+        return;
+      }
+      const svgDoc = journeyBodyFigure.contentDocument;
+      if (!svgDoc) {
+        pendingBodyGradientIndexes = indexes.slice();
+        return;
+      }
+      const ellipses = Array.from(svgDoc.querySelectorAll("ellipse"));
+      if (ellipses.length === 0) {
+        pendingBodyGradientIndexes = indexes.slice();
+        return;
+      }
+      const targetSet = new Set(indexes);
+      ellipses.forEach((ellipse, idx) => {
+        ellipse.style.transition = "opacity 1.2s ease";
+        ellipse.style.opacity = targetSet.has(idx) ? "1" : "0";
+      });
+      pendingBodyGradientIndexes = [];
     };
 
     const revealBodyGradients = (indexes) => {
@@ -391,8 +415,19 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Notice any sensations in your feet.");
-            revealBodyGradients([9, 10]);
+            setBodyGradients([9, 10]);
           }, feetPromptRevealAt);
+
+          const legsPromptFadeAt = feetPromptRevealAt + bodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, legsPromptFadeAt);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Feel your legs grow heavy.");
+            setBodyGradients([7, 8]);
+          }, legsPromptFadeAt + fadeOutDuration);
         }, fadeOutDuration);
       };
     }
