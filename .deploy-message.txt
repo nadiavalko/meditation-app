@@ -1,1 +1,1 @@
-Replace welcome PNG background with centered radial gradient on #0C0E1C
+Adjust welcome radial gradient second stop to 30 percent
