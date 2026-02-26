@@ -445,9 +445,9 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
       sctx.drawImage(snapshotCanvas, 0, 0, effectW, effectH);
       baseImageData = sctx.getImageData(0, 0, effectW, effectH);
 
-      inputEl.style.visibility = "hidden";
       let startTs = 0;
       let lastTs = 0;
+      let inputHidden = false;
 
       const frame = (ts) => {
         if (cancelled || !baseImageData) {
@@ -539,6 +539,10 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
           ctx.setTransform(1, 0, 0, 1, 0, 0);
           ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
           ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
+          if (!inputHidden) {
+            inputEl.style.visibility = "hidden";
+            inputHidden = true;
+          }
           rafId = window.requestAnimationFrame(frame);
           return;
         }
@@ -546,11 +550,15 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
         ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
+        if (!inputHidden) {
+          inputEl.style.visibility = "hidden";
+          inputHidden = true;
+        }
         particles.length = 0;
         onComplete?.();
       };
 
-      rafId = window.requestAnimationFrame(frame);
+      frame(performance.now());
     })();
 
     return {
@@ -582,7 +590,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 1200;
+    const burnFieldDurationMs = 2200;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -801,6 +809,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           if (burnCanvas) {
             burnCanvas.style.opacity = "0";
           }
+          burnFrame.classList.add("is-hidden");
         }
       });
     }
@@ -837,10 +846,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     resetBodyGradients();
     resetJourneyGratitudeGradient();
 
-    setTimeout(() => {
-      burnAnimationController?.cancel?.();
-      burnFrame.classList.add("is-hidden");
-    }, burnFieldDurationMs);
+    if (!burnAnimationController) {
+      setTimeout(() => {
+        burnFrame.classList.add("is-hidden");
+      }, burnFieldDurationMs);
+    }
 
     burnButton.classList.add("is-hidden");
     burnButton.style.display = "none";

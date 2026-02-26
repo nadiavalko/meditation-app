@@ -1,1 +1,1 @@
-Rebuild input burn effect with canvas destination-out overlay, glow rim, and ember particles
+Fix canvas burn visibility timing and tie frame hide to actual burn completion
