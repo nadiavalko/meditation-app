@@ -1,1 +1,1 @@
-Add blend-mode burn mask animation to journey input field burn effect
+Update finish page first line to Your journey is over.
