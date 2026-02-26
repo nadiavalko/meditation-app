@@ -136,22 +136,17 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
   if (!canvasEl || !frameEl || !inputEl || typeof canvasEl.getContext !== "function") {
     return null;
   }
-  const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
+  const ctx = canvasEl.getContext("2d");
   if (!ctx) {
     return null;
   }
 
   const EFFECT_WIDTH = 360;
   const EFFECT_HEIGHT = 280;
-  const EDGE_SEGMENTS = 128;
+  const EDGE_SEGMENTS = 44;
   const MAX_PARTICLES = 30;
 
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
-  const smoothstep = (edge0, edge1, x) => {
-    const t = clamp01((x - edge0) / Math.max(1e-6, edge1 - edge0));
-    return t * t * (3 - 2 * t);
-  };
   const lerp = (a, b, t) => a + (b - a) * t;
 
   const hashNoise = (x, y, z) => {
@@ -291,27 +286,41 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
   };
 
   const makeSnapshot = async (element) => {
+    const canvasHasVisiblePixels = (candidate) => {
+      const cctx = candidate?.getContext?.("2d");
+      if (!cctx || !candidate.width || !candidate.height) {
+        return false;
+      }
+      const data = cctx.getImageData(0, 0, candidate.width, candidate.height).data;
+      const step = Math.max(4, Math.floor((candidate.width * candidate.height) / 2400));
+      for (let i = 3; i < data.length; i += 4 * step) {
+        if (data[i] > 8) {
+          return true;
+        }
+      }
+      return false;
+    };
+
     if (typeof window.html2canvas === "function") {
       try {
-        return await window.html2canvas(element, {
+        const snap = await window.html2canvas(element, {
           backgroundColor: null,
           logging: false,
           scale: 1,
           useCORS: true
         });
+        return canvasHasVisiblePixels(snap) ? snap : null;
       } catch {
-        return fallbackSnapshotCanvas();
+        return null;
       }
     }
-    return fallbackSnapshotCanvas();
+    return null;
   };
 
   return ({ element, effectWidth, effectHeight, duration, origin, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
-      if (inputEl) {
-        inputEl.style.visibility = "hidden";
-      }
+      inputEl.style.visibility = "hidden";
       onComplete?.();
       return { cancel: () => {} };
     }
@@ -319,10 +328,10 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
     const targetElement = element || frameEl;
     const effectW = effectWidth || EFFECT_WIDTH;
     const effectH = effectHeight || EFFECT_HEIGHT;
-    const burnDurationMs = duration || 1200;
-    const noiseAmplitude = 0.08;
-    const edgeSoftness = 0.05;
-    const rimWidth = 0.03;
+    const burnDurationMs = duration || 3600;
+    const lingerMs = 550;
+    const noiseAmplitudePx = effectH * 0.065;
+    const rimWidthPx = Math.max(8, effectH * 0.03);
     const frameRect = targetElement.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -332,23 +341,7 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
     canvasEl.style.height = `${frameRect.height}px`;
 
     const ox = origin?.x ?? effectW * 0.5;
-    const oy = origin?.y ?? effectH;
-    const maxDistance = Math.hypot(Math.max(ox, effectW - ox), Math.max(oy, effectH - oy));
-
-    const pixelCount = effectW * effectH;
-    const normalizedDistances = new Float32Array(pixelCount);
-    const angleIndexes = new Uint16Array(pixelCount);
-    for (let y = 0; y < effectH; y += 1) {
-      for (let x = 0; x < effectW; x += 1) {
-        const idx = y * effectW + x;
-        const dx = x - ox;
-        const dy = y - oy;
-        normalizedDistances[idx] = Math.hypot(dx, dy) / maxDistance;
-        const theta = Math.max(-Math.PI, Math.min(0, Math.atan2(dy, dx)));
-        const normalizedAngle = (theta + Math.PI) / Math.PI;
-        angleIndexes[idx] = Math.max(0, Math.min(EDGE_SEGMENTS - 1, Math.floor(normalizedAngle * EDGE_SEGMENTS)));
-      }
-    }
+    const oy = origin?.y ?? 0;
 
     const renderCanvas = document.createElement("canvas");
     renderCanvas.width = effectW;
@@ -358,32 +351,30 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
       onComplete?.();
       return { cancel: () => {} };
     }
-
     let cancelled = false;
     let rafId = 0;
     const particles = [];
     let lastParticleSpawn = 0;
-    let baseImageData = null;
-    const rimEdges = new Float32Array(EDGE_SEGMENTS);
+    let snapshotSource = null;
+    const rimPoints = [];
 
-    const spawnParticles = (elapsedMs) => {
-      if (particles.length >= MAX_PARTICLES || elapsedMs - lastParticleSpawn < 55) {
+    const spawnParticles = (elapsedMs, frontY) => {
+      if (particles.length >= MAX_PARTICLES || elapsedMs - lastParticleSpawn < 70) {
         return;
       }
       lastParticleSpawn = elapsedMs;
-      const count = Math.min(2, MAX_PARTICLES - particles.length);
+      const count = Math.min(3, MAX_PARTICLES - particles.length);
       for (let i = 0; i < count; i += 1) {
-        const seg = Math.floor(Math.random() * EDGE_SEGMENTS);
-        const theta = -Math.PI + ((seg + 0.5) / EDGE_SEGMENTS) * Math.PI;
-        const r = rimEdges[seg] * maxDistance;
+        const idx = Math.floor(Math.random() * Math.max(1, rimPoints.length));
+        const edgePoint = rimPoints[idx] || { x: ox, y: frontY };
         particles.push({
-          x: ox + Math.cos(theta) * r,
-          y: oy + Math.sin(theta) * r,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: -(0.35 + Math.random() * 0.55),
+          x: edgePoint.x + (Math.random() - 0.5) * 10,
+          y: edgePoint.y + (Math.random() - 0.5) * 4,
+          vx: (Math.random() - 0.5) * 0.28,
+          vy: -(0.34 + Math.random() * 0.55),
           lifeMs: 420 + Math.random() * 420,
           ageMs: 0,
-          size: 1.5 + Math.random() * 2.2
+          size: 1.3 + Math.random() * 2
         });
       }
     };
@@ -427,30 +418,109 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
       rctx.restore();
     };
 
+    const drawBurnFront = (progress, elapsedMs) => {
+      const frontY = lerp(oy, effectH + 12, progress);
+      rimPoints.length = 0;
+      for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
+        const u = i / (EDGE_SEGMENTS - 1);
+        const x = u * effectW;
+        const n1 = fbmNoise(u * 4.1, 0.2, elapsedMs * 0.0012);
+        const n2 = fbmNoise(u * 8.7, 1.6, elapsedMs * 0.0021);
+        const wiggle = (n1 - 0.5) * noiseAmplitudePx + (n2 - 0.5) * (noiseAmplitudePx * 0.45);
+        const y = Math.max(-16, Math.min(effectH + 16, frontY + wiggle));
+        rimPoints.push({ x, y });
+      }
+
+      // Draw snapshot first.
+      rctx.clearRect(0, 0, effectW, effectH);
+      rctx.drawImage(snapshotSource, 0, 0, effectW, effectH);
+
+      // Charred rim + warm glow.
+      rctx.save();
+      rctx.lineCap = "round";
+      rctx.lineJoin = "round";
+      rctx.globalCompositeOperation = "lighter";
+      rctx.shadowColor = "rgba(255, 128, 50, 0.52)";
+      rctx.shadowBlur = 16;
+      rctx.strokeStyle = "rgba(255, 170, 96, 0.35)";
+      rctx.lineWidth = rimWidthPx;
+      rctx.beginPath();
+      rimPoints.forEach((p, idx) => {
+        if (idx === 0) {
+          rctx.moveTo(p.x, p.y);
+          return;
+        }
+        const prev = rimPoints[idx - 1];
+        const cx = (prev.x + p.x) * 0.5;
+        const cy = (prev.y + p.y) * 0.5;
+        rctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
+      });
+      const last = rimPoints[rimPoints.length - 1];
+      rctx.lineTo(last.x, last.y);
+      rctx.stroke();
+
+      rctx.globalCompositeOperation = "source-over";
+      rctx.shadowBlur = 0;
+      rctx.strokeStyle = "rgba(58, 28, 14, 0.7)";
+      rctx.lineWidth = Math.max(2, rimWidthPx * 0.35);
+      rctx.beginPath();
+      rimPoints.forEach((p, idx) => {
+        if (idx === 0) {
+          rctx.moveTo(p.x, p.y);
+        } else {
+          rctx.lineTo(p.x, p.y);
+        }
+      });
+      rctx.stroke();
+      rctx.restore();
+
+      // Erase burned part (top -> burn front) using destination-out.
+      rctx.save();
+      rctx.globalCompositeOperation = "destination-out";
+      rctx.fillStyle = "rgba(255,255,255,1)";
+      const stripWidth = effectW / (EDGE_SEGMENTS - 1);
+      for (let i = 0; i < rimPoints.length; i += 1) {
+        const p = rimPoints[i];
+        const x = Math.max(0, p.x - stripWidth * 0.5);
+        const w = stripWidth + 1;
+        const h = Math.max(0, Math.min(effectH, p.y));
+        if (h > 0) {
+          rctx.fillRect(x, 0, w, h);
+        }
+      }
+      rctx.restore();
+
+      return frontY;
+    };
+
     (async () => {
-      const snapshotCanvas = await makeSnapshot(targetElement);
+      const inputSnapshotCanvas = await makeSnapshot(inputEl);
       if (cancelled) {
         return;
       }
 
-      const snapshotSource = document.createElement("canvas");
-      snapshotSource.width = effectW;
-      snapshotSource.height = effectH;
+      snapshotSource = fallbackSnapshotCanvas();
       const sctx = snapshotSource.getContext("2d", { willReadFrequently: true });
       if (!sctx) {
         onComplete?.();
         return;
       }
-      sctx.clearRect(0, 0, effectW, effectH);
-      sctx.drawImage(snapshotCanvas, 0, 0, effectW, effectH);
-      baseImageData = sctx.getImageData(0, 0, effectW, effectH);
+      if (inputSnapshotCanvas) {
+        const computedFrame = window.getComputedStyle(frameEl);
+        const paddingLeft = Number.parseFloat(computedFrame.paddingLeft) || 0;
+        const paddingRight = Number.parseFloat(computedFrame.paddingRight) || 0;
+        const paddingTop = Number.parseFloat(computedFrame.paddingTop) || 0;
+        const textAreaWidth = Math.max(0, effectW - paddingLeft - paddingRight);
+        const textAreaHeight = Math.max(0, effectH - paddingTop * 2);
+        sctx.drawImage(inputSnapshotCanvas, paddingLeft, paddingTop, textAreaWidth, textAreaHeight);
+      }
 
       let startTs = 0;
       let lastTs = 0;
       let inputHidden = false;
 
       const frame = (ts) => {
-        if (cancelled || !baseImageData) {
+        if (cancelled || !snapshotSource) {
           return;
         }
         if (!startTs) {
@@ -461,81 +531,13 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
         const delta = ts - lastTs;
         lastTs = ts;
         const t = clamp01(elapsed / burnDurationMs);
-        const front = easeOutCubic(t);
-
-        const timeNoise = elapsed * 0.0015;
-        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
-          const u = i / EDGE_SEGMENTS;
-          const n = fbmNoise(u * 6.2, u * 1.8 + 10.3, timeNoise);
-          rimEdges[i] = clamp01(front + (n - 0.5) * noiseAmplitude);
-        }
-
-        const out = new Uint8ClampedArray(baseImageData.data);
-        for (let i = 0; i < pixelCount; i += 1) {
-          const edge = rimEdges[angleIndexes[i]];
-          const nd = normalizedDistances[i];
-          const diff = edge - nd;
-          let alphaMul = 1;
-          if (diff > edgeSoftness) {
-            alphaMul = 0;
-          } else if (diff > -edgeSoftness) {
-            alphaMul = 1 - smoothstep(-edgeSoftness, edgeSoftness, diff);
-          }
-          const aIndex = i * 4 + 3;
-          out[aIndex] = Math.round(out[aIndex] * alphaMul);
-        }
-
-        const imgData = new ImageData(out, effectW, effectH);
-        rctx.setTransform(1, 0, 0, 1, 0, 0);
-        rctx.clearRect(0, 0, effectW, effectH);
-        rctx.putImageData(imgData, 0, 0);
-
-        // Burn rim glow/char.
-        rctx.save();
-        rctx.lineCap = "round";
-        rctx.lineJoin = "round";
-        rctx.globalCompositeOperation = "lighter";
-        rctx.shadowColor = "rgba(255, 108, 36, 0.45)";
-        rctx.shadowBlur = 10;
-        rctx.strokeStyle = "rgba(255, 176, 96, 0.28)";
-        rctx.lineWidth = Math.max(1.2, effectW * 0.006);
-        rctx.beginPath();
-        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
-          const theta = -Math.PI + (i / (EDGE_SEGMENTS - 1)) * Math.PI;
-          const r = rimEdges[i] * maxDistance;
-          const x = ox + Math.cos(theta) * r;
-          const y = oy + Math.sin(theta) * r;
-          if (i === 0) {
-            rctx.moveTo(x, y);
-          } else {
-            rctx.lineTo(x, y);
-          }
-        }
-        rctx.stroke();
-
-        rctx.shadowBlur = 0;
-        rctx.globalCompositeOperation = "source-over";
-        rctx.strokeStyle = "rgba(66, 33, 16, 0.45)";
-        rctx.lineWidth = Math.max(0.8, effectW * 0.003);
-        rctx.beginPath();
-        for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
-          const theta = -Math.PI + (i / (EDGE_SEGMENTS - 1)) * Math.PI;
-          const r = rimEdges[i] * maxDistance;
-          const x = ox + Math.cos(theta) * r;
-          const y = oy + Math.sin(theta) * r;
-          if (i === 0) {
-            rctx.moveTo(x, y);
-          } else {
-            rctx.lineTo(x, y);
-          }
-        }
-        rctx.stroke();
-        rctx.restore();
+        const front = t;
+        const frontY = drawBurnFront(front, elapsed);
+        spawnParticles(elapsed, frontY);
+        updateParticles(delta);
+        drawParticles();
 
         if (t < 1) {
-          spawnParticles(elapsed);
-          updateParticles(delta);
-          drawParticles();
           ctx.setTransform(1, 0, 0, 1, 0, 0);
           ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
           ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
@@ -547,9 +549,19 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
           return;
         }
 
+        const doneT = clamp01((elapsed - burnDurationMs) / lingerMs);
+        if (doneT < 1) {
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+          ctx.globalAlpha = 1 - doneT;
+          ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
+          ctx.globalAlpha = 1;
+          rafId = window.requestAnimationFrame(frame);
+          return;
+        }
+
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
         if (!inputHidden) {
           inputEl.style.visibility = "hidden";
           inputHidden = true;
@@ -590,7 +602,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 2200;
+    const burnFieldDurationMs = 3600;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -804,7 +816,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         effectWidth: 360,
         effectHeight: 280,
         duration: burnFieldDurationMs,
-        origin: { x: 180, y: 280 },
+        origin: { x: 180, y: 0 },
         onComplete: () => {
           if (burnCanvas) {
             burnCanvas.style.opacity = "0";

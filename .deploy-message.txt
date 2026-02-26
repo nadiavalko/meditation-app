@@ -1,1 +1,1 @@
-Fix canvas burn visibility timing and tie frame hide to actual burn completion
+Rebuild journey input burn to top-down ragged canvas burn with glow and sparks
