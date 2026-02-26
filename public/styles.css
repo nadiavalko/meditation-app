@@ -374,7 +374,7 @@ body {
 }
 
 .journey-gratitude-gradient {
-  position: absolute;
+  position: fixed;
   left: 50%;
   top: 50%;
   width: 100vh;

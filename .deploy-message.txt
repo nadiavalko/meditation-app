@@ -1,1 +1,1 @@
-Add gratitude radial gradient overlay to journey during gratitude text step
+Center journey gratitude gradient in viewport as fixed vh-sized square
