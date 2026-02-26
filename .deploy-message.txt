@@ -1,1 +1,1 @@
-Change final stop phrase to Now, last stop.
+Add first body scan step text and fade in gradients 1 and 2
