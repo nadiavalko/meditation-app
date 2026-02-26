@@ -1,1 +1,1 @@
-Enhance burn input animation with irregular edge and spark-like flicker
+Update finish page first line to Your journey is over.
