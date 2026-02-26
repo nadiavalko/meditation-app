@@ -7,6 +7,7 @@ const pages = [
   "index.html",
   "journey/index.html",
   "breathing/index.html",
+  "finish/index.html",
 ];
 
 for (const page of pages) {

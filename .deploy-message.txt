@@ -1,1 +1,1 @@
-Shorten final body-scan closing texts to 4s total visibility each
+Add finish page with welcome-style two-line intro animation
