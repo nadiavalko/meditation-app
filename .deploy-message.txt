@@ -1,1 +1,1 @@
-Add first body scan step text and fade in gradients 1 and 2
+Use gradients 1 and 2 for feet body scan step
