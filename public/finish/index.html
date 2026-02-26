@@ -26,6 +26,7 @@
 
       .finish-phase-2 {
         gap: 40px;
+        min-height: calc(100vh - 20vh - 48px);
       }
 
       .finish-phase-2.is-hidden {
@@ -82,12 +83,20 @@
         justify-content: center;
       }
 
+      .finish-buttons-wrap {
+        width: 100%;
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: center;
+      }
+
       .finish-action {
         flex: 0 0 auto;
         width: auto;
         min-height: 52px;
         height: 52px;
-        padding: 10px 18px;
+        padding: 10px 20px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -95,7 +104,7 @@
         border: none;
         text-decoration: none;
         border-radius: 20px;
-        background: #24357d;
+        background: #1b205a;
         color: #ffffff;
         font-family: "Cormorant", serif;
         font-size: 24px;
@@ -142,13 +151,13 @@
           width: 100%;
           min-height: 52px;
           height: 52px;
-          font-size: 22px;
-          line-height: 28px;
-          padding: 10px 14px;
+          font-size: 24px;
+          line-height: 32px;
+          padding: 10px 20px;
         }
 
         .finish-action-icon {
-          height: 28px;
+          height: 32px;
         }
       }
     </style>
@@ -182,22 +191,24 @@
               />
             </div>
 
-            <div class="finish-buttons" data-finish-buttons>
-              <a class="finish-action" href="/">Go to the door</a>
-              <a
-                class="finish-action finish-action-coffee"
-                href="https://buymeacoffee.com/nadiavalko"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  class="finish-action-icon"
-                  src="/assets/coffee cup.svg"
-                  alt=""
-                  aria-hidden="true"
-                />
-                <span>Buy me a coffee</span>
-              </a>
+            <div class="finish-buttons-wrap">
+              <div class="finish-buttons" data-finish-buttons>
+                <a class="finish-action" href="/">Go to the door</a>
+                <a
+                  class="finish-action finish-action-coffee"
+                  href="https://buymeacoffee.com/nadiavalko"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    class="finish-action-icon"
+                    src="/assets/coffee cup.svg"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <span>Buy me a coffee</span>
+                </a>
+              </div>
             </div>
           </section>
         </div>
