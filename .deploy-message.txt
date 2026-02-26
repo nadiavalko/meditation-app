@@ -1,1 +1,1 @@
-Add final whole-body body-scan text sequence after face step
+Shorten final body-scan closing texts to 4s total visibility each

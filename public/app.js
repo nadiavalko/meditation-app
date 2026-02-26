@@ -156,7 +156,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const shortBodyScanStepDurationMs = 15000;
     const longBodyScanStepDurationMs = 15000;
     const longBodyScanMidTextSwapMs = 7000;
-    const closingBodyScanStepDurationMs = 15000;
+    const closingBodyScanStepDurationMs = 2800;
     const gradientFadeLeadMs = 2200;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
