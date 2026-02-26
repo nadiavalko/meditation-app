@@ -91,6 +91,9 @@ body {
     #141929 10%,
     #0c0e1c 50%
   );
+  opacity: 0;
+  animation: introGradientReveal var(--intro-fade-duration) var(--motion-ease) forwards;
+  animation-delay: var(--intro-figure-delay);
   pointer-events: none;
   z-index: 0;
 }
@@ -214,6 +217,15 @@ body {
   }
 }
 
+@keyframes introGradientReveal {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @keyframes burnField {
   0% {
     opacity: 1;
@@ -250,7 +262,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .intro-line,
   .intro-figure,
-  .burn-seq {
+  .burn-seq,
+  .screen-intro::before {
     animation: none;
     opacity: 1;
     transform: none;

@@ -1,1 +1,1 @@
-Adjust welcome radial gradient stops to 10 and 50 percent
+Sync welcome gradient reveal timing with door image appearance
