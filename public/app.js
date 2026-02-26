@@ -391,7 +391,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Notice any sensations in your feet.");
-            revealBodyGradients([0, 1]);
+            revealBodyGradients([9, 10]);
           }, feetPromptRevealAt);
         }, fadeOutDuration);
       };
