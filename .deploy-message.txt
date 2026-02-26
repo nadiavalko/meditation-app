@@ -1,1 +1,1 @@
-Extend final three body-scan closing phrases to 6s each
+Build finish page return screen with randomized flower and action buttons
