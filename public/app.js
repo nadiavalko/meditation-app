@@ -522,6 +522,50 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             revealJourneyTitle("Feel your chest rise and fall.");
             setBodyGradients([3]);
           }, chestPromptRevealAt);
+
+          const shouldersPromptFadeAt = chestPromptRevealAt + bodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, shouldersPromptFadeAt);
+
+          const shouldersPromptRevealAt = shouldersPromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Allow your shoulders to drop.");
+            setBodyGradients([1, 2]);
+          }, shouldersPromptRevealAt);
+
+          const shouldersMidFadeAt = shouldersPromptRevealAt + stomachMidTextSwapMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, shouldersMidFadeAt);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Release what they’ve been holding.");
+          }, shouldersMidFadeAt + fadeOutDuration);
+
+          const facePromptFadeAt = shouldersPromptRevealAt + stomachStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, facePromptFadeAt);
+
+          const facePromptRevealAt = facePromptFadeAt + fadeOutDuration;
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Notice any tension in your face.");
+            setBodyGradients([0]);
+          }, facePromptRevealAt);
+
+          const faceMidFadeAt = facePromptRevealAt + stomachMidTextSwapMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, faceMidFadeAt);
+
+          window.setTimeout(() => {
+            burnTitle.classList.remove("is-fading");
+            revealJourneyTitle("Relax your jaw, eyes, and forehead.");
+          }, faceMidFadeAt + fadeOutDuration);
         }, fadeOutDuration);
       };
     }

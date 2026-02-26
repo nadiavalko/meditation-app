@@ -1,1 +1,1 @@
-Change gone forever text to It's gone forever.
+Add shoulders and face body scan steps with timed text swaps and gradients
