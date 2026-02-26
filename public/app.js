@@ -260,6 +260,10 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }
     };
 
+    const fadeOutBodyGradients = () => {
+      setBodyGradients([]);
+    };
+
     const resetBodyGradients = () => {
       pendingBodyGradientIndexes = [];
       clearBodyGradientPulseTimer();
@@ -475,6 +479,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const legsPromptFadeAt = feetPromptRevealAt + bodyScanStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, legsPromptFadeAt);
 
@@ -487,6 +492,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const stomachPromptFadeAt = legsPromptRevealAt + bodyScanStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, stomachPromptFadeAt);
 
@@ -509,6 +515,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const armsPromptFadeAt = stomachPromptRevealAt + stomachStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, armsPromptFadeAt);
 
@@ -521,6 +528,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const chestPromptFadeAt = armsPromptRevealAt + bodyScanStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, chestPromptFadeAt);
 
@@ -533,6 +541,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const shouldersPromptFadeAt = chestPromptRevealAt + bodyScanStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, shouldersPromptFadeAt);
 
@@ -555,6 +564,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           const facePromptFadeAt = shouldersPromptRevealAt + stomachStepDurationMs;
           window.setTimeout(() => {
+            fadeOutBodyGradients();
             fadeOutJourneyTitle();
           }, facePromptFadeAt);
 
