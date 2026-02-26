@@ -48,11 +48,11 @@
       .finish-figure-wrap {
         width: min(260px, calc(100vw - 48px));
         opacity: 0;
-        transform: translateY(var(--motion-distance));
+        transform: translateY(0);
       }
 
       .finish-figure-wrap.burn-seq {
-        animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+        animation: fadeOnlyIn var(--seq-fade-duration) var(--motion-ease) forwards;
       }
 
       .finish-figure {
