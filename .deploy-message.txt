@@ -1,1 +1,1 @@
-Finalize finish button dimensions padding and centered container behavior
+Make finish phase-2 text flower buttons appear in strict sequence without overlap

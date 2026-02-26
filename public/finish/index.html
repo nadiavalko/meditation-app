@@ -41,6 +41,8 @@
         line-height: 48px;
         font-weight: 600;
         color: #ffffff;
+        opacity: 0;
+        transform: translateY(var(--motion-distance));
       }
 
       .finish-figure-wrap {
@@ -81,6 +83,8 @@
         align-items: stretch;
         gap: 14px;
         justify-content: center;
+        opacity: 0;
+        transform: translateY(var(--motion-distance));
       }
 
       .finish-buttons-wrap {
@@ -254,6 +258,9 @@
           returnText.classList.add("burn-seq", "burn-seq-1");
           flowerWrap.classList.add("burn-seq", "burn-seq-2");
           buttons.classList.add("burn-seq", "burn-seq-3");
+          returnText.style.animationDelay = "1s";
+          flowerWrap.style.animationDelay = "2.8s";
+          buttons.style.animationDelay = "4.6s";
           flower.classList.add("is-rotating");
         }, phase2Start);
       })();
