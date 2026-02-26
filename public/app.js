@@ -153,7 +153,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const stageRevealDuration = 1600;
     const holdAfterWellDoneMs = 900;
     const holdAfterBodyScanIntroMs = 1200;
-    const bodyScanStepDurationMs = 6000;
+    const bodyScanStepDurationMs = 9000;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
 
@@ -228,7 +228,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       ellipses.forEach((ellipse, idx) => {
         ellipse.removeAttribute("data-pulse-active");
         ellipse.style.removeProperty("--pulse-delay");
-        ellipse.style.transition = "opacity 1.2s ease";
+        ellipse.style.transition = "opacity 1.8s ease-in-out";
         ellipse.style.opacity = targetSet.has(idx) ? "1" : "0";
       });
       bodyGradientPulseTimer = window.setTimeout(() => {
@@ -240,7 +240,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           ellipse.setAttribute("data-pulse-active", "true");
           ellipse.style.setProperty("--pulse-delay", `${(idx % 3) * 0.35}s`);
         });
-      }, 1250);
+      }, 1850);
       pendingBodyGradientIndexes = [];
     };
 

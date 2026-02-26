@@ -1,1 +1,1 @@
-Extend feet step to 6s and add gentle gradient pulse
+Extend feet step to 9s and slow gradient fade transitions
