@@ -1,1 +1,1 @@
-Refine finish page buttons layout and add rotating flower animation
+Fix finish flower visibility and make finish buttons content-hugging row with updated coffee styling
