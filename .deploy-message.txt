@@ -1,1 +1,1 @@
-Make body gradient pulse more visible and slower
+Slow body outline reveal and gradient fades for body scan steps

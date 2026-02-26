@@ -230,7 +230,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       ellipses.forEach((ellipse, idx) => {
         ellipse.removeAttribute("data-pulse-active");
         ellipse.style.removeProperty("--pulse-delay");
-        ellipse.style.transition = "opacity 1.8s ease-in-out";
+        ellipse.style.transition = "opacity 3.2s ease-in-out";
         ellipse.style.opacity = targetSet.has(idx) ? "1" : "0";
       });
       bodyGradientPulseTimer = window.setTimeout(() => {
@@ -242,7 +242,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           ellipse.setAttribute("data-pulse-active", "true");
           ellipse.style.setProperty("--pulse-delay", `${(idx % 3) * 0.35}s`);
         });
-      }, 1850);
+      }, 3250);
       pendingBodyGradientIndexes = [];
     };
 
@@ -443,7 +443,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             }
             if (journeyBodyFigure) {
               journeyBodyFigure.classList.remove("is-revealing");
-              journeyBodyFigure.style.setProperty("--seq-fade-duration", "1600ms");
+              journeyBodyFigure.style.setProperty("--seq-fade-duration", "3200ms");
               void journeyBodyFigure.offsetWidth;
               journeyBodyFigure.classList.add("is-revealing");
             }
