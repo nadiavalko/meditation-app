@@ -1,1 +1,1 @@
-Update finish page first line to Your journey is over.
+Revert advanced burn edge and spark effect for input burn animation
