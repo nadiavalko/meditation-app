@@ -128,6 +128,7 @@ const journeyBreathingStage = document.querySelector("[data-journey-breathing-st
 const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breathing-canvas]");
 const journeyBodyFigureStage = document.querySelector("[data-journey-body-figure-stage]");
 const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
+const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
@@ -285,6 +286,23 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       });
     };
 
+    const resetJourneyGratitudeGradient = () => {
+      if (!journeyGratitudeGradient) {
+        return;
+      }
+      journeyGratitudeGradient.classList.remove("is-revealing");
+      journeyGratitudeGradient.classList.add("is-hidden");
+    };
+
+    const revealJourneyGratitudeGradient = () => {
+      if (!journeyGratitudeGradient) {
+        return;
+      }
+      journeyGratitudeGradient.classList.remove("is-hidden", "is-revealing");
+      void journeyGratitudeGradient.offsetWidth;
+      journeyGratitudeGradient.classList.add("is-revealing");
+    };
+
     if (journeyBodyFigure && "addEventListener" in journeyBodyFigure) {
       journeyBodyFigure.addEventListener(
         "load",
@@ -347,6 +365,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       journeyBodyFigure.style.removeProperty("--seq-fade-duration");
     }
     resetBodyGradients();
+    resetJourneyGratitudeGradient();
 
     setTimeout(() => {
       burnFrame.classList.add("is-hidden");
@@ -622,6 +641,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
             revealJourneyTitle("Send gratitude to your vessel, your home.");
+            revealJourneyGratitudeGradient();
           }, gratitudePromptRevealAt);
 
           const completePromptFadeAt = gratitudePromptRevealAt + closingBodyScanStepDurationMs;

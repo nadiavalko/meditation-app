@@ -1,1 +1,1 @@
-Sync welcome gradient reveal timing with door image appearance
+Add gratitude radial gradient overlay to journey during gratitude text step
