@@ -1,1 +1,1 @@
-Center journey gratitude gradient in viewport as fixed vh-sized square
+Make journey gratitude gradient reveal match welcome gradient animation style

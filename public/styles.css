@@ -387,16 +387,19 @@ body {
     #0c0e1c 60%
   );
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   z-index: 0;
 }
 
 .journey-gratitude-gradient.is-hidden {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .journey-gratitude-gradient.is-revealing {
-  animation: fadeOnlyIn var(--seq-fade-duration) var(--motion-ease) forwards;
+  visibility: visible;
+  animation: introGradientReveal var(--intro-fade-duration) var(--motion-ease) forwards;
 }
 
 .burn-title {
