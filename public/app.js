@@ -153,9 +153,10 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const stageRevealDuration = 1600;
     const holdAfterWellDoneMs = 900;
     const holdAfterBodyScanIntroMs = 1200;
-    const bodyScanStepDurationMs = 9000;
-    const stomachStepDurationMs = 10000;
-    const stomachMidTextSwapMs = 5000;
+    const shortBodyScanStepDurationMs = 10000;
+    const longBodyScanStepDurationMs = 12000;
+    const longBodyScanMidTextSwapMs = 6000;
+    const gradientFadeLeadMs = 2200;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
 
@@ -477,9 +478,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([9, 10]);
           }, feetPromptRevealAt);
 
-          const legsPromptFadeAt = feetPromptRevealAt + bodyScanStepDurationMs;
+          const legsPromptFadeAt = feetPromptRevealAt + shortBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, legsPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, legsPromptFadeAt);
 
@@ -490,9 +493,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([7, 8]);
           }, legsPromptRevealAt);
 
-          const stomachPromptFadeAt = legsPromptRevealAt + bodyScanStepDurationMs;
+          const stomachPromptFadeAt = legsPromptRevealAt + shortBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, stomachPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, stomachPromptFadeAt);
 
@@ -503,7 +508,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([6]);
           }, stomachPromptRevealAt);
 
-          const stomachMidFadeAt = stomachPromptRevealAt + stomachMidTextSwapMs;
+          const stomachMidFadeAt = stomachPromptRevealAt + longBodyScanMidTextSwapMs;
           window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, stomachMidFadeAt);
@@ -513,9 +518,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             revealJourneyTitle("Feel its emptiness or fullness.");
           }, stomachMidFadeAt + fadeOutDuration);
 
-          const armsPromptFadeAt = stomachPromptRevealAt + stomachStepDurationMs;
+          const armsPromptFadeAt = stomachPromptRevealAt + longBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, armsPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, armsPromptFadeAt);
 
@@ -526,9 +533,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([4, 5]);
           }, armsPromptRevealAt);
 
-          const chestPromptFadeAt = armsPromptRevealAt + bodyScanStepDurationMs;
+          const chestPromptFadeAt = armsPromptRevealAt + shortBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, chestPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, chestPromptFadeAt);
 
@@ -539,9 +548,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([3]);
           }, chestPromptRevealAt);
 
-          const shouldersPromptFadeAt = chestPromptRevealAt + bodyScanStepDurationMs;
+          const shouldersPromptFadeAt = chestPromptRevealAt + shortBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, shouldersPromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, shouldersPromptFadeAt);
 
@@ -552,7 +563,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([1, 2]);
           }, shouldersPromptRevealAt);
 
-          const shouldersMidFadeAt = shouldersPromptRevealAt + stomachMidTextSwapMs;
+          const shouldersMidFadeAt = shouldersPromptRevealAt + longBodyScanMidTextSwapMs;
           window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, shouldersMidFadeAt);
@@ -562,9 +573,11 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             revealJourneyTitle("Release what they’ve been holding.");
           }, shouldersMidFadeAt + fadeOutDuration);
 
-          const facePromptFadeAt = shouldersPromptRevealAt + stomachStepDurationMs;
+          const facePromptFadeAt = shouldersPromptRevealAt + longBodyScanStepDurationMs;
           window.setTimeout(() => {
             fadeOutBodyGradients();
+          }, Math.max(0, facePromptFadeAt - gradientFadeLeadMs));
+          window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, facePromptFadeAt);
 
@@ -575,7 +588,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             setBodyGradients([0]);
           }, facePromptRevealAt);
 
-          const faceMidFadeAt = facePromptRevealAt + stomachMidTextSwapMs;
+          const faceMidFadeAt = facePromptRevealAt + longBodyScanMidTextSwapMs;
           window.setTimeout(() => {
             fadeOutJourneyTitle();
           }, faceMidFadeAt);

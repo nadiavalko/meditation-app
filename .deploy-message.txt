@@ -1,1 +1,1 @@
-Start gradient fade-outs earlier at body-scan step text fade transitions
+Lengthen body scan step durations and start gradient fade-outs earlier
