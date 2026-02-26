@@ -1,1 +1,1 @@
-Adjust gratitude gradient stops and make finish flower fade in on the spot
+Add blend-mode burn mask animation to journey input field burn effect

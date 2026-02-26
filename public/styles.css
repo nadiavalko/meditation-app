@@ -556,6 +556,7 @@ body {
   padding: 24px 18px;
   box-sizing: border-box;
   overflow: hidden;
+  isolation: isolate;
   transition: opacity 0.4s ease;
 }
 
@@ -578,6 +579,36 @@ body {
   color: #ffffff;
 }
 
+.burn-input-mask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  background: #ffffff;
+  mix-blend-mode: difference;
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.burn-input-mask::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -18px;
+  height: 36px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 212, 135, 0.9) 0%,
+    rgba(255, 133, 54, 0.55) 40%,
+    rgba(255, 96, 30, 0) 75%
+  );
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
 .burn-button {
   width: 136px;
   height: 60px;
@@ -597,6 +628,10 @@ body {
 .burn-input-frame.is-burning {
   animation: burnField 1.6s ease forwards;
   pointer-events: none;
+}
+
+.burn-input-frame.is-burning .burn-input-mask::before {
+  opacity: 1;
 }
 
 .burn-input-frame.is-hidden {

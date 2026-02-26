@@ -121,6 +121,7 @@ settings.forEach((setting) => {
 const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
+const burnMask = document.querySelector("[data-burn-mask]");
 const burnTitle = document.querySelector("[data-burn-title]");
 const journeyBreathingPhaseTitle = document.querySelector("[data-breathing-phase-title]");
 const burnInputStack = document.querySelector(".burn-input-stack");
@@ -352,6 +353,24 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }, delayMs);
     };
     burnFrame.classList.add("is-burning");
+    if (burnMask) {
+      burnMask.style.height = "0%";
+      if (typeof burnMask.animate === "function") {
+        burnMask.animate(
+          [{ height: "0%" }, { height: "100%" }],
+          {
+            duration: 1600,
+            easing: "linear",
+            fill: "forwards"
+          }
+        );
+      } else {
+        burnMask.style.transition = "height 1.6s linear";
+        requestAnimationFrame(() => {
+          burnMask.style.height = "100%";
+        });
+      }
+    }
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
     burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
