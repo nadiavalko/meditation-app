@@ -73,11 +73,26 @@ body {
   height: 100vh;
   min-height: 780px;
   overflow: hidden;
-  background-image: url("/assets/screen-1-background.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: #0c0e1c;
   margin: 0 auto;
+}
+
+.screen-intro::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vh;
+  height: 100vh;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    #171638 0%,
+    #141929 50%,
+    #0c0e1c 100%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .intro {

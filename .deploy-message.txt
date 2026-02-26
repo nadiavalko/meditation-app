@@ -1,1 +1,1 @@
-Make finish phase-2 text flower buttons appear in strict sequence without overlap
+Replace welcome PNG background with centered radial gradient on #0C0E1C
