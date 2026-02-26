@@ -1,1 +1,1 @@
-Build finish page return screen with randomized flower and action buttons
+Refine finish page buttons layout and add rotating flower animation

@@ -42,42 +42,64 @@
         width: min(260px, calc(100vw - 48px));
         height: auto;
         display: block;
+        transform-origin: center center;
+      }
+
+      .finish-figure.is-rotating {
+        animation: finishFlowerSpin 26s linear infinite;
+      }
+
+      @keyframes finishFlowerSpin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(-360deg);
+        }
       }
 
       .finish-buttons {
-        width: min(420px, 100%);
+        width: min(620px, 100%);
         display: flex;
-        flex-direction: column;
-        gap: 16px;
+        flex-direction: row;
+        align-items: stretch;
+        gap: 14px;
       }
 
       .finish-action {
-        width: 100%;
-        min-height: 88px;
-        height: auto;
-        padding: 20px 24px;
+        flex: 1 1 0;
+        min-height: 62px;
+        height: 62px;
+        padding: 12px 18px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        gap: 10px;
         border: none;
         text-decoration: none;
-        border-radius: 20px;
-        background: #1b265a;
+        border-radius: 14px;
+        background: #24357d;
         color: #ffffff;
         font-family: "Cormorant", serif;
-        font-size: 40px;
-        line-height: 48px;
+        font-size: 24px;
+        line-height: 32px;
         font-weight: 600;
-        transition: background 0.2s ease;
+        white-space: nowrap;
+        transition: background 0.2s ease, border-color 0.2s ease;
       }
 
       .finish-action:hover {
-        background: #23306f;
+        background: #2b4198;
       }
 
       .finish-action-coffee {
-        background: rgba(27, 38, 90, 0.85);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .finish-action-coffee:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
       }
 
       .finish-action-icon {
@@ -93,18 +115,21 @@
 
       @media (max-width: 700px) {
         .finish-buttons {
-          width: min(100%, 360px);
+          width: min(100%, 420px);
+          flex-direction: column;
+          gap: 12px;
         }
 
         .finish-action {
-          min-height: 76px;
-          font-size: 34px;
-          line-height: 42px;
-          padding: 16px 18px;
+          min-height: 58px;
+          height: 58px;
+          font-size: 22px;
+          line-height: 28px;
+          padding: 10px 14px;
         }
 
         .finish-action-icon {
-          height: 32px;
+          height: 28px;
         }
       }
     </style>
@@ -196,6 +221,7 @@
           returnText.classList.add("burn-seq", "burn-seq-1");
           flower.classList.add("burn-seq", "burn-seq-2");
           buttons.classList.add("burn-seq", "burn-seq-3");
+          flower.classList.add("is-rotating");
         }, phase2Start);
       })();
     </script>
