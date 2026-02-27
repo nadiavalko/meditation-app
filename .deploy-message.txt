@@ -1,1 +1,1 @@
-Body scan sequencing tweak: show and fade out body-scan intro text first, then fade in body outline, then start first feet step with gradients
+Finish page tweak: buttons appear sooner in sequence (same fade animation) and both finish buttons now have 12px corner radius
