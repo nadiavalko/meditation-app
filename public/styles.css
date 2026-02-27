@@ -600,7 +600,7 @@ body {
   opacity: 0;
   z-index: 5;
   background: transparent;
-  transition: opacity 1s ease;
+  transition: opacity 1.6s ease;
 }
 
 @keyframes burnEdgeUndulate {
@@ -665,7 +665,7 @@ body {
   opacity: 0;
   pointer-events: none;
   filter: brightness(1.35) contrast(1.28) saturate(1.2);
-  transition: opacity 1s ease;
+  transition: opacity 1.6s ease;
 }
 
 .burn-video-source.is-visible {

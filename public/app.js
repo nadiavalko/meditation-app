@@ -249,7 +249,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       return;
     }
     const burnFieldDurationMs = 4000;
-    const fadeOutDelay = burnFieldDurationMs + 100;
+    const preBurnFadeMs = 1200;
+    const fadeOutDelay = preBurnFadeMs + burnFieldDurationMs + 100;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
     const guidanceRevealDuration = 2200;
@@ -454,32 +455,16 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }, delayMs);
     };
     burnFrame.classList.add("is-burning");
-    burnInput.style.opacity = "0";
-    burnInput.style.visibility = "hidden";
-    burnTitle.style.display = "none";
+    burnTitle.style.display = "";
     burnTitle.classList.remove("is-fading", "is-revealing");
+    void burnTitle.offsetWidth;
+    burnTitle.classList.add("is-fading");
+    burnInput.style.transition = `opacity ${preBurnFadeMs}ms ease`;
+    burnInput.style.opacity = "0";
     if (burnVideoLayer) {
       burnVideoLayer.style.opacity = "0";
     }
-    let burnAnimationController = null;
-    if (typeof runVideoBurn === "function") {
-      burnFrame.classList.add("is-burning-video");
-      burnAnimationController = runVideoBurn({
-        duration: burnFieldDurationMs,
-        fadeOutAt: 3000,
-        onComplete: () => {
-          burnInput.style.opacity = "0";
-          burnInput.style.visibility = "hidden";
-          if (burnVideoLayer) {
-            burnVideoLayer.style.opacity = "0";
-          }
-          burnFrame.classList.add("is-hidden");
-        }
-      });
-    }
-    if (!burnAnimationController) {
-      setTimeout(() => burnFrame.classList.add("is-hidden"), burnFieldDurationMs);
-    }
+    burnInput.style.visibility = "visible";
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
     burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
@@ -499,10 +484,31 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     burnButton.style.display = "none";
 
     setTimeout(() => {
-      burnTitle.classList.remove("is-fading");
-      void burnTitle.offsetWidth;
-      burnTitle.classList.add("is-fading");
-    }, fadeOutDelay);
+      burnInput.style.visibility = "hidden";
+      burnInput.style.removeProperty("transition");
+    }, preBurnFadeMs);
+
+    let burnAnimationController = null;
+    setTimeout(() => {
+      if (typeof runVideoBurn === "function") {
+        burnFrame.classList.add("is-burning-video");
+        burnAnimationController = runVideoBurn({
+          duration: burnFieldDurationMs,
+          fadeOutAt: 3000,
+          onComplete: () => {
+            burnInput.style.opacity = "0";
+            burnInput.style.visibility = "hidden";
+            if (burnVideoLayer) {
+              burnVideoLayer.style.opacity = "0";
+            }
+            burnFrame.classList.add("is-hidden");
+          }
+        });
+      }
+      if (!burnAnimationController) {
+        setTimeout(() => burnFrame.classList.add("is-hidden"), burnFieldDurationMs);
+      }
+    }, preBurnFadeMs);
 
     setTimeout(() => {
       burnTitle.classList.remove("is-fading");
