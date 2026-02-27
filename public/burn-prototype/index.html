@@ -94,7 +94,7 @@
     <script>
       const EFFECT_W = 360;
       const EFFECT_H = 280;
-      const EDGE_POINTS = 64;
+      const EDGE_POINTS = 96;
       const MAX_PARTICLES = 36;
 
       const field = document.getElementById("burnField");
@@ -102,6 +102,8 @@
       const canvas = document.getElementById("burnCanvas");
       const button = document.getElementById("burnBtn");
       const ctx = canvas.getContext("2d");
+      const fireMaskImg = new Image();
+      fireMaskImg.src = "/assets/fire mask.svg";
 
       let burning = false;
 
@@ -187,6 +189,7 @@
         burning = true;
         button.disabled = true;
         input.disabled = true;
+        input.style.visibility = "hidden";
 
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         canvas.width = Math.round(EFFECT_W * dpr);
@@ -197,15 +200,29 @@
         render.width = EFFECT_W;
         render.height = EFFECT_H;
         const rctx = render.getContext("2d");
+        const burnMask = document.createElement("canvas");
+        burnMask.width = EFFECT_W;
+        burnMask.height = EFFECT_H;
+        const mctx = burnMask.getContext("2d");
         const snapshot = buildSnapshot();
 
         const particles = [];
         const rim = [];
+        const segmentNoise = Array.from({ length: EDGE_POINTS }, (_, i) => ({
+          amp: 0.7 + Math.random() * 1.1,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.4 + Math.random() * 1.6,
+          spike: (i % 6 === 0 ? 1 : 0) * (4 + Math.random() * 12),
+        }));
         let lastSpawn = 0;
         const duration = 5200;
         const linger = 650;
         const originY = EFFECT_H;
         const noiseAmp = EFFECT_H * 0.07;
+        const maskAspect = 3141 / 2480;
+        const maskW = EFFECT_W * 1.16;
+        const maskH = maskW * maskAspect;
+        const topEdgeOffset = maskH * 0.038;
         let start = 0;
 
         function spawnParticles(now) {
@@ -262,40 +279,59 @@
           for (let i = 0; i < EDGE_POINTS; i += 1) {
             const u = i / (EDGE_POINTS - 1);
             const x = u * EFFECT_W;
-            const n1 = fbm(u * 4.1, 0.2, elapsed * 0.0011);
-            const n2 = fbm(u * 9.1, 1.7, elapsed * 0.0019);
-            const y = frontY + (n1 - 0.5) * noiseAmp + (n2 - 0.5) * noiseAmp * 0.45;
+            const seg = segmentNoise[i];
+            const n1 = fbm(u * 4.6, 0.24, elapsed * 0.0012 * seg.speed);
+            const n2 = fbm(u * 12.2, 1.9, elapsed * 0.0023 * seg.speed);
+            const jitter = Math.sin(seg.phase + elapsed * 0.0021 * seg.speed) * noiseAmp * 0.18 * seg.amp;
+            const y =
+              frontY +
+              (n1 - 0.5) * noiseAmp * 1.2 * seg.amp +
+              (n2 - 0.5) * noiseAmp * 0.9 +
+              jitter +
+              seg.spike;
             rim.push({ x, y });
           }
 
           rctx.clearRect(0, 0, EFFECT_W, EFFECT_H);
           rctx.drawImage(snapshot, 0, 0);
 
+          // Persistent burn mask: once burned, stays burned.
+          mctx.save();
+          mctx.fillStyle = "#fff";
+          if (fireMaskImg.complete) {
+            const maskEdgeY = frontY + (fbm(1.2, 0.7, elapsed * 0.0016) - 0.5) * 10;
+            const drawY = maskEdgeY - topEdgeOffset;
+            const xJitter = (fbm(2.8, 1.3, elapsed * 0.0024) - 0.5) * 22;
+            mctx.drawImage(fireMaskImg, -((maskW - EFFECT_W) * 0.5) + xJitter, drawY, maskW, maskH);
+            mctx.globalAlpha = 0.65;
+            mctx.drawImage(fireMaskImg, -((maskW - EFFECT_W) * 0.5) - xJitter * 0.4, drawY + 6, maskW, maskH);
+            mctx.globalAlpha = 1;
+          }
+          const floorY = Math.max(0, Math.min(EFFECT_H, frontY - 6));
+          mctx.fillRect(0, floorY, EFFECT_W, EFFECT_H - floorY);
+          mctx.restore();
+
+          // Apply mask to remove burned area from snapshot.
           rctx.save();
           rctx.globalCompositeOperation = "destination-out";
-          const w = EFFECT_W / (EDGE_POINTS - 1);
-          for (const p of rim) {
-            if (p.y >= EFFECT_H) continue;
-            const y = Math.max(0, p.y);
-            rctx.fillRect(Math.max(0, p.x - w * 0.5), y, w + 1, EFFECT_H - y);
-          }
+          rctx.drawImage(burnMask, 0, 0);
           rctx.restore();
 
           rctx.save();
           rctx.lineJoin = "round";
           rctx.lineCap = "round";
           rctx.globalCompositeOperation = "lighter";
-          rctx.shadowColor = "rgba(77,16,5,0.72)";
-          rctx.shadowBlur = 15;
-          rctx.strokeStyle = "rgba(218,139,0,0.38)";
-          rctx.lineWidth = 9;
+          rctx.shadowColor = "rgba(77,16,5,0.82)";
+          rctx.shadowBlur = 17;
+          rctx.strokeStyle = "rgba(218,139,0,0.36)";
+          rctx.lineWidth = 10;
           rctx.beginPath();
           rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
           rctx.stroke();
           rctx.shadowBlur = 0;
           rctx.globalCompositeOperation = "source-over";
           rctx.strokeStyle = "rgba(77,16,5,0.86)";
-          rctx.lineWidth = 3;
+          rctx.lineWidth = 3.2;
           rctx.beginPath();
           rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
           rctx.stroke();

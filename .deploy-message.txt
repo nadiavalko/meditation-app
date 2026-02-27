@@ -1,1 +1,1 @@
-Tune burn prototype to bottom-up slower dark fire and remove textarea placeholder
+Use fire mask SVG in burn prototype with persistent mask burn and hidden live textarea
