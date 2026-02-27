@@ -1,1 +1,1 @@
-Tune burn video alpha key: remove black background artifacts while preserving visible flame; keep instant hide of title/input/button
+Switch burn effect to true alpha-channel video (VP9 WebM) and keep instant hide of title/input/button before playback

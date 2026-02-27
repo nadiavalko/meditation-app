@@ -131,14 +131,9 @@ const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
 const burnVideoLayer = document.querySelector("[data-burn-video-layer]");
 const burnVideo = document.querySelector("[data-burn-video]");
-const burnVideoCanvas = document.querySelector("[data-burn-video-canvas]");
 
-const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
-  if (!videoEl || !layerEl || !canvasEl) {
-    return null;
-  }
-  const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
-  if (!ctx) {
+const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
+  if (!videoEl || !layerEl) {
     return null;
   }
 
@@ -154,19 +149,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let fadeTimer = 0;
     let completeTimer = 0;
     let triedFallback = false;
-    let rafId = 0;
     layerEl.style.opacity = "1";
-    canvasEl.classList.remove("is-visible");
+    videoEl.classList.remove("is-visible");
     videoEl.pause();
     videoEl.loop = false;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const targetHeight = 960;
-    const targetWidth = Math.round(targetHeight * (16 / 9));
-    canvasEl.width = Math.round(targetWidth * dpr);
-    canvasEl.height = Math.round(targetHeight * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, targetWidth, targetHeight);
 
     try {
       videoEl.currentTime = 0;
@@ -179,12 +165,8 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       done = true;
       videoEl.pause();
       videoEl.loop = false;
-      canvasEl.classList.remove("is-visible");
+      videoEl.classList.remove("is-visible");
       layerEl.style.opacity = "0";
-      if (rafId) {
-        window.cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
       if (fadeTimer) {
         window.clearTimeout(fadeTimer);
         fadeTimer = 0;
@@ -195,32 +177,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       }
       videoEl.removeEventListener("error", handleError);
       onComplete?.();
-    };
-
-    const renderFrame = () => {
-      if (done) {
-        return;
-      }
-      if (videoEl.readyState >= 2) {
-        ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
-        const frameData = ctx.getImageData(0, 0, targetWidth, targetHeight);
-        const px = frameData.data;
-        for (let i = 0; i < px.length; i += 4) {
-          const r = px[i];
-          const g = px[i + 1];
-          const b = px[i + 2];
-          const maxCh = Math.max(r, g, b);
-          const sum = r + g + b;
-          // Black/near-black background removal while preserving hot fire tones.
-          if (maxCh < 90 || sum < 210) {
-            px[i + 3] = 0;
-          } else if (sum < 360) {
-            px[i + 3] = Math.round(((sum - 210) / 150) * 255);
-          }
-        }
-        ctx.putImageData(frameData, 0, 0);
-      }
-      rafId = window.requestAnimationFrame(renderFrame);
     };
 
     const tryStartPlayback = () => {
@@ -253,11 +209,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
     videoEl.addEventListener("error", handleError);
     window.requestAnimationFrame(() => {
-      canvasEl.classList.add("is-visible");
-      renderFrame();
+      videoEl.classList.add("is-visible");
     });
     fadeTimer = window.setTimeout(() => {
-      canvasEl.classList.remove("is-visible");
+      videoEl.classList.remove("is-visible");
     }, fadeOutAtMs);
     completeTimer = window.setTimeout(() => {
       complete();
@@ -276,8 +231,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
   const runVideoBurn = createBurnInputVideoAnimator({
     videoEl: burnVideo,
-    layerEl: burnVideoLayer,
-    canvasEl: burnVideoCanvas
+    layerEl: burnVideoLayer
   });
 
   const clampToField = () => {
