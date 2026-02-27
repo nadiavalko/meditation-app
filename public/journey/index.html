@@ -31,81 +31,17 @@
               aria-label="Write something you’d like to let go of"
               data-burn-input
             ></textarea>
-            <svg
-              class="burn-svg-layer"
-              viewBox="0 0 360 280"
-              aria-hidden="true"
-              data-burn-svg
-            >
-              <defs>
-                <filter id="burn-noise">
-                  <feTurbulence
-                    type="fractalNoise"
-                    baseFrequency="0.02"
-                    numOctaves="2"
-                    seed="4"
-                    result="noise"
-                  />
-                  <feDisplacementMap
-                    in="SourceGraphic"
-                    in2="noise"
-                    scale="24"
-                    xChannelSelector="R"
-                    yChannelSelector="G"
-                  />
-                </filter>
-                <filter id="burn-glow">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-                <mask id="burn-mask">
-                  <rect width="360" height="280" fill="black" />
-                  <g filter="url(#burn-noise)">
-                    <circle
-                      cx="180"
-                      cy="0"
-                      r="0"
-                      fill="white"
-                      data-burn-circle
-                    />
-                  </g>
-                </mask>
-              </defs>
-
-              <g mask="url(#burn-mask)">
-                <rect
-                  width="360"
-                  height="280"
-                  rx="12"
-                  fill="#1e203b"
-                />
-                <rect
-                  width="360"
-                  height="280"
-                  rx="12"
-                  fill="rgba(0,0,0,0.3)"
-                  opacity="0"
-                  data-burn-char
-                />
-              </g>
-
-              <g filter="url(#burn-noise)">
-                <circle
-                  cx="180"
-                  cy="0"
-                  r="0"
-                  fill="none"
-                  stroke="rgba(255,120,0,0.9)"
-                  stroke-width="4"
-                  filter="url(#burn-glow)"
-                  opacity="0"
-                  data-burn-edge
-                />
-              </g>
-            </svg>
+            <div class="burn-video-layer" aria-hidden="true" data-burn-video-layer>
+              <video
+                class="burn-video-source"
+                src="/assets/fire.MP4"
+                muted
+                playsinline
+                preload="auto"
+                data-burn-video
+              ></video>
+              <canvas class="burn-video-canvas" data-burn-video-canvas></canvas>
+            </div>
           </div>
           <button
             class="burn-button burn-seq burn-seq-3"

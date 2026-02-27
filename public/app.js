@@ -129,34 +129,47 @@ const journeyBreathingCanvas = journeyBreathingStage?.querySelector("[data-breat
 const journeyBodyFigureStage = document.querySelector("[data-journey-body-figure-stage]");
 const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
+const burnVideoLayer = document.querySelector("[data-burn-video-layer]");
+const burnVideo = document.querySelector("[data-burn-video]");
+const burnVideoCanvas = document.querySelector("[data-burn-video-canvas]");
 
-const burnSvg = document.querySelector("[data-burn-svg]");
-const burnCircle = document.querySelector("[data-burn-circle]");
-const burnEdge = document.querySelector("[data-burn-edge]");
-const burnChar = document.querySelector("[data-burn-char]");
-
-const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl }) => {
-  if (!frameEl || !inputEl || !circleEl || !edgeEl || !charEl) {
+const createBurnInputVideoAnimator = ({ videoEl, canvasEl, layerEl }) => {
+  if (!videoEl || !canvasEl || !layerEl || typeof canvasEl.getContext !== "function") {
+    return null;
+  }
+  const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
+  if (!ctx) {
     return null;
   }
 
-  return ({ effectWidth, effectHeight, duration, origin, onComplete }) => {
+  return ({ effectWidth, effectHeight, duration, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
       onComplete?.();
       return { cancel: () => {} };
     }
-
     const width = effectWidth || 360;
     const height = effectHeight || 280;
-    const burnDurationMs = duration || 1400;
-    const ox = origin?.x ?? width * 0.5;
-    const oy = origin?.y ?? 0;
-    const maxRadius = Math.hypot(width, height);
+    const burnDurationMs = duration || 2200;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvasEl.width = Math.round(width * dpr);
+    canvasEl.height = Math.round(height * dpr);
+    canvasEl.style.width = "100%";
+    canvasEl.style.height = "100%";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    layerEl.style.opacity = "1";
+
+    videoEl.currentTime = 0;
+    const tryPlay = videoEl.play();
+    if (tryPlay && typeof tryPlay.catch === "function") {
+      tryPlay.catch(() => {});
+    }
 
     let rafId = 0;
     let cancelled = false;
     let start = 0;
+    const blackThreshold = 44;
 
     const tick = (now) => {
       if (cancelled) {
@@ -166,20 +179,20 @@ const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl
         start = now;
       }
       const t = Math.min(1, (now - start) / burnDurationMs);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const radius = eased * maxRadius;
 
-      circleEl.setAttribute("cx", String(ox));
-      circleEl.setAttribute("cy", String(oy));
-      circleEl.setAttribute("r", String(radius));
-      edgeEl.setAttribute("cx", String(ox));
-      edgeEl.setAttribute("cy", String(oy));
-      edgeEl.setAttribute("r", String(radius));
-      edgeEl.setAttribute("opacity", String(0.25 + (1 - t) * 0.7));
-      charEl.setAttribute("opacity", String(0.06 + eased * 0.22));
-
-      if (t > 0.8) {
-        inputEl.style.opacity = String(1 - (t - 0.8) / 0.2);
+      if (videoEl.readyState >= 2) {
+        ctx.drawImage(videoEl, 0, 0, width, height);
+        const frameData = ctx.getImageData(0, 0, width, height);
+        const px = frameData.data;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i];
+          const g = px[i + 1];
+          const b = px[i + 2];
+          if (r < blackThreshold && g < blackThreshold && b < blackThreshold) {
+            px[i + 3] = 0;
+          }
+        }
+        ctx.putImageData(frameData, 0, 0);
       }
 
       if (t < 1) {
@@ -187,6 +200,7 @@ const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl
         return;
       }
 
+      videoEl.pause();
       onComplete?.();
     };
 
@@ -198,6 +212,7 @@ const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl
         if (rafId) {
           window.cancelAnimationFrame(rafId);
         }
+        videoEl.pause();
       }
     };
   };
@@ -205,12 +220,10 @@ const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
-  const runSvgBurn = createBurnInputSvgAnimator({
-    frameEl: burnFrame,
-    inputEl: burnInput,
-    circleEl: burnCircle,
-    edgeEl: burnEdge,
-    charEl: burnChar
+  const runVideoBurn = createBurnInputVideoAnimator({
+    videoEl: burnVideo,
+    canvasEl: burnVideoCanvas,
+    layerEl: burnVideoLayer
   });
 
   const clampToField = () => {
@@ -227,7 +240,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 1400;
+    const burnFieldDurationMs = 2200;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -434,27 +447,23 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     };
     burnFrame.classList.add("is-burning");
     burnInput.style.opacity = "1";
-    if (burnCircle) {
-      burnCircle.setAttribute("r", "0");
-    }
-    if (burnEdge) {
-      burnEdge.setAttribute("r", "0");
-      burnEdge.setAttribute("opacity", "0");
-    }
-    if (burnChar) {
-      burnChar.setAttribute("opacity", "0");
+    burnInput.style.visibility = "visible";
+    if (burnVideoLayer) {
+      burnVideoLayer.style.opacity = "0";
     }
     let burnAnimationController = null;
-    if (typeof runSvgBurn === "function") {
-      burnFrame.classList.add("is-burning-svg");
-      burnAnimationController = runSvgBurn({
-        element: burnFrame,
+    if (typeof runVideoBurn === "function") {
+      burnFrame.classList.add("is-burning-video");
+      burnAnimationController = runVideoBurn({
         effectWidth: 360,
         effectHeight: 280,
         duration: burnFieldDurationMs,
-        origin: { x: 180, y: 0 },
         onComplete: () => {
           burnInput.style.opacity = "0";
+          burnInput.style.visibility = "hidden";
+          if (burnVideoLayer) {
+            burnVideoLayer.style.opacity = "0";
+          }
           burnFrame.classList.add("is-hidden");
         }
       });

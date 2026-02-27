@@ -579,7 +579,7 @@ body {
   color: #ffffff;
 }
 
-.burn-svg-layer {
+.burn-video-layer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -623,13 +623,29 @@ body {
   pointer-events: none;
 }
 
-.burn-input-frame.is-burning-svg .burn-input {
+.burn-input-frame.is-burning-video .burn-input {
   opacity: 0;
   caret-color: transparent;
 }
 
-.burn-input-frame.is-burning-svg .burn-svg-layer {
+.burn-input-frame.is-burning-video .burn-video-layer {
   opacity: 1;
+}
+
+.burn-video-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.burn-video-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .burn-input-frame.is-hidden {
