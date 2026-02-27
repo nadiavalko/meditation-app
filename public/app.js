@@ -121,8 +121,6 @@ settings.forEach((setting) => {
 const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
 const burnFrame = document.querySelector("[data-burn-frame]");
-const burnCanvas = document.querySelector("[data-burn-canvas]");
-const burnMask = document.querySelector("[data-burn-mask]");
 const burnTitle = document.querySelector("[data-burn-title]");
 const journeyBreathingPhaseTitle = document.querySelector("[data-breathing-phase-title]");
 const burnInputStack = document.querySelector(".burn-input-stack");
@@ -132,446 +130,67 @@ const journeyBodyFigureStage = document.querySelector("[data-journey-body-figure
 const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
 
-const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
-  if (!canvasEl || !frameEl || !inputEl || typeof canvasEl.getContext !== "function") {
+const burnSvg = document.querySelector("[data-burn-svg]");
+const burnCircle = document.querySelector("[data-burn-circle]");
+const burnEdge = document.querySelector("[data-burn-edge]");
+const burnChar = document.querySelector("[data-burn-char]");
+
+const createBurnInputSvgAnimator = ({ frameEl, inputEl, circleEl, edgeEl, charEl }) => {
+  if (!frameEl || !inputEl || !circleEl || !edgeEl || !charEl) {
     return null;
   }
-  const ctx = canvasEl.getContext("2d");
-  if (!ctx) {
-    return null;
-  }
 
-  const EFFECT_WIDTH = 360;
-  const EFFECT_HEIGHT = 280;
-  const EDGE_SEGMENTS = 44;
-  const MAX_PARTICLES = 30;
-
-  const clamp01 = (v) => Math.max(0, Math.min(1, v));
-  const lerp = (a, b, t) => a + (b - a) * t;
-
-  const hashNoise = (x, y, z) => {
-    const n = Math.sin(x * 127.1 + y * 311.7 + z * 74.7) * 43758.5453123;
-    return n - Math.floor(n);
-  };
-
-  const valueNoise3 = (x, y, z) => {
-    const x0 = Math.floor(x);
-    const y0 = Math.floor(y);
-    const z0 = Math.floor(z);
-    const xf = x - x0;
-    const yf = y - y0;
-    const zf = z - z0;
-    const u = xf * xf * (3 - 2 * xf);
-    const v = yf * yf * (3 - 2 * yf);
-    const w = zf * zf * (3 - 2 * zf);
-    const n000 = hashNoise(x0, y0, z0);
-    const n100 = hashNoise(x0 + 1, y0, z0);
-    const n010 = hashNoise(x0, y0 + 1, z0);
-    const n110 = hashNoise(x0 + 1, y0 + 1, z0);
-    const n001 = hashNoise(x0, y0, z0 + 1);
-    const n101 = hashNoise(x0 + 1, y0, z0 + 1);
-    const n011 = hashNoise(x0, y0 + 1, z0 + 1);
-    const n111 = hashNoise(x0 + 1, y0 + 1, z0 + 1);
-    const x00 = lerp(n000, n100, u);
-    const x10 = lerp(n010, n110, u);
-    const x01 = lerp(n001, n101, u);
-    const x11 = lerp(n011, n111, u);
-    return lerp(lerp(x00, x10, v), lerp(x01, x11, v), w);
-  };
-
-  const fbmNoise = (x, y, t) => {
-    let amp = 0.5;
-    let freq = 1;
-    let total = 0;
-    let norm = 0;
-    for (let octave = 0; octave < 3; octave += 1) {
-      total += valueNoise3(x * freq, y * freq, t * freq * 0.4) * amp;
-      norm += amp;
-      amp *= 0.5;
-      freq *= 2;
-    }
-    return norm > 0 ? total / norm : 0;
-  };
-
-  const wrapCanvasText = (context, text, maxWidth) => {
-    const normalized = (text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-    const paragraphs = normalized.split("\n");
-    const lines = [];
-    paragraphs.forEach((paragraph, paragraphIndex) => {
-      if (paragraph.length === 0) {
-        lines.push("");
-      } else {
-        const words = paragraph.split(/\s+/);
-        let line = "";
-        words.forEach((word) => {
-          const candidate = line ? `${line} ${word}` : word;
-          if (context.measureText(candidate).width <= maxWidth) {
-            line = candidate;
-            return;
-          }
-          if (line) {
-            lines.push(line);
-            line = word;
-          } else {
-            lines.push(word);
-            line = "";
-          }
-        });
-        if (line) {
-          lines.push(line);
-        }
-      }
-      if (paragraphIndex < paragraphs.length - 1) {
-        lines.push("");
-      }
-    });
-    return lines;
-  };
-
-  const roundedRectPath = (context, x, y, width, height, radius) => {
-    context.beginPath();
-    context.moveTo(x + radius, y);
-    context.lineTo(x + width - radius, y);
-    context.quadraticCurveTo(x + width, y, x + width, y + radius);
-    context.lineTo(x + width, y + height - radius);
-    context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    context.lineTo(x + radius, y + height);
-    context.quadraticCurveTo(x, y + height, x, y + height - radius);
-    context.lineTo(x, y + radius);
-    context.quadraticCurveTo(x, y, x + radius, y);
-    context.closePath();
-  };
-
-  const fallbackSnapshotCanvas = () => {
-    const offscreen = document.createElement("canvas");
-    offscreen.width = EFFECT_WIDTH;
-    offscreen.height = EFFECT_HEIGHT;
-    const sctx = offscreen.getContext("2d");
-    if (!sctx) {
-      return offscreen;
-    }
-    const computedFrame = window.getComputedStyle(frameEl);
-    const computedInput = window.getComputedStyle(inputEl);
-    const borderRadius = Number.parseFloat(computedFrame.borderTopLeftRadius) || 12;
-    const borderWidth = Number.parseFloat(computedFrame.borderTopWidth) || 1;
-    const paddingLeft = Number.parseFloat(computedFrame.paddingLeft) || 0;
-    const paddingRight = Number.parseFloat(computedFrame.paddingRight) || 0;
-    const paddingTop = Number.parseFloat(computedFrame.paddingTop) || 0;
-    const fontSize = Number.parseFloat(computedInput.fontSize) || 24;
-    const lineHeight = Number.parseFloat(computedInput.lineHeight) || 32;
-    const textColor = computedInput.color || "#ffffff";
-    const frameBg = computedFrame.backgroundColor || "#1e203b";
-    const frameBorder = computedFrame.borderTopColor || "#242960";
-    roundedRectPath(sctx, 0.5, 0.5, EFFECT_WIDTH - 1, EFFECT_HEIGHT - 1, borderRadius);
-    sctx.fillStyle = frameBg;
-    sctx.fill();
-    sctx.strokeStyle = frameBorder;
-    sctx.lineWidth = borderWidth;
-    sctx.stroke();
-    sctx.font = `${computedInput.fontStyle} ${computedInput.fontWeight} ${fontSize}px ${computedInput.fontFamily}`;
-    sctx.fillStyle = textColor;
-    sctx.textBaseline = "top";
-    const lines = wrapCanvasText(
-      sctx,
-      inputEl.value,
-      Math.max(0, EFFECT_WIDTH - paddingLeft - paddingRight)
-    );
-    lines.forEach((line, index) => {
-      const y = paddingTop + index * lineHeight;
-      if (y + lineHeight <= EFFECT_HEIGHT - 6) {
-        sctx.fillText(line, paddingLeft, y);
-      }
-    });
-    return offscreen;
-  };
-
-  const makeSnapshot = async (element) => {
-    const canvasHasVisiblePixels = (candidate) => {
-      const cctx = candidate?.getContext?.("2d");
-      if (!cctx || !candidate.width || !candidate.height) {
-        return false;
-      }
-      const data = cctx.getImageData(0, 0, candidate.width, candidate.height).data;
-      const step = Math.max(4, Math.floor((candidate.width * candidate.height) / 2400));
-      for (let i = 3; i < data.length; i += 4 * step) {
-        if (data[i] > 8) {
-          return true;
-        }
-      }
-      return false;
-    };
-
-    if (typeof window.html2canvas === "function") {
-      try {
-        const snap = await window.html2canvas(element, {
-          backgroundColor: null,
-          logging: false,
-          scale: 1,
-          useCORS: true
-        });
-        return canvasHasVisiblePixels(snap) ? snap : null;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  };
-
-  return ({ element, effectWidth, effectHeight, duration, origin, onComplete }) => {
+  return ({ effectWidth, effectHeight, duration, origin, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
-      inputEl.style.visibility = "hidden";
       onComplete?.();
       return { cancel: () => {} };
     }
 
-    const targetElement = element || frameEl;
-    const effectW = effectWidth || EFFECT_WIDTH;
-    const effectH = effectHeight || EFFECT_HEIGHT;
-    const burnDurationMs = duration || 3600;
-    const lingerMs = 550;
-    const noiseAmplitudePx = effectH * 0.065;
-    const rimWidthPx = Math.max(8, effectH * 0.03);
-    const frameRect = targetElement.getBoundingClientRect();
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    canvasEl.width = Math.max(1, Math.round(effectW * dpr));
-    canvasEl.height = Math.max(1, Math.round(effectH * dpr));
-    canvasEl.style.width = `${frameRect.width}px`;
-    canvasEl.style.height = `${frameRect.height}px`;
-
-    const ox = origin?.x ?? effectW * 0.5;
+    const width = effectWidth || 360;
+    const height = effectHeight || 280;
+    const burnDurationMs = duration || 1400;
+    const ox = origin?.x ?? width * 0.5;
     const oy = origin?.y ?? 0;
+    const maxRadius = Math.hypot(width, height);
 
-    const renderCanvas = document.createElement("canvas");
-    renderCanvas.width = effectW;
-    renderCanvas.height = effectH;
-    const rctx = renderCanvas.getContext("2d");
-    if (!rctx) {
-      onComplete?.();
-      return { cancel: () => {} };
-    }
-    let cancelled = false;
     let rafId = 0;
-    const particles = [];
-    let lastParticleSpawn = 0;
-    let snapshotSource = null;
-    const rimPoints = [];
+    let cancelled = false;
+    let start = 0;
 
-    const spawnParticles = (elapsedMs, frontY) => {
-      if (particles.length >= MAX_PARTICLES || elapsedMs - lastParticleSpawn < 70) {
-        return;
-      }
-      lastParticleSpawn = elapsedMs;
-      const count = Math.min(3, MAX_PARTICLES - particles.length);
-      for (let i = 0; i < count; i += 1) {
-        const idx = Math.floor(Math.random() * Math.max(1, rimPoints.length));
-        const edgePoint = rimPoints[idx] || { x: ox, y: frontY };
-        particles.push({
-          x: edgePoint.x + (Math.random() - 0.5) * 10,
-          y: edgePoint.y + (Math.random() - 0.5) * 4,
-          vx: (Math.random() - 0.5) * 0.28,
-          vy: -(0.34 + Math.random() * 0.55),
-          lifeMs: 420 + Math.random() * 420,
-          ageMs: 0,
-          size: 1.3 + Math.random() * 2
-        });
-      }
-    };
-
-    const updateParticles = (deltaMs) => {
-      for (let i = particles.length - 1; i >= 0; i -= 1) {
-        const p = particles[i];
-        p.ageMs += deltaMs;
-        if (p.ageMs >= p.lifeMs) {
-          particles.splice(i, 1);
-          continue;
-        }
-        p.x += p.vx * (deltaMs / 16.666);
-        p.y += p.vy * (deltaMs / 16.666);
-        p.vx *= 0.994;
-        p.vy *= 0.996;
-      }
-    };
-
-    const drawParticles = () => {
-      if (particles.length === 0) {
-        return;
-      }
-      rctx.save();
-      rctx.globalCompositeOperation = "lighter";
-      particles.forEach((p) => {
-        const lifeT = clamp01(p.ageMs / p.lifeMs);
-        const alpha = (1 - lifeT) * 0.5;
-        if (alpha <= 0) {
-          return;
-        }
-        const grad = rctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.5);
-        grad.addColorStop(0, `rgba(255, 216, 132, ${alpha})`);
-        grad.addColorStop(0.45, `rgba(255, 123, 58, ${alpha * 0.8})`);
-        grad.addColorStop(1, "rgba(255, 123, 58, 0)");
-        rctx.fillStyle = grad;
-        rctx.beginPath();
-        rctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
-        rctx.fill();
-      });
-      rctx.restore();
-    };
-
-    const drawBurnFront = (progress, elapsedMs) => {
-      const frontY = lerp(oy, effectH + 12, progress);
-      rimPoints.length = 0;
-      for (let i = 0; i < EDGE_SEGMENTS; i += 1) {
-        const u = i / (EDGE_SEGMENTS - 1);
-        const x = u * effectW;
-        const n1 = fbmNoise(u * 4.1, 0.2, elapsedMs * 0.0012);
-        const n2 = fbmNoise(u * 8.7, 1.6, elapsedMs * 0.0021);
-        const wiggle = (n1 - 0.5) * noiseAmplitudePx + (n2 - 0.5) * (noiseAmplitudePx * 0.45);
-        const y = Math.max(-16, Math.min(effectH + 16, frontY + wiggle));
-        rimPoints.push({ x, y });
-      }
-
-      // Draw snapshot first.
-      rctx.clearRect(0, 0, effectW, effectH);
-      rctx.drawImage(snapshotSource, 0, 0, effectW, effectH);
-
-      // Charred rim + warm glow.
-      rctx.save();
-      rctx.lineCap = "round";
-      rctx.lineJoin = "round";
-      rctx.globalCompositeOperation = "lighter";
-      rctx.shadowColor = "rgba(255, 128, 50, 0.52)";
-      rctx.shadowBlur = 16;
-      rctx.strokeStyle = "rgba(255, 170, 96, 0.35)";
-      rctx.lineWidth = rimWidthPx;
-      rctx.beginPath();
-      rimPoints.forEach((p, idx) => {
-        if (idx === 0) {
-          rctx.moveTo(p.x, p.y);
-          return;
-        }
-        const prev = rimPoints[idx - 1];
-        const cx = (prev.x + p.x) * 0.5;
-        const cy = (prev.y + p.y) * 0.5;
-        rctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
-      });
-      const last = rimPoints[rimPoints.length - 1];
-      rctx.lineTo(last.x, last.y);
-      rctx.stroke();
-
-      rctx.globalCompositeOperation = "source-over";
-      rctx.shadowBlur = 0;
-      rctx.strokeStyle = "rgba(58, 28, 14, 0.7)";
-      rctx.lineWidth = Math.max(2, rimWidthPx * 0.35);
-      rctx.beginPath();
-      rimPoints.forEach((p, idx) => {
-        if (idx === 0) {
-          rctx.moveTo(p.x, p.y);
-        } else {
-          rctx.lineTo(p.x, p.y);
-        }
-      });
-      rctx.stroke();
-      rctx.restore();
-
-      // Erase burned part (top -> burn front) using destination-out.
-      rctx.save();
-      rctx.globalCompositeOperation = "destination-out";
-      rctx.fillStyle = "rgba(255,255,255,1)";
-      const stripWidth = effectW / (EDGE_SEGMENTS - 1);
-      for (let i = 0; i < rimPoints.length; i += 1) {
-        const p = rimPoints[i];
-        const x = Math.max(0, p.x - stripWidth * 0.5);
-        const w = stripWidth + 1;
-        const h = Math.max(0, Math.min(effectH, p.y));
-        if (h > 0) {
-          rctx.fillRect(x, 0, w, h);
-        }
-      }
-      rctx.restore();
-
-      return frontY;
-    };
-
-    (async () => {
-      const inputSnapshotCanvas = await makeSnapshot(inputEl);
+    const tick = (now) => {
       if (cancelled) {
         return;
       }
+      if (!start) {
+        start = now;
+      }
+      const t = Math.min(1, (now - start) / burnDurationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const radius = eased * maxRadius;
 
-      snapshotSource = fallbackSnapshotCanvas();
-      const sctx = snapshotSource.getContext("2d", { willReadFrequently: true });
-      if (!sctx) {
-        onComplete?.();
+      circleEl.setAttribute("cx", String(ox));
+      circleEl.setAttribute("cy", String(oy));
+      circleEl.setAttribute("r", String(radius));
+      edgeEl.setAttribute("cx", String(ox));
+      edgeEl.setAttribute("cy", String(oy));
+      edgeEl.setAttribute("r", String(radius));
+      edgeEl.setAttribute("opacity", String(0.25 + (1 - t) * 0.7));
+      charEl.setAttribute("opacity", String(0.06 + eased * 0.22));
+
+      if (t > 0.8) {
+        inputEl.style.opacity = String(1 - (t - 0.8) / 0.2);
+      }
+
+      if (t < 1) {
+        rafId = window.requestAnimationFrame(tick);
         return;
       }
-      if (inputSnapshotCanvas) {
-        const computedFrame = window.getComputedStyle(frameEl);
-        const paddingLeft = Number.parseFloat(computedFrame.paddingLeft) || 0;
-        const paddingRight = Number.parseFloat(computedFrame.paddingRight) || 0;
-        const paddingTop = Number.parseFloat(computedFrame.paddingTop) || 0;
-        const textAreaWidth = Math.max(0, effectW - paddingLeft - paddingRight);
-        const textAreaHeight = Math.max(0, effectH - paddingTop * 2);
-        sctx.drawImage(inputSnapshotCanvas, paddingLeft, paddingTop, textAreaWidth, textAreaHeight);
-      }
 
-      let startTs = 0;
-      let lastTs = 0;
-      let inputHidden = false;
+      onComplete?.();
+    };
 
-      const frame = (ts) => {
-        if (cancelled || !snapshotSource) {
-          return;
-        }
-        if (!startTs) {
-          startTs = ts;
-          lastTs = ts;
-        }
-        const elapsed = ts - startTs;
-        const delta = ts - lastTs;
-        lastTs = ts;
-        const t = clamp01(elapsed / burnDurationMs);
-        const front = t;
-        const frontY = drawBurnFront(front, elapsed);
-        spawnParticles(elapsed, frontY);
-        updateParticles(delta);
-        drawParticles();
-
-        if (t < 1) {
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-          ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
-          if (!inputHidden) {
-            inputEl.style.visibility = "hidden";
-            inputHidden = true;
-          }
-          rafId = window.requestAnimationFrame(frame);
-          return;
-        }
-
-        const doneT = clamp01((elapsed - burnDurationMs) / lingerMs);
-        if (doneT < 1) {
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
-          ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-          ctx.globalAlpha = 1 - doneT;
-          ctx.drawImage(renderCanvas, 0, 0, canvasEl.width, canvasEl.height);
-          ctx.globalAlpha = 1;
-          rafId = window.requestAnimationFrame(frame);
-          return;
-        }
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-        if (!inputHidden) {
-          inputEl.style.visibility = "hidden";
-          inputHidden = true;
-        }
-        particles.length = 0;
-        onComplete?.();
-      };
-
-      frame(performance.now());
-    })();
+    rafId = window.requestAnimationFrame(tick);
 
     return {
       cancel: () => {
@@ -586,7 +205,13 @@ const createBurnInputCanvasAnimator = (canvasEl, frameEl, inputEl) => {
 
 if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
-  const runCanvasBurn = createBurnInputCanvasAnimator(burnCanvas, burnFrame, burnInput);
+  const runSvgBurn = createBurnInputSvgAnimator({
+    frameEl: burnFrame,
+    inputEl: burnInput,
+    circleEl: burnCircle,
+    edgeEl: burnEdge,
+    charEl: burnChar
+  });
 
   const clampToField = () => {
     if (burnInput.scrollHeight > burnInput.clientHeight) {
@@ -602,7 +227,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 3600;
+    const burnFieldDurationMs = 1400;
     const fadeOutDelay = 400;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -808,40 +433,34 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }, delayMs);
     };
     burnFrame.classList.add("is-burning");
+    burnInput.style.opacity = "1";
+    if (burnCircle) {
+      burnCircle.setAttribute("r", "0");
+    }
+    if (burnEdge) {
+      burnEdge.setAttribute("r", "0");
+      burnEdge.setAttribute("opacity", "0");
+    }
+    if (burnChar) {
+      burnChar.setAttribute("opacity", "0");
+    }
     let burnAnimationController = null;
-    if (typeof runCanvasBurn === "function") {
-      burnFrame.classList.add("is-burning-canvas");
-      burnAnimationController = runCanvasBurn({
+    if (typeof runSvgBurn === "function") {
+      burnFrame.classList.add("is-burning-svg");
+      burnAnimationController = runSvgBurn({
         element: burnFrame,
         effectWidth: 360,
         effectHeight: 280,
         duration: burnFieldDurationMs,
         origin: { x: 180, y: 0 },
         onComplete: () => {
-          if (burnCanvas) {
-            burnCanvas.style.opacity = "0";
-          }
+          burnInput.style.opacity = "0";
           burnFrame.classList.add("is-hidden");
         }
       });
     }
-    if (!burnAnimationController && burnMask) {
-      burnMask.style.height = "0%";
-      if (typeof burnMask.animate === "function") {
-        burnMask.animate(
-          [{ height: "0%" }, { height: "100%" }],
-          {
-            duration: burnFieldDurationMs,
-            easing: "linear",
-            fill: "forwards"
-          }
-        );
-      } else {
-        burnMask.style.transition = `height ${burnFieldDurationMs}ms linear`;
-        requestAnimationFrame(() => {
-          burnMask.style.height = "100%";
-        });
-      }
+    if (!burnAnimationController) {
+      setTimeout(() => burnFrame.classList.add("is-hidden"), burnFieldDurationMs);
     }
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
@@ -857,12 +476,6 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }
     resetBodyGradients();
     resetJourneyGratitudeGradient();
-
-    if (!burnAnimationController) {
-      setTimeout(() => {
-        burnFrame.classList.add("is-hidden");
-      }, burnFieldDurationMs);
-    }
 
     burnButton.classList.add("is-hidden");
     burnButton.style.display = "none";

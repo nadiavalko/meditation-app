@@ -1,1 +1,1 @@
-Rebuild journey input burn to top-down ragged canvas burn with glow and sparks
+Replace journey input burn with SVG turbulence mask burn (ragged edge + glow) and keep flow untouched
