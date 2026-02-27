@@ -1,1 +1,1 @@
-Burn fade polish: title and input now fade out together over 1.6s with matched easing, no input jump, button still hides instantly
+Fix burn input twitch: keep burn frame transform at none during is-burning so field no longer jumps on click

@@ -634,6 +634,7 @@ body {
 .burn-input-frame.is-burning {
   animation: none;
   opacity: 1;
+  transform: none;
   pointer-events: none;
 }
 
