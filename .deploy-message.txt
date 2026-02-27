@@ -1,1 +1,1 @@
-Use fire mask SVG in burn prototype with persistent mask burn and hidden live textarea
+Burn prototype: hide border during video, stop at 4s, and remove video instantly

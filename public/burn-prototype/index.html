@@ -59,13 +59,26 @@
         font-family: inherit;
       }
 
-      .burn-canvas {
+      .burn-video {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
-        pointer-events: none;
+        object-fit: cover;
         opacity: 0;
+        pointer-events: none;
+      }
+
+      .field.is-burning textarea {
+        visibility: hidden;
+      }
+
+      .field.is-burning {
+        border-color: transparent;
+      }
+
+      .field.is-burning .burn-video {
+        opacity: 1;
       }
 
       button {
@@ -86,286 +99,56 @@
     <main class="wrap">
       <section class="field" id="burnField">
         <textarea id="burnInput"></textarea>
-        <canvas class="burn-canvas" id="burnCanvas" aria-hidden="true"></canvas>
+        <video
+          id="burnVideo"
+          class="burn-video"
+          src="/assets/wild fire.mp4"
+          muted
+          playsinline
+          preload="auto"
+        ></video>
       </section>
       <button id="burnBtn" type="button">🔥🔥🔥</button>
     </main>
 
     <script>
-      const EFFECT_W = 360;
-      const EFFECT_H = 280;
-      const EDGE_POINTS = 96;
-      const MAX_PARTICLES = 36;
-
       const field = document.getElementById("burnField");
       const input = document.getElementById("burnInput");
-      const canvas = document.getElementById("burnCanvas");
       const button = document.getElementById("burnBtn");
-      const ctx = canvas.getContext("2d");
-      const fireMaskImg = new Image();
-      fireMaskImg.src = "/assets/fire mask.svg";
-
+      const video = document.getElementById("burnVideo");
       let burning = false;
 
-      const clamp01 = (v) => Math.max(0, Math.min(1, v));
-      const lerp = (a, b, t) => a + (b - a) * t;
+      const finish = () => {
+        video.pause();
+        video.style.opacity = "0";
+        field.style.opacity = "0";
+        field.style.pointerEvents = "none";
+        button.disabled = true;
+      };
 
-      function hash(x, y, t) {
-        const n = Math.sin(x * 127.1 + y * 311.7 + t * 63.9) * 43758.5453;
-        return n - Math.floor(n);
-      }
-
-      function fbm(x, y, t) {
-        let total = 0;
-        let amp = 0.5;
-        let freq = 1;
-        let norm = 0;
-        for (let i = 0; i < 3; i += 1) {
-          total += hash(x * freq, y * freq, t * freq) * amp;
-          norm += amp;
-          amp *= 0.5;
-          freq *= 2;
-        }
-        return total / norm;
-      }
-
-      function wrapLines(text, maxWidth, drawCtx) {
-        const lines = [];
-        const paragraphs = text.split(/\r?\n/);
-        for (let p = 0; p < paragraphs.length; p += 1) {
-          const words = paragraphs[p].trim().split(/\s+/).filter(Boolean);
-          if (words.length === 0) {
-            lines.push("");
-          } else {
-            let line = "";
-            for (const w of words) {
-              const candidate = line ? `${line} ${w}` : w;
-              if (drawCtx.measureText(candidate).width <= maxWidth) {
-                line = candidate;
-              } else {
-                if (line) lines.push(line);
-                line = w;
-              }
-            }
-            if (line) lines.push(line);
-          }
-          if (p < paragraphs.length - 1) lines.push("");
-        }
-        return lines;
-      }
-
-      function buildSnapshot() {
-        const snap = document.createElement("canvas");
-        snap.width = EFFECT_W;
-        snap.height = EFFECT_H;
-        const sctx = snap.getContext("2d");
-        sctx.fillStyle = "#1e203b";
-        sctx.strokeStyle = "#242960";
-        sctx.lineWidth = 1;
-        sctx.beginPath();
-        sctx.moveTo(12, 0.5);
-        sctx.lineTo(EFFECT_W - 12, 0.5);
-        sctx.quadraticCurveTo(EFFECT_W - 0.5, 0.5, EFFECT_W - 0.5, 12);
-        sctx.lineTo(EFFECT_W - 0.5, EFFECT_H - 12);
-        sctx.quadraticCurveTo(EFFECT_W - 0.5, EFFECT_H - 0.5, EFFECT_W - 12, EFFECT_H - 0.5);
-        sctx.lineTo(12, EFFECT_H - 0.5);
-        sctx.quadraticCurveTo(0.5, EFFECT_H - 0.5, 0.5, EFFECT_H - 12);
-        sctx.lineTo(0.5, 12);
-        sctx.quadraticCurveTo(0.5, 0.5, 12, 0.5);
-        sctx.closePath();
-        sctx.fill();
-        sctx.stroke();
-
-        sctx.font = "400 24px Cormorant, serif";
-        sctx.fillStyle = "#ffffff";
-        sctx.textBaseline = "top";
-        const lines = wrapLines(input.value || "", EFFECT_W - 36, sctx);
-        lines.forEach((line, i) => sctx.fillText(line, 18, 24 + i * 32));
-        return snap;
-      }
-
-      function startBurn() {
+      button.addEventListener("click", async () => {
         if (burning) return;
         burning = true;
         button.disabled = true;
         input.disabled = true;
-        input.style.visibility = "hidden";
+        field.classList.add("is-burning");
+        video.currentTime = 0;
 
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width = Math.round(EFFECT_W * dpr);
-        canvas.height = Math.round(EFFECT_H * dpr);
-        canvas.style.opacity = "1";
-
-        const render = document.createElement("canvas");
-        render.width = EFFECT_W;
-        render.height = EFFECT_H;
-        const rctx = render.getContext("2d");
-        const burnMask = document.createElement("canvas");
-        burnMask.width = EFFECT_W;
-        burnMask.height = EFFECT_H;
-        const mctx = burnMask.getContext("2d");
-        const snapshot = buildSnapshot();
-
-        const particles = [];
-        const rim = [];
-        const segmentNoise = Array.from({ length: EDGE_POINTS }, (_, i) => ({
-          amp: 0.7 + Math.random() * 1.1,
-          phase: Math.random() * Math.PI * 2,
-          speed: 0.4 + Math.random() * 1.6,
-          spike: (i % 6 === 0 ? 1 : 0) * (4 + Math.random() * 12),
-        }));
-        let lastSpawn = 0;
-        const duration = 5200;
-        const linger = 650;
-        const originY = EFFECT_H;
-        const noiseAmp = EFFECT_H * 0.07;
-        const maskAspect = 3141 / 2480;
-        const maskW = EFFECT_W * 1.16;
-        const maskH = maskW * maskAspect;
-        const topEdgeOffset = maskH * 0.038;
-        let start = 0;
-
-        function spawnParticles(now) {
-          if (particles.length >= MAX_PARTICLES || now - lastSpawn < 55) return;
-          lastSpawn = now;
-          for (let i = 0; i < 2 && particles.length < MAX_PARTICLES; i += 1) {
-            const p = rim[(Math.random() * rim.length) | 0];
-            if (!p) continue;
-            particles.push({
-              x: p.x + (Math.random() - 0.5) * 8,
-              y: p.y + (Math.random() - 0.5) * 4,
-              vx: (Math.random() - 0.5) * 0.35,
-              vy: -(0.35 + Math.random() * 0.6),
-              life: 400 + Math.random() * 600,
-              age: 0,
-              size: 1.2 + Math.random() * 2,
-            });
-          }
+        try {
+          await video.play();
+        } catch {
+          finish();
+          return;
         }
+      });
 
-        function drawParticles(dt) {
-          rctx.save();
-          rctx.globalCompositeOperation = "lighter";
-          for (let i = particles.length - 1; i >= 0; i -= 1) {
-            const p = particles[i];
-            p.age += dt;
-            if (p.age >= p.life) {
-              particles.splice(i, 1);
-              continue;
-            }
-            p.x += p.vx * (dt / 16.67);
-            p.y += p.vy * (dt / 16.67);
-            const k = 1 - p.age / p.life;
-            const a = k * 0.55;
-            const g = rctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.8);
-            g.addColorStop(0, `rgba(218,139,0,${a})`);
-            g.addColorStop(0.55, `rgba(77,16,5,${a * 0.78})`);
-            g.addColorStop(1, "rgba(77,16,5,0)");
-            rctx.fillStyle = g;
-            rctx.beginPath();
-            rctx.arc(p.x, p.y, p.size * 2.8, 0, Math.PI * 2);
-            rctx.fill();
-          }
-          rctx.restore();
+      video.addEventListener("timeupdate", () => {
+        if (video.currentTime >= 4) {
+          finish();
         }
-
-        function step(ts) {
-          if (!start) start = ts;
-          const elapsed = ts - start;
-          const t = clamp01(elapsed / duration);
-          const frontY = lerp(originY, -14, t);
-
-          rim.length = 0;
-          for (let i = 0; i < EDGE_POINTS; i += 1) {
-            const u = i / (EDGE_POINTS - 1);
-            const x = u * EFFECT_W;
-            const seg = segmentNoise[i];
-            const n1 = fbm(u * 4.6, 0.24, elapsed * 0.0012 * seg.speed);
-            const n2 = fbm(u * 12.2, 1.9, elapsed * 0.0023 * seg.speed);
-            const jitter = Math.sin(seg.phase + elapsed * 0.0021 * seg.speed) * noiseAmp * 0.18 * seg.amp;
-            const y =
-              frontY +
-              (n1 - 0.5) * noiseAmp * 1.2 * seg.amp +
-              (n2 - 0.5) * noiseAmp * 0.9 +
-              jitter +
-              seg.spike;
-            rim.push({ x, y });
-          }
-
-          rctx.clearRect(0, 0, EFFECT_W, EFFECT_H);
-          rctx.drawImage(snapshot, 0, 0);
-
-          // Persistent burn mask: once burned, stays burned.
-          mctx.save();
-          mctx.fillStyle = "#fff";
-          if (fireMaskImg.complete) {
-            const maskEdgeY = frontY + (fbm(1.2, 0.7, elapsed * 0.0016) - 0.5) * 10;
-            const drawY = maskEdgeY - topEdgeOffset;
-            const xJitter = (fbm(2.8, 1.3, elapsed * 0.0024) - 0.5) * 22;
-            mctx.drawImage(fireMaskImg, -((maskW - EFFECT_W) * 0.5) + xJitter, drawY, maskW, maskH);
-            mctx.globalAlpha = 0.65;
-            mctx.drawImage(fireMaskImg, -((maskW - EFFECT_W) * 0.5) - xJitter * 0.4, drawY + 6, maskW, maskH);
-            mctx.globalAlpha = 1;
-          }
-          const floorY = Math.max(0, Math.min(EFFECT_H, frontY - 6));
-          mctx.fillRect(0, floorY, EFFECT_W, EFFECT_H - floorY);
-          mctx.restore();
-
-          // Apply mask to remove burned area from snapshot.
-          rctx.save();
-          rctx.globalCompositeOperation = "destination-out";
-          rctx.drawImage(burnMask, 0, 0);
-          rctx.restore();
-
-          rctx.save();
-          rctx.lineJoin = "round";
-          rctx.lineCap = "round";
-          rctx.globalCompositeOperation = "lighter";
-          rctx.shadowColor = "rgba(77,16,5,0.82)";
-          rctx.shadowBlur = 17;
-          rctx.strokeStyle = "rgba(218,139,0,0.36)";
-          rctx.lineWidth = 10;
-          rctx.beginPath();
-          rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
-          rctx.stroke();
-          rctx.shadowBlur = 0;
-          rctx.globalCompositeOperation = "source-over";
-          rctx.strokeStyle = "rgba(77,16,5,0.86)";
-          rctx.lineWidth = 3.2;
-          rctx.beginPath();
-          rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
-          rctx.stroke();
-          rctx.restore();
-
-          spawnParticles(elapsed);
-          drawParticles(16.67);
-
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          ctx.clearRect(0, 0, EFFECT_W, EFFECT_H);
-          if (t < 1) {
-            ctx.drawImage(render, 0, 0);
-            requestAnimationFrame(step);
-            return;
-          }
-
-          const lt = clamp01((elapsed - duration) / linger);
-          if (lt < 1) {
-            ctx.globalAlpha = 1 - lt;
-            ctx.drawImage(render, 0, 0);
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(step);
-            return;
-          }
-
-          canvas.style.opacity = "0";
-          input.style.visibility = "hidden";
-          field.style.opacity = "0";
-        }
-
-        requestAnimationFrame(step);
-      }
-
-      button.addEventListener("click", startBurn);
+      });
+      video.addEventListener("ended", finish);
+      video.addEventListener("error", finish);
     </script>
   </body>
 </html>
