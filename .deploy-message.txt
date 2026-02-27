@@ -1,1 +1,1 @@
-Burn prototype: hide border during video, stop at 4s, and remove video instantly
+Adjust intro gradient stops: #171638 0%, #141929 25%, #0C0E1C 55%

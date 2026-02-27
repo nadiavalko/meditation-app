@@ -88,8 +88,8 @@ body {
   background: radial-gradient(
     circle,
     #171638 0%,
-    #141929 10%,
-    #0c0e1c 50%
+    #141929 25%,
+    #0c0e1c 55%
   );
   opacity: 0;
   animation: introGradientReveal var(--intro-fade-duration) var(--motion-ease) forwards;
@@ -555,9 +555,21 @@ body {
   border-radius: 12px;
   padding: 24px 18px;
   box-sizing: border-box;
-  overflow: hidden;
-  isolation: isolate;
+  overflow: visible;
+  isolation: auto;
   transition: opacity 0.4s ease;
+}
+
+.burn-input-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: #000000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 4s linear;
 }
 
 .burn-input {
@@ -586,8 +598,9 @@ body {
   height: 100%;
   pointer-events: none;
   opacity: 0;
-  z-index: 3;
-  transition: opacity 0.2s ease;
+  z-index: 5;
+  background: transparent;
+  transition: opacity 1s ease;
 }
 
 @keyframes burnEdgeUndulate {
@@ -620,6 +633,7 @@ body {
 
 .burn-input-frame.is-burning {
   animation: none;
+  opacity: 1;
   pointer-events: none;
 }
 
@@ -628,24 +642,35 @@ body {
   caret-color: transparent;
 }
 
+.burn-input-frame.is-burning-video {
+  background: transparent;
+  border-color: transparent;
+}
+
+.burn-input-frame.is-burning-video::after {
+  opacity: 0;
+}
+
 .burn-input-frame.is-burning-video .burn-video-layer {
   opacity: 1;
 }
 
 .burn-video-source {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  left: -150%;
+  top: -220%;
+  width: 400%;
+  height: 400%;
+  object-fit: cover;
   opacity: 0;
+  mix-blend-mode: lighten;
+  filter: brightness(1.35) contrast(1.28) saturate(1.2);
   pointer-events: none;
+  transition: opacity 1s ease;
 }
 
-.burn-video-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
+.burn-video-source.is-visible {
+  opacity: 1;
 }
 
 .burn-input-frame.is-hidden {
