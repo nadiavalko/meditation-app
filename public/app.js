@@ -424,6 +424,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const revealJourneyTitle = (text, revealMs = revealDuration) => {
       burnTitle.textContent = text;
       burnTitle.style.display = "";
+      burnTitle.style.visibility = "visible";
       burnTitle.style.setProperty("--seq-fade-duration", `${revealMs}ms`);
       burnTitle.classList.remove(
         "is-phase-label",
@@ -456,17 +457,21 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     };
     burnFrame.classList.add("is-burning");
     burnTitle.style.display = "";
+    burnTitle.style.visibility = "visible";
     burnTitle.classList.remove("is-fading", "is-revealing");
     burnTitle.style.opacity = window.getComputedStyle(burnTitle).opacity;
     burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
     void burnTitle.offsetWidth;
     burnTitle.style.transition = `opacity ${preBurnFadeMs}ms ease`;
+    burnFrame.style.transition = `background-color ${preBurnFadeMs}ms ease, border-color ${preBurnFadeMs}ms ease`;
     burnInput.style.opacity = "1";
     burnTitle.style.opacity = "0";
     burnInput.style.transition = `opacity ${preBurnFadeMs}ms ease`;
     window.requestAnimationFrame(() => {
       burnTitle.style.opacity = "0";
       burnInput.style.opacity = "0";
+      burnFrame.style.backgroundColor = "transparent";
+      burnFrame.style.borderColor = "transparent";
     });
     if (burnVideoLayer) {
       burnVideoLayer.style.opacity = "0";
@@ -495,9 +500,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     setTimeout(() => {
       burnInput.style.visibility = "hidden";
       burnInput.style.removeProperty("transition");
-      burnTitle.style.display = "none";
+      burnTitle.style.visibility = "hidden";
       burnTitle.style.removeProperty("transition");
       burnTitle.style.removeProperty("opacity");
+      burnFrame.style.removeProperty("transition");
+      burnFrame.style.removeProperty("background-color");
+      burnFrame.style.removeProperty("border-color");
     }, preBurnFadeMs);
 
     let burnAnimationController = null;

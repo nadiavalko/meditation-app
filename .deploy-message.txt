@@ -1,1 +1,1 @@
-Burn timing polish: button hides instantly, title+input fade together for 1.6s with no input position shift, and slower fire fade-in retained
+Burn fade polish: title and input now fade out together over 1.6s with matched easing, no input jump, button still hides instantly
