@@ -621,6 +621,16 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             finalStopRevealAt + revealDuration + holdAfterWellDoneMs + fadeOutDuration;
 
           window.setTimeout(() => {
+            fadeOutJourneyTitle();
+          }, bodyScanPromptRevealAt + revealDuration + holdAfterBodyScanIntroMs);
+
+          const bodyFigureRevealAt =
+            bodyScanPromptRevealAt +
+            revealDuration +
+            holdAfterBodyScanIntroMs +
+            fadeOutDuration;
+
+          window.setTimeout(() => {
             if (journeyBodyFigureStage) {
               journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing");
               journeyBodyFigureStage.setAttribute("aria-hidden", "false");
@@ -631,17 +641,9 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
               void journeyBodyFigure.offsetWidth;
               journeyBodyFigure.classList.add("is-revealing");
             }
-          }, bodyScanPromptRevealAt + 950);
+          }, bodyFigureRevealAt);
 
-          window.setTimeout(() => {
-            fadeOutJourneyTitle();
-          }, bodyScanPromptRevealAt + revealDuration + holdAfterBodyScanIntroMs);
-
-          const feetPromptRevealAt =
-            bodyScanPromptRevealAt +
-            revealDuration +
-            holdAfterBodyScanIntroMs +
-            fadeOutDuration;
+          const feetPromptRevealAt = bodyFigureRevealAt + 3400;
 
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");

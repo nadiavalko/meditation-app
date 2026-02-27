@@ -1,1 +1,1 @@
-Burn timing tweak: start fire earlier so video is already visible while title/input are still fading
+Body scan sequencing tweak: show and fade out body-scan intro text first, then fade in body outline, then start first feet step with gradients
