@@ -250,7 +250,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }
     const burnFieldDurationMs = 4000;
     const preBurnFadeMs = 1600;
-    const burnVideoStartDelay = Math.round(preBurnFadeMs * 0.5);
+    const burnVideoStartDelay = Math.round(preBurnFadeMs * 0.2);
     const fadeOutDelay = burnVideoStartDelay + burnFieldDurationMs + 100;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;

@@ -1,1 +1,1 @@
-Burn timing tweak: fire video now starts midway through title/input fade-out so content dissolves behind the flames
+Burn timing tweak: start fire earlier so video is already visible while title/input are still fading
