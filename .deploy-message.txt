@@ -1,1 +1,1 @@
-Burn video integration: alpha-key black via canvas and instantly hide title/input/button before fire starts
+Burn video alpha fix: stronger black-key thresholds and screen blend on canvas to remove black background artifacts

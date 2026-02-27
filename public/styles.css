@@ -671,6 +671,7 @@ body {
   height: 400%;
   opacity: 0;
   pointer-events: none;
+  mix-blend-mode: screen;
   filter: brightness(1.35) contrast(1.28) saturate(1.2);
   transition: opacity 1s ease;
 }

@@ -210,10 +210,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
           const g = px[i + 1];
           const b = px[i + 2];
           const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-          if (lum <= 12) {
+          // Aggressive black-key removal for compressed footage backgrounds.
+          if (lum <= 40) {
             px[i + 3] = 0;
-          } else if (lum <= 72) {
-            px[i + 3] = Math.round(((lum - 12) / 60) * 255);
+          } else if (lum <= 110) {
+            px[i + 3] = Math.round(((lum - 40) / 70) * 255);
           }
         }
         ctx.putImageData(frameData, 0, 0);
