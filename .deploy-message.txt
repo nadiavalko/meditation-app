@@ -1,1 +1,1 @@
-Replace journey input burn with SVG turbulence mask burn (ragged edge + glow) and keep flow untouched
+Add isolated burn prototype page (canvas top-down ragged burn with embers) for iteration
