@@ -249,7 +249,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       return;
     }
     const burnFieldDurationMs = 4000;
-    const preBurnFadeMs = 1200;
+    const preBurnFadeMs = 1600;
     const fadeOutDelay = preBurnFadeMs + burnFieldDurationMs + 100;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -457,17 +457,23 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     burnFrame.classList.add("is-burning");
     burnTitle.style.display = "";
     burnTitle.classList.remove("is-fading", "is-revealing");
+    burnTitle.style.opacity = window.getComputedStyle(burnTitle).opacity;
+    burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
     void burnTitle.offsetWidth;
-    burnTitle.classList.add("is-fading");
+    burnTitle.style.transition = `opacity ${preBurnFadeMs}ms ease`;
+    burnInput.style.opacity = "1";
+    burnTitle.style.opacity = "0";
     burnInput.style.transition = `opacity ${preBurnFadeMs}ms ease`;
-    burnInput.style.opacity = "0";
+    window.requestAnimationFrame(() => {
+      burnTitle.style.opacity = "0";
+      burnInput.style.opacity = "0";
+    });
     if (burnVideoLayer) {
       burnVideoLayer.style.opacity = "0";
     }
     burnInput.style.visibility = "visible";
     burnInput.setAttribute("disabled", "true");
     burnButton.setAttribute("disabled", "true");
-    burnTitle.classList.remove("burn-seq", "burn-seq-1", "burn-seq-2", "burn-seq-3");
     if (journeyBodyFigureStage) {
       journeyBodyFigureStage.classList.remove("is-revealing");
       journeyBodyFigureStage.classList.add("is-hidden");
@@ -480,12 +486,18 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     resetBodyGradients();
     resetJourneyGratitudeGradient();
 
-    burnButton.classList.add("is-hidden");
-    burnButton.style.display = "none";
+    burnButton.classList.remove("is-hidden");
+    burnButton.style.transition = "none";
+    burnButton.style.opacity = "0";
+    burnButton.style.visibility = "hidden";
+    burnButton.style.pointerEvents = "none";
 
     setTimeout(() => {
       burnInput.style.visibility = "hidden";
       burnInput.style.removeProperty("transition");
+      burnTitle.style.display = "none";
+      burnTitle.style.removeProperty("transition");
+      burnTitle.style.removeProperty("opacity");
     }, preBurnFadeMs);
 
     let burnAnimationController = null;

@@ -1,1 +1,1 @@
-Burn flow timing tweak: button hides instantly, title/input fade out over 1.2s, and fire video fade-in slowed to 1.6s
+Burn timing polish: button hides instantly, title+input fade together for 1.6s with no input position shift, and slower fire fade-in retained
