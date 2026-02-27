@@ -657,19 +657,25 @@ body {
 
 .burn-video-source {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.burn-video-canvas {
+  position: absolute;
   left: -150%;
   top: -220%;
   width: 400%;
   height: 400%;
-  object-fit: cover;
   opacity: 0;
-  mix-blend-mode: lighten;
-  filter: brightness(1.35) contrast(1.28) saturate(1.2);
   pointer-events: none;
+  filter: brightness(1.35) contrast(1.28) saturate(1.2);
   transition: opacity 1s ease;
 }
 
-.burn-video-source.is-visible {
+.burn-video-canvas.is-visible {
   opacity: 1;
 }
 
