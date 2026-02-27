@@ -1,1 +1,1 @@
-Burn video alpha fix: stronger black-key thresholds and screen blend on canvas to remove black background artifacts
+Tune burn video alpha key: remove black background artifacts while preserving visible flame; keep instant hide of title/input/button

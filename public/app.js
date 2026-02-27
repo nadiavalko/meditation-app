@@ -209,12 +209,13 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
           const r = px[i];
           const g = px[i + 1];
           const b = px[i + 2];
-          const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-          // Aggressive black-key removal for compressed footage backgrounds.
-          if (lum <= 40) {
+          const maxCh = Math.max(r, g, b);
+          const sum = r + g + b;
+          // Black/near-black background removal while preserving hot fire tones.
+          if (maxCh < 90 || sum < 210) {
             px[i + 3] = 0;
-          } else if (lum <= 110) {
-            px[i + 3] = Math.round(((lum - 40) / 70) * 255);
+          } else if (sum < 360) {
+            px[i + 3] = Math.round(((sum - 210) / 150) * 255);
           }
         }
         ctx.putImageData(frameData, 0, 0);
