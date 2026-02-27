@@ -1,1 +1,1 @@
-Add isolated burn prototype page (canvas top-down ragged burn with embers) for iteration
+Tune burn prototype to bottom-up slower dark fire and remove textarea placeholder

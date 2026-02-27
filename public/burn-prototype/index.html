@@ -85,7 +85,7 @@
   <body>
     <main class="wrap">
       <section class="field" id="burnField">
-        <textarea id="burnInput" placeholder="Write something..."></textarea>
+        <textarea id="burnInput"></textarea>
         <canvas class="burn-canvas" id="burnCanvas" aria-hidden="true"></canvas>
       </section>
       <button id="burnBtn" type="button">🔥🔥🔥</button>
@@ -202,9 +202,9 @@
         const particles = [];
         const rim = [];
         let lastSpawn = 0;
-        const duration = 3200;
+        const duration = 5200;
         const linger = 650;
-        const originY = 0;
+        const originY = EFFECT_H;
         const noiseAmp = EFFECT_H * 0.07;
         let start = 0;
 
@@ -241,9 +241,9 @@
             const k = 1 - p.age / p.life;
             const a = k * 0.55;
             const g = rctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 2.8);
-            g.addColorStop(0, `rgba(255,220,145,${a})`);
-            g.addColorStop(0.5, `rgba(255,140,70,${a * 0.8})`);
-            g.addColorStop(1, "rgba(255,140,70,0)");
+            g.addColorStop(0, `rgba(218,139,0,${a})`);
+            g.addColorStop(0.55, `rgba(77,16,5,${a * 0.78})`);
+            g.addColorStop(1, "rgba(77,16,5,0)");
             rctx.fillStyle = g;
             rctx.beginPath();
             rctx.arc(p.x, p.y, p.size * 2.8, 0, Math.PI * 2);
@@ -256,7 +256,7 @@
           if (!start) start = ts;
           const elapsed = ts - start;
           const t = clamp01(elapsed / duration);
-          const frontY = lerp(originY, EFFECT_H + 14, t);
+          const frontY = lerp(originY, -14, t);
 
           rim.length = 0;
           for (let i = 0; i < EDGE_POINTS; i += 1) {
@@ -275,8 +275,9 @@
           rctx.globalCompositeOperation = "destination-out";
           const w = EFFECT_W / (EDGE_POINTS - 1);
           for (const p of rim) {
-            if (p.y <= 0) continue;
-            rctx.fillRect(Math.max(0, p.x - w * 0.5), 0, w + 1, Math.min(EFFECT_H, p.y));
+            if (p.y >= EFFECT_H) continue;
+            const y = Math.max(0, p.y);
+            rctx.fillRect(Math.max(0, p.x - w * 0.5), y, w + 1, EFFECT_H - y);
           }
           rctx.restore();
 
@@ -284,16 +285,16 @@
           rctx.lineJoin = "round";
           rctx.lineCap = "round";
           rctx.globalCompositeOperation = "lighter";
-          rctx.shadowColor = "rgba(255,120,38,0.6)";
+          rctx.shadowColor = "rgba(77,16,5,0.72)";
           rctx.shadowBlur = 15;
-          rctx.strokeStyle = "rgba(255,172,95,0.34)";
+          rctx.strokeStyle = "rgba(218,139,0,0.38)";
           rctx.lineWidth = 9;
           rctx.beginPath();
           rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
           rctx.stroke();
           rctx.shadowBlur = 0;
           rctx.globalCompositeOperation = "source-over";
-          rctx.strokeStyle = "rgba(64,29,12,0.72)";
+          rctx.strokeStyle = "rgba(77,16,5,0.86)";
           rctx.lineWidth = 3;
           rctx.beginPath();
           rim.forEach((p, i) => (i ? rctx.lineTo(p.x, p.y) : rctx.moveTo(p.x, p.y)));
