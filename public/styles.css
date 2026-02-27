@@ -88,8 +88,8 @@ body {
   background: radial-gradient(
     circle,
     #171638 0%,
-    #141929 25%,
-    #0c0e1c 55%
+    #0f1224 25%,
+    #0c0e1c 70%
   );
   opacity: 0;
   animation: introGradientReveal var(--intro-fade-duration) var(--motion-ease) forwards;

@@ -1,1 +1,1 @@
-Adjust intro gradient stops: #171638 0%, #141929 25%, #0C0E1C 55%
+Update intro gradient: #171638 0%, #0F1224 25%, #0C0E1C 70%
