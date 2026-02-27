@@ -250,7 +250,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }
     const burnFieldDurationMs = 4000;
     const preBurnFadeMs = 1600;
-    const fadeOutDelay = preBurnFadeMs + burnFieldDurationMs + 100;
+    const burnVideoStartDelay = Math.round(preBurnFadeMs * 0.5);
+    const fadeOutDelay = burnVideoStartDelay + burnFieldDurationMs + 100;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
     const guidanceRevealDuration = 2200;
@@ -528,7 +529,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       if (!burnAnimationController) {
         setTimeout(() => burnFrame.classList.add("is-hidden"), burnFieldDurationMs);
       }
-    }, preBurnFadeMs);
+    }, burnVideoStartDelay);
 
     setTimeout(() => {
       burnTitle.classList.remove("is-fading");

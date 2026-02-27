@@ -1,1 +1,1 @@
-Fix burn input twitch: keep burn frame transform at none during is-burning so field no longer jumps on click
+Burn timing tweak: fire video now starts midway through title/input fade-out so content dissolves behind the flames
