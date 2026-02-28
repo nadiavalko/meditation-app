@@ -1,1 +1,1 @@
-Burn UI radius tweak: input frame corner radius 8px and burn button corner radius 12px
+Body-scan gratitude gradient tweak: change middle stop to #111429 at 20%
