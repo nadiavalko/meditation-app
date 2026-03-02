@@ -164,6 +164,31 @@
           height: 32px;
         }
       }
+
+      @media (max-width: 440px) {
+        .finish-flow {
+          gap: 30px;
+        }
+
+        .finish-phase-1,
+        .finish-phase-2 {
+          gap: 30px;
+        }
+
+        .finish-phase-2 {
+          min-height: calc(100svh - 80px - 40px);
+          gap: 24px;
+        }
+
+        .finish-return-copy {
+          font-size: 32px;
+          line-height: 40px;
+        }
+
+        .finish-figure-wrap {
+          width: min(180px, calc(100vw - 60px));
+        }
+      }
     </style>
   </head>
   <body class="theme-dark">

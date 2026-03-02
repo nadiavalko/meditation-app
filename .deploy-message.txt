@@ -1,1 +1,1 @@
-Body-scan gratitude gradient tweak: change middle stop to #111429 at 20%
+Mobile <=440 optimization: 80px top + 30px horizontal padding across screens, 32/40 header text, no vertical scroll, viewport-square gradients, and burn video mobile blend safeguard
