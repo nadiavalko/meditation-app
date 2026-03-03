@@ -140,23 +140,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
-  const layerHomeParent = layerEl.parentElement;
-  const layerHomeNextSibling = layerEl.nextSibling;
-
-  const restoreLayerHome = () => {
-    if (!layerHomeParent) {
-      return;
-    }
-    if (layerEl.parentElement === layerHomeParent) {
-      return;
-    }
-    if (layerHomeNextSibling) {
-      layerHomeParent.insertBefore(layerEl, layerHomeNextSibling);
-    } else {
-      layerHomeParent.appendChild(layerEl);
-    }
-  };
-
   return ({ duration, fadeOutAt, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
@@ -217,9 +200,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.classList.remove("is-visible");
       canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
-      document.body.classList.remove("is-mobile-burn-active");
-      layerEl.classList.remove("burn-video-layer--mobile-global");
-      restoreLayerHome();
       if (rafId) {
         window.cancelAnimationFrame(rafId);
         rafId = 0;
@@ -267,17 +247,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
     const tryStartPlayback = () => {
       useCanvasKey = false;
-      if (forceCanvasKeyOnMobile) {
-        document.body.classList.add("is-mobile-burn-active");
-        if (layerEl.parentElement !== document.body) {
-          document.body.appendChild(layerEl);
-        }
-        layerEl.classList.add("burn-video-layer--mobile-global");
-      } else {
-        document.body.classList.remove("is-mobile-burn-active");
-        layerEl.classList.remove("burn-video-layer--mobile-global");
-        restoreLayerHome();
-      }
       if (useCanvasKey) {
         videoEl.classList.remove("is-visible");
         videoEl.style.display = "none";

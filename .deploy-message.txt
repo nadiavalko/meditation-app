@@ -1,1 +1,1 @@
-Burn video debug pass: fixed runtime JS errors in burn animator, restored stable desktop quality path, and switched mobile burn rendering to global-overlay source video path (no canvas key) to avoid black-box/container blending artifacts
+Burn video parity fix: remove mobile-only global burn overlay/scaling overrides and use the same burn-video layout/render path as web to match sizing/compositing behavior

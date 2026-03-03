@@ -603,15 +603,6 @@ body {
   transition: opacity 1.6s ease;
 }
 
-.burn-video-layer--mobile-global {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100svh;
-  z-index: 90;
-  opacity: 1 !important;
-}
-
 @keyframes burnEdgeUndulate {
   0% {
     transform: translateY(0);
@@ -811,20 +802,6 @@ body {
   .body-figure {
     height: min(560px, 62svh);
     max-width: min(180px, calc(100vw - 60px));
-  }
-
-  .burn-video-source,
-  .burn-video-canvas {
-    top: -178%;
-  }
-
-  .burn-video-layer--mobile-global .burn-video-source,
-  .burn-video-layer--mobile-global .burn-video-canvas {
-    left: 50%;
-    top: 46%;
-    width: 380vw;
-    height: 380vw;
-    transform: translate(-50%, -50%);
   }
 
 }
