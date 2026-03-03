@@ -1,1 +1,1 @@
-Fix burn-video scaling drift on responsive/mobile preview: removed mobile global-overlay class usage from the normal video path and recompute mobile capability checks at burn-time so resized viewport state does not keep stale placement/scaling
+Mobile burn reliability overhaul: added deterministic frame-sequence renderer (60 transparent PNG frames from CENTER FIRE.mov) for all mobile devices to eliminate blend/resize drift, with fallback to existing video path; desktop burn path unchanged

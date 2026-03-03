@@ -701,6 +701,11 @@ body {
   opacity: 1;
 }
 
+.burn-video-canvas.is-fire-sequence {
+  mix-blend-mode: normal;
+  filter: none;
+}
+
 .burn-input-frame.is-hidden {
   opacity: 0;
 }
