@@ -1,1 +1,1 @@
-Mobile burn reliability overhaul: added deterministic frame-sequence renderer (60 transparent PNG frames from CENTER FIRE.mov) for all mobile devices to eliminate blend/resize drift, with fallback to existing video path; desktop burn path unchanged
+Fix mobile fire sequence positioning: keep mobile PNG-sequence renderer inside the original burn layer/container (no body reparent or mobile global overlay class) so it stays aligned with desktop center and no off-screen scaling drift

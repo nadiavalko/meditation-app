@@ -303,11 +303,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
     const tryStartPlayback = () => {
       if (useMobileSequence) {
-        document.body.classList.add("is-mobile-burn-active");
-        if (layerEl.parentElement !== document.body) {
-          document.body.appendChild(layerEl);
-        }
-        layerEl.classList.add("burn-video-layer--mobile-canvas");
+        layerEl.classList.remove("burn-video-layer--mobile-canvas");
+        document.body.classList.remove("is-mobile-burn-active");
+        restoreLayerHome();
         videoEl.classList.remove("is-visible");
         videoEl.style.display = "none";
         runMobileSequence().then((started) => {
@@ -315,9 +313,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             videoEl.style.removeProperty("display");
             canvasEl?.classList.remove("is-visible");
             canvasEl?.classList.remove("is-fire-sequence");
-            layerEl.classList.remove("burn-video-layer--mobile-canvas");
-            document.body.classList.remove("is-mobile-burn-active");
-            restoreLayerHome();
             if (useIOSAlpha && iosAlphaSrc && videoEl.getAttribute("src") !== iosAlphaSrc) {
               videoEl.src = iosAlphaSrc;
               videoEl.load();
