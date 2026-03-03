@@ -191,7 +191,7 @@
       }
     </style>
   </head>
-  <body class="theme-dark">
+  <body class="theme-dark" data-audio-ui="true" data-audio-autostart="true">
     <main class="screen screen-finish">
       <div class="screen-content">
         <div class="finish-flow" aria-live="polite">
@@ -244,6 +244,7 @@
       </div>
     </main>
 
+    <script src="/audio.js"></script>
     <script>
       (() => {
         const phase1 = document.querySelector("[data-finish-phase-1]");
