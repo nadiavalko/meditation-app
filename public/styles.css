@@ -768,20 +768,20 @@ body {
   }
 
   .intro-figure {
-    width: 128px;
-    height: 274px;
+    width: 140px;
+    height: 300px;
   }
 
   .intro-image {
-    width: 128px;
-    height: 268px;
+    width: 140px;
+    height: 294px;
   }
 
   .intro-button {
-    left: 40px;
-    top: 100px;
-    width: 44px;
-    height: 44px;
+    left: 33.73%;
+    top: 38.62%;
+    width: 32.53%;
+    height: 15.56%;
     font-size: 16px;
     line-height: 22px;
   }

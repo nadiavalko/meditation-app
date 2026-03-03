@@ -1,1 +1,1 @@
-Fix mobile journey content jump with keyboard: lock coarse-pointer/mobile layout to stable viewport (100lvh), fix body positioning, disable page scrolling, and keep screen/content top padding stable so opening the keyboard does not shift headers off-screen
+Mobile-only welcome tweak refinement: keep door image and Enter button scaling together by using proportional button positioning/sizing relative to the larger mobile door figure
