@@ -1,1 +1,1 @@
-Burn video mobile: strengthen black-removal keying (lower-res canvas + stricter thresholds + safe fallback), force screen blend on mobile burn layer, keep fire slightly higher
+Mobile burn blend fix: render burn layer as full-screen overlay during burn (avoids note-only compositing), keep fire slightly higher, preserve existing journey flow

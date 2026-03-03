@@ -203,6 +203,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.classList.remove("is-visible");
       canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
+      if (forceCanvasKeyOnMobile) {
+        document.body.classList.remove("is-mobile-burn-active");
+      }
       if (rafId) {
         window.cancelAnimationFrame(rafId);
         rafId = 0;
@@ -252,6 +255,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
     const tryStartPlayback = () => {
       useCanvasKey = Boolean(ctx && canvasEl && forceCanvasKeyOnMobile);
+      if (forceCanvasKeyOnMobile) {
+        document.body.classList.add("is-mobile-burn-active");
+      }
       if (useCanvasKey) {
         videoEl.classList.remove("is-visible");
         canvasEl.classList.add("is-visible");
