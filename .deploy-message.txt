@@ -1,1 +1,1 @@
-Mobile <=440 optimization: 80px top + 30px horizontal padding across screens, 32/40 header text, no vertical scroll, viewport-square gradients, and burn video mobile blend safeguard
+Fix body-scan intro text glitch: guard breathing-complete sequence to run once so “I’ll guide you through a quick body scan.” uses single fade-in/fade-out like “Now, last stop.”

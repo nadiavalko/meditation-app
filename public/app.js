@@ -265,6 +265,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     const gradientFadeLeadMs = 2200;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
+    let bodyScanSequenceStarted = false;
 
     const clearBodyGradientPulseTimer = () => {
       if (bodyGradientPulseTimer) {
@@ -574,6 +575,10 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
     if (journeyBreathingCanvas) {
       journeyBreathingCanvas.__onBreathingComplete = () => {
+        if (bodyScanSequenceStarted) {
+          return;
+        }
+        bodyScanSequenceStarted = true;
         if (journeyBreathingPhaseTitle) {
           journeyBreathingPhaseTitle.classList.remove("is-breath-revealing", "is-revealing");
           journeyBreathingPhaseTitle.classList.add("is-breath-fading");
