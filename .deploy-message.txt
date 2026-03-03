@@ -1,1 +1,1 @@
-Mobile burn blend fix: render burn layer as full-screen overlay during burn (avoids note-only compositing), keep fire slightly higher, preserve existing journey flow
+Burn video mobile fix: revert oversized overlay scaling, restore high-res keyed render, force canvas key path for burn frames, and tighten black-removal alpha thresholds while keeping current fire placement

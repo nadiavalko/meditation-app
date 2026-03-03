@@ -160,18 +160,14 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let targetWidth = 0;
     let targetHeight = 0;
     layerEl.style.opacity = "1";
-    if (forceCanvasKeyOnMobile) {
-      layerEl.style.mixBlendMode = "screen";
-    } else {
-      layerEl.style.removeProperty("mix-blend-mode");
-    }
+    layerEl.style.mixBlendMode = "screen";
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
     if (canvasEl) {
       ctx = canvasEl.getContext("2d", { willReadFrequently: true });
       if (ctx) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        targetHeight = forceCanvasKeyOnMobile ? 540 : 1080;
+        targetHeight = 1080;
         targetWidth = Math.round(targetHeight * (16 / 9));
         canvasEl.width = Math.round(targetWidth * dpr);
         canvasEl.height = Math.round(targetHeight * dpr);
@@ -203,9 +199,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.classList.remove("is-visible");
       canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
-      if (forceCanvasKeyOnMobile) {
-        document.body.classList.remove("is-mobile-burn-active");
-      }
+      document.body.classList.remove("is-mobile-burn-active");
       if (rafId) {
         window.cancelAnimationFrame(rafId);
         rafId = 0;
@@ -239,10 +233,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             const minCh = Math.min(r, g, b);
             const chroma = maxCh - minCh;
             const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-            if (maxCh < 140 || lum < 105 || (maxCh < 175 && chroma < 48)) {
+            if (maxCh < 170 || lum < 130 || (maxCh < 200 && chroma < 58)) {
               px[i + 3] = 0;
-            } else if (maxCh < 210 || lum < 150) {
-              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 105) / 105) * 255);
+            } else if (maxCh < 230 || lum < 180) {
+              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 130) / 100) * 255);
             }
           }
           ctx.putImageData(frameData, 0, 0);
@@ -254,9 +248,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
-      useCanvasKey = Boolean(ctx && canvasEl && forceCanvasKeyOnMobile);
+      useCanvasKey = Boolean(ctx && canvasEl);
       if (forceCanvasKeyOnMobile) {
         document.body.classList.add("is-mobile-burn-active");
+      } else {
+        document.body.classList.remove("is-mobile-burn-active");
       }
       if (useCanvasKey) {
         videoEl.classList.remove("is-visible");

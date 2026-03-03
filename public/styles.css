@@ -809,25 +809,6 @@ body {
     top: -178%;
   }
 
-  body.is-mobile-burn-active .burn-input-frame.is-burning-video .burn-video-layer {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100svh;
-    z-index: 80;
-    opacity: 1;
-  }
-
-  body.is-mobile-burn-active .burn-video-source,
-  body.is-mobile-burn-active .burn-video-canvas {
-    left: 50%;
-    top: 46%;
-    width: 180vw;
-    height: 180vw;
-    max-width: none;
-    max-height: none;
-    transform: translate(-50%, -50%);
-  }
 }
 
 /* Breathing screen */
