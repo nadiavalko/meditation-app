@@ -160,13 +160,18 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let targetWidth = 0;
     let targetHeight = 0;
     layerEl.style.opacity = "1";
+    if (forceCanvasKeyOnMobile) {
+      layerEl.style.mixBlendMode = "screen";
+    } else {
+      layerEl.style.removeProperty("mix-blend-mode");
+    }
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
     if (canvasEl) {
       ctx = canvasEl.getContext("2d", { willReadFrequently: true });
       if (ctx) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        targetHeight = 1080;
+        targetHeight = forceCanvasKeyOnMobile ? 540 : 1080;
         targetWidth = Math.round(targetHeight * (16 / 9));
         canvasEl.width = Math.round(targetWidth * dpr);
         canvasEl.height = Math.round(targetHeight * dpr);
@@ -219,25 +224,28 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         return;
       }
       if (videoEl.readyState >= 2) {
-        ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
-        const frameData = ctx.getImageData(0, 0, targetWidth, targetHeight);
-        const px = frameData.data;
-        for (let i = 0; i < px.length; i += 4) {
-          const r = px[i];
-          const g = px[i + 1];
-          const b = px[i + 2];
-          const maxCh = Math.max(r, g, b);
-          const minCh = Math.min(r, g, b);
-          const chroma = maxCh - minCh;
-          const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-          // Aggressive black background removal for mobile burn video.
-          if (maxCh < 150 || lum < 115 || (maxCh < 185 && chroma < 55)) {
-            px[i + 3] = 0;
-          } else if (maxCh < 215 || lum < 160) {
-            px[i + 3] = Math.round(((Math.max(maxCh, lum) - 115) / 100) * 255);
+        try {
+          ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
+          const frameData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+          const px = frameData.data;
+          for (let i = 0; i < px.length; i += 4) {
+            const r = px[i];
+            const g = px[i + 1];
+            const b = px[i + 2];
+            const maxCh = Math.max(r, g, b);
+            const minCh = Math.min(r, g, b);
+            const chroma = maxCh - minCh;
+            const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
+            if (maxCh < 140 || lum < 105 || (maxCh < 175 && chroma < 48)) {
+              px[i + 3] = 0;
+            } else if (maxCh < 210 || lum < 150) {
+              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 105) / 105) * 255);
+            }
           }
+          ctx.putImageData(frameData, 0, 0);
+        } catch {
+          ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
         }
-        ctx.putImageData(frameData, 0, 0);
       }
       rafId = window.requestAnimationFrame(renderKeyedFrame);
     };
