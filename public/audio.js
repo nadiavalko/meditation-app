@@ -1,7 +1,6 @@
 (() => {
   const STORAGE = {
     enabled: "meditation_audio_enabled",
-    shouldPlay: "meditation_audio_should_play",
     currentTime: "meditation_audio_current_time",
     started: "meditation_audio_started"
   };
@@ -27,9 +26,11 @@
   const isJourney = location.pathname.startsWith("/journey");
   if (isJourney) {
     setBool(STORAGE.started, true);
-    if (localStorage.getItem(STORAGE.shouldPlay) === null) {
-      setBool(STORAGE.shouldPlay, true);
-    }
+  }
+
+  // Default behavior: sound is ON unless the user explicitly turns it OFF.
+  if (localStorage.getItem(STORAGE.enabled) === null) {
+    setBool(STORAGE.enabled, true);
   }
 
   const audio = new Audio(AUDIO_SRC);
@@ -37,7 +38,6 @@
   audio.loop = true;
 
   const enabled = getBool(STORAGE.enabled, true);
-  const shouldPlay = getBool(STORAGE.shouldPlay, false);
   const started = getBool(STORAGE.started, false);
   const savedTime = Number(localStorage.getItem(STORAGE.currentTime) || "0");
   if (Number.isFinite(savedTime) && savedTime > 0) {
@@ -53,20 +53,31 @@
     if (!getBool(STORAGE.enabled, true)) {
       return;
     }
-    setBool(STORAGE.shouldPlay, true);
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {});
+      playPromise.catch(() => {
+        // If autoplay is blocked, retry on first user interaction.
+        const resume = () => {
+          window.removeEventListener("pointerdown", resume);
+          window.removeEventListener("touchstart", resume);
+          window.removeEventListener("keydown", resume);
+          if (getBool(STORAGE.enabled, true) && getBool(STORAGE.started, false)) {
+            audio.play().catch(() => {});
+          }
+        };
+        window.addEventListener("pointerdown", resume, { once: true, passive: true });
+        window.addEventListener("touchstart", resume, { once: true, passive: true });
+        window.addEventListener("keydown", resume, { once: true });
+      });
     }
   };
 
   const pauseAudio = () => {
     audio.pause();
-    setBool(STORAGE.shouldPlay, false);
     persistProgress();
   };
 
-  if (started && enabled && shouldPlay && body.dataset.audioAutostart === "true") {
+  if (started && enabled && body.dataset.audioAutostart === "true") {
     tryPlay();
   }
 
@@ -113,7 +124,6 @@
     if (enterButton) {
       enterButton.addEventListener("click", () => {
         setBool(STORAGE.started, true);
-        setBool(STORAGE.shouldPlay, true);
       });
     }
   }

@@ -1,1 +1,1 @@
-Set audio toggle icon color to #406491 and make end-of-body-scan elements fade out together smoothly before finish sequence.
+Audio defaults to ON across reloads unless user explicitly turns it OFF; added autoplay-resume on first interaction when browser blocks autoplay.
