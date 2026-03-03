@@ -140,6 +140,12 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
+  const preferMobileFallback = window.matchMedia?.("(max-width: 440px)")?.matches;
+
+  if (preferMobileFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
+    videoEl.src = fallbackSrc;
+    videoEl.load();
+  }
   return ({ duration, fadeOutAt, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
@@ -178,13 +184,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     videoEl.pause();
     videoEl.loop = false;
     videoEl.style.removeProperty("display");
-    if (forceCanvasKeyOnMobile && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
-      videoEl.src = fallbackSrc;
-    } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
-      videoEl.src = primarySrc;
-    }
-    videoEl.load();
-
     try {
       videoEl.currentTime = 0;
     } catch {}
@@ -257,40 +256,21 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");
       }
-      const tryPlayFromStart = () => {
-        try {
-          videoEl.currentTime = 0;
-        } catch {}
-        const playAttempt = videoEl.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            if (!triedFallback && fallbackSrc) {
-              triedFallback = true;
-              videoEl.src = fallbackSrc;
-              videoEl.load();
-              tryStartPlayback();
-              return;
-            }
-            complete();
-          });
-        }
-      };
-
-      if (videoEl.readyState >= 2) {
-        tryPlayFromStart();
-      } else {
-        const onReady = () => {
-          videoEl.removeEventListener("loadeddata", onReady);
-          videoEl.removeEventListener("canplay", onReady);
-          tryPlayFromStart();
-        };
-        videoEl.addEventListener("loadeddata", onReady);
-        videoEl.addEventListener("canplay", onReady);
-        window.setTimeout(() => {
-          videoEl.removeEventListener("loadeddata", onReady);
-          videoEl.removeEventListener("canplay", onReady);
-          tryPlayFromStart();
-        }, 180);
+      try {
+        videoEl.currentTime = 0;
+      } catch {}
+      const playAttempt = videoEl.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {
+          if (!triedFallback && fallbackSrc && !forceCanvasKeyOnMobile) {
+            triedFallback = true;
+            videoEl.src = fallbackSrc;
+            videoEl.load();
+            tryStartPlayback();
+            return;
+          }
+          complete();
+        });
       }
     };
 
