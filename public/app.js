@@ -146,10 +146,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
-    const useCanvasKey =
-      window.matchMedia?.("(max-width: 440px)")?.matches &&
-      !!canvasEl &&
-      typeof canvasEl.getContext === "function";
+    const useCanvasKey = !!canvasEl && typeof canvasEl.getContext === "function";
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;

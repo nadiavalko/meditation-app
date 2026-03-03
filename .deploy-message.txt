@@ -1,1 +1,1 @@
-Mobile fixes: remove fire black square with canvas alpha-key fallback on <=440, move fire lower, enlarge body outline while keeping no-scroll layout on all pages
+Mobile pass: top padding 60px app-wide, larger body outline without scroll, fire moved lower, and canvas alpha-key transparency applied for burn video on mobile to eliminate black box
