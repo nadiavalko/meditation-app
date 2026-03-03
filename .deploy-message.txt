@@ -1,1 +1,1 @@
-Mobile layout spacing update across pages: top-to-heading 40px and heading-to-next-element 40px.
+Switch app background music source to /assets/light.mp3.

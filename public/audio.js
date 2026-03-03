@@ -4,7 +4,7 @@
     currentTime: "meditation_audio_current_time",
     started: "meditation_audio_started"
   };
-  const AUDIO_SRC = "/assets/metriko-calm-nature-background-music-364797.mp3";
+  const AUDIO_SRC = "/assets/light.mp3";
 
   const getBool = (key, fallback) => {
     const raw = localStorage.getItem(key);
@@ -36,6 +36,7 @@
   const audio = new Audio(AUDIO_SRC);
   audio.preload = "auto";
   audio.loop = true;
+  audio.volume = 1;
 
   const enabled = getBool(STORAGE.enabled, true);
   const started = getBool(STORAGE.started, false);
@@ -45,8 +46,47 @@
   }
 
   let persistTimer = 0;
+  let volumeFadeRaf = 0;
   const persistProgress = () => {
     localStorage.setItem(STORAGE.currentTime, String(audio.currentTime || 0));
+  };
+
+  const stopVolumeFade = () => {
+    if (volumeFadeRaf) {
+      window.cancelAnimationFrame(volumeFadeRaf);
+      volumeFadeRaf = 0;
+    }
+  };
+
+  const fadeAudioVolume = ({
+    from,
+    to,
+    durationMs,
+    onStart,
+    onDone
+  }) => {
+    stopVolumeFade();
+    if (typeof onStart === "function") {
+      onStart();
+    }
+    if (durationMs <= 0 || from === to) {
+      audio.volume = to;
+      onDone?.();
+      return;
+    }
+    const start = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      audio.volume = from + (to - from) * eased;
+      if (t < 1) {
+        volumeFadeRaf = window.requestAnimationFrame(tick);
+        return;
+      }
+      volumeFadeRaf = 0;
+      onDone?.();
+    };
+    volumeFadeRaf = window.requestAnimationFrame(tick);
   };
 
   const tryPlay = () => {
@@ -76,8 +116,16 @@
   };
 
   const pauseAudio = () => {
-    audio.pause();
-    persistProgress();
+    fadeAudioVolume({
+      from: audio.volume,
+      to: 0,
+      durationMs: 480,
+      onDone: () => {
+        audio.pause();
+        audio.volume = 1;
+        persistProgress();
+      }
+    });
   };
 
   if (started && enabled && body.dataset.audioAutostart === "true") {
@@ -100,7 +148,7 @@
         <path d="M16.3 10.3a1 1 0 0 1 1.4 0l1.3 1.3 1.3-1.3a1 1 0 1 1 1.4 1.4L20.4 13l1.3 1.3a1 1 0 0 1-1.4 1.4L19 14.4l-1.3 1.3a1 1 0 0 1-1.4-1.4l1.3-1.3-1.3-1.3a1 1 0 0 1 0-1.4z"/>
       </svg>`;
     const syncUi = () => {
-      const isOn = !audio.paused && !audio.ended;
+      const isOn = getBool(STORAGE.enabled, true);
       btn.innerHTML = isOn ? iconOn : iconOff;
       btn.setAttribute("aria-label", isOn ? "Turn sound off" : "Turn sound on");
     };
@@ -109,7 +157,15 @@
     btn.addEventListener("click", () => {
       if (audio.paused) {
         setBool(STORAGE.enabled, true);
-        tryPlay();
+        fadeAudioVolume({
+          from: 0,
+          to: 1,
+          durationMs: 520,
+          onStart: () => {
+            audio.volume = 0;
+            tryPlay();
+          }
+        });
       } else {
         setBool(STORAGE.enabled, false);
         pauseAudio();
