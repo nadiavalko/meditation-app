@@ -140,6 +140,22 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
+  const layerHomeParent = layerEl.parentElement;
+  const layerHomeNextSibling = layerEl.nextSibling;
+
+  const restoreLayerHome = () => {
+    if (!layerHomeParent) {
+      return;
+    }
+    if (layerEl.parentElement === layerHomeParent) {
+      return;
+    }
+    if (layerHomeNextSibling) {
+      layerHomeParent.insertBefore(layerEl, layerHomeNextSibling);
+    } else {
+      layerHomeParent.appendChild(layerEl);
+    }
+  };
 
   return ({ duration, fadeOutAt, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
@@ -181,11 +197,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     videoEl.style.removeProperty("display");
     if (forceCanvasKeyOnMobile && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
       videoEl.src = fallbackSrc;
-      videoEl.load();
     } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
       videoEl.src = primarySrc;
-      videoEl.load();
     }
+    videoEl.load();
 
     try {
       videoEl.currentTime = 0;
@@ -235,13 +250,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             const g = px[i + 1];
             const b = px[i + 2];
             const maxCh = Math.max(r, g, b);
-            const minCh = Math.min(r, g, b);
-            const chroma = maxCh - minCh;
-            const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-            if (maxCh < 185 || lum < 155 || (maxCh < 215 && chroma < 64)) {
+            if (maxCh <= 35) {
               px[i + 3] = 0;
-            } else if (maxCh < 245 || lum < 210) {
-              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 155) / 90) * 255);
+            } else {
+              const normalized = Math.min(1, (maxCh - 35) / 220);
+              px[i + 3] = Math.round(Math.pow(normalized, 1.35) * 255);
             }
           }
           ctx.putImageData(frameData, 0, 0);
@@ -275,18 +288,40 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");
       }
-      const tryPlay = videoEl.play();
-      if (tryPlay && typeof tryPlay.catch === "function") {
-        tryPlay.catch(() => {
-          if (!triedFallback && fallbackSrc) {
-            triedFallback = true;
-            videoEl.src = fallbackSrc;
-            videoEl.load();
-            tryStartPlayback();
-            return;
-          }
-          complete();
-        });
+      const tryPlayFromStart = () => {
+        try {
+          videoEl.currentTime = 0;
+        } catch {}
+        const playAttempt = videoEl.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+          playAttempt.catch(() => {
+            if (!triedFallback && fallbackSrc) {
+              triedFallback = true;
+              videoEl.src = fallbackSrc;
+              videoEl.load();
+              tryStartPlayback();
+              return;
+            }
+            complete();
+          });
+        }
+      };
+
+      if (videoEl.readyState >= 2) {
+        tryPlayFromStart();
+      } else {
+        const onReady = () => {
+          videoEl.removeEventListener("loadeddata", onReady);
+          videoEl.removeEventListener("canplay", onReady);
+          tryPlayFromStart();
+        };
+        videoEl.addEventListener("loadeddata", onReady);
+        videoEl.addEventListener("canplay", onReady);
+        window.setTimeout(() => {
+          videoEl.removeEventListener("loadeddata", onReady);
+          videoEl.removeEventListener("canplay", onReady);
+          tryPlayFromStart();
+        }, 180);
       }
     };
 
@@ -1478,18 +1513,3 @@ if (bodyScan) {
     window.location.href = "/finish/";
   }, totalDuration + 1800);
 }
-    const layerHomeParent = layerEl.parentElement;
-    const layerHomeNextSibling = layerEl.nextSibling;
-    const restoreLayerHome = () => {
-      if (!layerHomeParent) {
-        return;
-      }
-      if (layerEl.parentElement === layerHomeParent) {
-        return;
-      }
-      if (layerHomeNextSibling) {
-        layerHomeParent.insertBefore(layerEl, layerHomeNextSibling);
-      } else {
-        layerHomeParent.appendChild(layerEl);
-      }
-    };

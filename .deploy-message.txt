@@ -1,1 +1,1 @@
-Burn video fix: restore desktop path quality, move mobile burn layer to global fixed overlay so black blends against page (not note container), keep fire placement slightly above center
+Burn video debug pass: fixed runtime JS errors in burn animator, restored stable desktop quality path, and switched mobile burn rendering to global-overlay source video path (no canvas key) to avoid black-box/container blending artifacts
