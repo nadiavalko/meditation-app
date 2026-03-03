@@ -1,1 +1,1 @@
-Mobile pass: top padding 60px app-wide, larger body outline without scroll, fire moved lower, and canvas alpha-key transparency applied for burn video on mobile to eliminate black box
+Mobile burn black-square fix: strengthened alpha-key thresholds in burn canvas renderer to remove dark background blocks

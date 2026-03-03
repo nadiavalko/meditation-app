@@ -216,9 +216,14 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
           const g = px[i + 1];
           const b = px[i + 2];
           const maxCh = Math.max(r, g, b);
-          const sum = r + g + b;
-          if (maxCh < 80 || sum < 250) {
+          const minCh = Math.min(r, g, b);
+          const chroma = maxCh - minCh;
+          const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
+          // Aggressive black background removal for mobile burn video.
+          if (maxCh < 150 || lum < 115 || (maxCh < 185 && chroma < 55)) {
             px[i + 3] = 0;
+          } else if (maxCh < 215 || lum < 160) {
+            px[i + 3] = Math.round(((Math.max(maxCh, lum) - 115) / 100) * 255);
           }
         }
         ctx.putImageData(frameData, 0, 0);
