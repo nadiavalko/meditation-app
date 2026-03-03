@@ -74,9 +74,20 @@
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "audio-toggle";
+    const iconOn = `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M11 5L7.5 8.5H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h3.5L11 19a1 1 0 0 0 1.7-.7V5.7A1 1 0 0 0 11 5z"/>
+        <path d="M15.2 9.2a1 1 0 1 1 1.4-1.4 6 6 0 0 1 0 8.4 1 1 0 1 1-1.4-1.4 4 4 0 0 0 0-5.6z"/>
+        <path d="M18.2 6.2a1 1 0 1 1 1.4-1.4 10 10 0 0 1 0 14.2 1 1 0 1 1-1.4-1.4 8 8 0 0 0 0-11.4z"/>
+      </svg>`;
+    const iconOff = `
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M11 5L7.5 8.5H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h3.5L11 19a1 1 0 0 0 1.7-.7V5.7A1 1 0 0 0 11 5z"/>
+        <path d="M16.3 10.3a1 1 0 0 1 1.4 0l1.3 1.3 1.3-1.3a1 1 0 1 1 1.4 1.4L20.4 13l1.3 1.3a1 1 0 0 1-1.4 1.4L19 14.4l-1.3 1.3a1 1 0 0 1-1.4-1.4l1.3-1.3-1.3-1.3a1 1 0 0 1 0-1.4z"/>
+      </svg>`;
     const syncUi = () => {
       const isOn = !audio.paused && !audio.ended;
-      btn.textContent = isOn ? "🔊" : "🔇";
+      btn.innerHTML = isOn ? iconOn : iconOff;
       btn.setAttribute("aria-label", isOn ? "Turn sound off" : "Turn sound on");
     };
     syncUi();
