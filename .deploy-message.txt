@@ -1,1 +1,1 @@
-Burn video mobile fix: revert oversized overlay scaling, restore high-res keyed render, force canvas key path for burn frames, and tighten black-removal alpha thresholds while keeping current fire placement
+Burn video black-box fix: render burn through canvas-only keyed frames (hide source video during burn), remove fallback raw-frame draw, strengthen black-pixel alpha cutoff, keep existing fire placement

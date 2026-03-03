@@ -160,7 +160,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let targetWidth = 0;
     let targetHeight = 0;
     layerEl.style.opacity = "1";
-    layerEl.style.mixBlendMode = "screen";
+    layerEl.style.removeProperty("mix-blend-mode");
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
     if (canvasEl) {
@@ -177,6 +177,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     videoEl.pause();
     videoEl.loop = false;
+    videoEl.style.removeProperty("display");
     if (forceCanvasKeyOnMobile && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
       videoEl.src = fallbackSrc;
       videoEl.load();
@@ -196,6 +197,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       done = true;
       videoEl.pause();
       videoEl.loop = false;
+      videoEl.style.removeProperty("display");
       videoEl.classList.remove("is-visible");
       canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
@@ -233,15 +235,15 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             const minCh = Math.min(r, g, b);
             const chroma = maxCh - minCh;
             const lum = r * 0.2126 + g * 0.7152 + b * 0.0722;
-            if (maxCh < 170 || lum < 130 || (maxCh < 200 && chroma < 58)) {
+            if (maxCh < 185 || lum < 155 || (maxCh < 215 && chroma < 64)) {
               px[i + 3] = 0;
-            } else if (maxCh < 230 || lum < 180) {
-              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 130) / 100) * 255);
+            } else if (maxCh < 245 || lum < 210) {
+              px[i + 3] = Math.round(((Math.max(maxCh, lum) - 155) / 90) * 255);
             }
           }
           ctx.putImageData(frameData, 0, 0);
         } catch {
-          ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
+          ctx.clearRect(0, 0, targetWidth, targetHeight);
         }
       }
       rafId = window.requestAnimationFrame(renderKeyedFrame);
@@ -256,9 +258,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       }
       if (useCanvasKey) {
         videoEl.classList.remove("is-visible");
+        videoEl.style.display = "none";
         canvasEl.classList.add("is-visible");
         renderKeyedFrame();
       } else {
+        videoEl.style.removeProperty("display");
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");
       }
