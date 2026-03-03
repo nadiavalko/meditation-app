@@ -141,6 +141,26 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
   const iosAlphaSrc = videoEl.dataset.alphaIosSrc || "";
+  const isMobileDevice = Boolean(
+    window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
+      /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+  );
+  const canPlayAlphaMov = Boolean(
+    iosAlphaSrc &&
+      typeof videoEl.canPlayType === "function" &&
+      (videoEl.canPlayType('video/quicktime; codecs="ap4h"') ||
+        videoEl.canPlayType('video/mp4; codecs="hvc1"'))
+  );
+  const preferredMobileSrc = isMobileDevice
+    ? canPlayAlphaMov
+      ? iosAlphaSrc
+      : fallbackSrc || primarySrc
+    : primarySrc;
+
+  if (preferredMobileSrc && videoEl.getAttribute("src") !== preferredMobileSrc) {
+    videoEl.src = preferredMobileSrc;
+    videoEl.load();
+  }
   const layerHomeParent = layerEl.parentElement;
   const layerHomeNextSibling = layerEl.nextSibling;
 
@@ -166,11 +186,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
-    const isMobileDevice = Boolean(
-      window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
-        /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
-    );
-    const useIOSAlpha = Boolean(isMobileDevice && iosAlphaSrc);
+    const useIOSAlpha = Boolean(isMobileDevice && canPlayAlphaMov);
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
@@ -202,18 +218,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     videoEl.pause();
     videoEl.loop = false;
     videoEl.style.removeProperty("display");
-    if (useIOSAlpha && iosAlphaSrc) {
-      if (videoEl.getAttribute("src") !== iosAlphaSrc) {
-        videoEl.src = iosAlphaSrc;
-      }
-    } else if (fallbackSrc) {
-      if (videoEl.getAttribute("src") !== fallbackSrc) {
-        videoEl.src = fallbackSrc;
-      }
-    } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
-      videoEl.src = primarySrc;
-    }
-    videoEl.load();
     try {
       videoEl.currentTime = 0;
     } catch {}

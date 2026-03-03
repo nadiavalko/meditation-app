@@ -1,1 +1,1 @@
-Burn video mobile strategy update: alpha-first on all mobile devices (CENTER_FIRE_alpha_ios.mov), automatic fallback to CENTER_FIRE_web.mp4 if alpha playback fails, while preserving existing desktop burn behavior
+Mobile burn playback fix: preselect mobile burn source at init (alpha MOV when supported, otherwise MP4) to keep play in user-gesture path and prevent burn video disappearing; keep desktop source unchanged
