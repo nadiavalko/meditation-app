@@ -141,7 +141,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
   const iosAlphaSrc = videoEl.dataset.alphaIosSrc || "";
-  const mobileFireFrameUrls = Array.from({ length: 120 }, (_, index) => {
+  const mobileFireFrameUrls = Array.from({ length: 60 }, (_, index) => {
     const frame = String(index + 1).padStart(3, "0");
     return `/assets/fire-seq/frame-${frame}.png`;
   });

@@ -1,1 +1,1 @@
-Fire sequence quality update: regenerated mobile fire PNG sequence at 30fps (120 frames over 4s) and updated frame loader count to 120 for smoother, more natural fire motion
+Fix mobile fire sequence positioning: keep mobile PNG-sequence renderer inside the original burn layer/container (no body reparent or mobile global overlay class) so it stays aligned with desktop center and no off-screen scaling drift
