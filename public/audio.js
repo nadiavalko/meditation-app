@@ -24,8 +24,8 @@
     return;
   }
 
-  const isJourneyOrFinish = location.pathname.startsWith("/journey") || location.pathname.startsWith("/finish");
-  if (isJourneyOrFinish) {
+  const isJourney = location.pathname.startsWith("/journey");
+  if (isJourney) {
     setBool(STORAGE.started, true);
     if (localStorage.getItem(STORAGE.shouldPlay) === null) {
       setBool(STORAGE.shouldPlay, true);

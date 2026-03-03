@@ -645,10 +645,9 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         !journeyFinishPhase2 ||
         !journeyFinishFlower ||
         !journeyFinishFlowerWrap ||
-        !journeyFinishReturnText ||
-        !journeyFinishButtons
+      !journeyFinishReturnText ||
+      !journeyFinishButtons
       ) {
-        window.location.href = "/finish/";
         return;
       }
 
@@ -1631,6 +1630,6 @@ if (bodyScan) {
   }, totalDuration + 300);
 
   setTimeout(() => {
-    window.location.href = "/finish/";
+    window.location.href = "/";
   }, totalDuration + 1800);
 }

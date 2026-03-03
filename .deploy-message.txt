@@ -1,1 +1,1 @@
-Journey->finish transition now runs in-page (no page reload) so background audio stays continuous; added in-journey finish UI/animation sequence.
+Set audio default to ON with persisted user mute/unmute preference, color audio icons #93BBED, and remove standalone finish page (journey-only finish flow).
