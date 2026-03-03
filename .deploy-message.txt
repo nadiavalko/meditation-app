@@ -1,1 +1,1 @@
-Web layout spacing update for intro + journey: top padding 20vh->15vh and primary vertical gap 60px->80px (mobile unchanged).
+Adjust end-of-journey finish spacing: heading-to-flower gap set to 80px on web and 30px on mobile.

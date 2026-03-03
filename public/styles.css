@@ -1159,7 +1159,7 @@ body {
 }
 
 .finish-phase-2 {
-  gap: 40px;
+  gap: 80px;
   min-height: calc(100vh - 20vh - 48px);
 }
 
@@ -1365,7 +1365,7 @@ body {
 
   .finish-phase-2 {
     min-height: calc(100svh - 60px - 40px);
-    gap: 24px;
+    gap: 30px;
   }
 
   .finish-return-copy {
