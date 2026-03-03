@@ -1,1 +1,1 @@
-Mobile-only welcome tweak refinement: keep door image and Enter button scaling together by using proportional button positioning/sizing relative to the larger mobile door figure
+Mobile body-scan layout stabilization: added mobile-only fixed-height title container for body-scan text steps (from feet prompt through final completion prompt) so header block stays constant and body outline spacing remains stable across one-line/two-line text

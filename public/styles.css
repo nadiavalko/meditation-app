@@ -855,6 +855,15 @@ body {
     padding-top: 60px;
     padding-bottom: 0;
   }
+
+  .burn-title.is-body-scan-copy {
+    min-height: 80px;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: center;
+  }
 }
 
 /* Breathing screen */
