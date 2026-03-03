@@ -151,16 +151,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       (videoEl.canPlayType('video/quicktime; codecs="ap4h"') ||
         videoEl.canPlayType('video/mp4; codecs="hvc1"'))
   );
-  const preferredMobileSrc = isMobileDevice
-    ? canPlayAlphaMov
-      ? iosAlphaSrc
-      : fallbackSrc || primarySrc
-    : primarySrc;
-
-  if (preferredMobileSrc && videoEl.getAttribute("src") !== preferredMobileSrc) {
-    videoEl.src = preferredMobileSrc;
-    videoEl.load();
-  }
   const layerHomeParent = layerEl.parentElement;
   const layerHomeNextSibling = layerEl.nextSibling;
 
@@ -282,6 +272,13 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
+      if (useIOSAlpha && iosAlphaSrc && videoEl.getAttribute("src") !== iosAlphaSrc) {
+        videoEl.src = iosAlphaSrc;
+        videoEl.load();
+      } else if (!useIOSAlpha && primarySrc && videoEl.getAttribute("src") !== primarySrc) {
+        videoEl.src = primarySrc;
+        videoEl.load();
+      }
       if (useCanvasKey) {
         document.body.classList.add("is-mobile-burn-active");
         if (layerEl.parentElement !== document.body) {
@@ -293,9 +290,17 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         canvasEl?.classList.add("is-visible");
         renderKeyedFrame();
       } else {
-        layerEl.classList.remove("burn-video-layer--mobile-canvas");
-        document.body.classList.remove("is-mobile-burn-active");
-        restoreLayerHome();
+        if (isMobileDevice) {
+          document.body.classList.add("is-mobile-burn-active");
+          if (layerEl.parentElement !== document.body) {
+            document.body.appendChild(layerEl);
+          }
+          layerEl.classList.add("burn-video-layer--mobile-canvas");
+        } else {
+          layerEl.classList.remove("burn-video-layer--mobile-canvas");
+          document.body.classList.remove("is-mobile-burn-active");
+          restoreLayerHome();
+        }
         videoEl.style.removeProperty("display");
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");

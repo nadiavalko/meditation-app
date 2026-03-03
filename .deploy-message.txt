@@ -1,1 +1,1 @@
-Mobile burn playback fix: preselect mobile burn source at init (alpha MOV when supported, otherwise MP4) to keep play in user-gesture path and prevent burn video disappearing; keep desktop source unchanged
+Burn video stability fix: removed mobile preselection that caused disappearing playback, restored default source flow, and only switch to alpha MOV on supported mobile devices at burn start; keep fallback handling intact
