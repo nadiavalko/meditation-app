@@ -47,7 +47,7 @@ body {
   border: none;
   border-radius: 12px;
   background: rgba(12, 14, 28, 0.72);
-  color: #93bbed;
+  color: #406491;
   font-size: 24px;
   line-height: 1;
   display: inline-flex;
@@ -428,6 +428,11 @@ body {
   animation: introGradientReveal var(--intro-fade-duration) var(--motion-ease) forwards;
 }
 
+.journey-gratitude-gradient.is-fading {
+  visibility: visible;
+  animation: fadeOnlyOut var(--motion-fade-out-duration) var(--motion-ease) forwards;
+}
+
 .burn-title {
   margin: 0;
   font-family: "Cormorant", serif;
@@ -539,6 +544,10 @@ body {
   opacity: 0;
   transform: translateY(var(--motion-distance));
   animation: introFadeUp var(--seq-fade-duration) var(--motion-ease) forwards;
+}
+
+.body-figure-stage.is-fading {
+  animation: fadeOnlyOut var(--motion-fade-out-duration) var(--motion-ease) forwards;
 }
 
 .body-figure {

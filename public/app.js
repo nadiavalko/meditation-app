@@ -572,7 +572,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       if (!journeyGratitudeGradient) {
         return;
       }
-      journeyGratitudeGradient.classList.remove("is-revealing");
+      journeyGratitudeGradient.classList.remove("is-revealing", "is-fading");
       journeyGratitudeGradient.classList.add("is-hidden");
     };
 
@@ -652,6 +652,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }
 
       if (journeyBodyFigureStage) {
+        journeyBodyFigureStage.classList.remove("is-fading");
         journeyBodyFigureStage.classList.add("is-hidden");
         journeyBodyFigureStage.setAttribute("aria-hidden", "true");
       }
@@ -892,7 +893,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
 
           window.setTimeout(() => {
             if (journeyBodyFigureStage) {
-              journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing");
+              journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing", "is-fading");
               journeyBodyFigureStage.setAttribute("aria-hidden", "false");
             }
             if (journeyBodyFigure) {
@@ -1067,9 +1068,22 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             revealJourneyTitle("Notice how complete you are.");
           }, completePromptFadeAt + fadeOutDuration);
 
+          const bodyScanFadeAllAt = completePromptFadeAt + fadeOutDuration + closingBodyScanStepDurationMs;
+          window.setTimeout(() => {
+            fadeOutJourneyTitle();
+            if (journeyBodyFigureStage) {
+              journeyBodyFigureStage.classList.remove("is-revealing");
+              journeyBodyFigureStage.classList.add("is-fading");
+            }
+            if (journeyGratitudeGradient && !journeyGratitudeGradient.classList.contains("is-hidden")) {
+              journeyGratitudeGradient.classList.remove("is-revealing");
+              journeyGratitudeGradient.classList.add("is-fading");
+            }
+          }, bodyScanFadeAllAt);
+
           window.setTimeout(() => {
             startJourneyFinishSequence();
-          }, completePromptFadeAt + fadeOutDuration + closingBodyScanStepDurationMs + fadeOutDuration);
+          }, bodyScanFadeAllAt + fadeOutDuration);
         }, fadeOutDuration);
       };
     }

@@ -1,1 +1,1 @@
-Set audio default to ON with persisted user mute/unmute preference, color audio icons #93BBED, and remove standalone finish page (journey-only finish flow).
+Set audio toggle icon color to #406491 and make end-of-body-scan elements fade out together smoothly before finish sequence.
