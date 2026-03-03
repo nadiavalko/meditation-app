@@ -786,13 +786,13 @@ body {
   }
 
   .screen-content {
-    padding: 60px 30px 0;
-    gap: 30px;
+    padding: 40px 30px 0;
+    gap: 40px;
   }
 
   .intro,
   .welcome {
-    gap: 30px;
+    gap: 40px;
   }
 
   .intro-copy,
@@ -896,7 +896,7 @@ body {
   }
 
   .screen-content {
-    padding-top: 60px;
+    padding-top: 40px;
     padding-bottom: 0;
   }
 
@@ -1355,17 +1355,17 @@ body {
 
 @media (max-width: 440px) {
   .finish-flow {
-    gap: 30px;
+    gap: 40px;
   }
 
   .finish-phase-1,
   .finish-phase-2 {
-    gap: 30px;
+    gap: 40px;
   }
 
   .finish-phase-2 {
     min-height: calc(100svh - 60px - 40px);
-    gap: 30px;
+    gap: 40px;
   }
 
   .finish-return-copy {

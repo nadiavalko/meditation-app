@@ -1,1 +1,1 @@
-Adjust end-of-journey finish spacing: heading-to-flower gap set to 80px on web and 30px on mobile.
+Mobile layout spacing update across pages: top-to-heading 40px and heading-to-next-element 40px.
