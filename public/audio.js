@@ -53,6 +53,9 @@
     if (!getBool(STORAGE.enabled, true)) {
       return;
     }
+    if (!getBool(STORAGE.started, false)) {
+      return;
+    }
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
       playPromise.catch(() => {
@@ -124,6 +127,10 @@
     if (enterButton) {
       enterButton.addEventListener("click", () => {
         setBool(STORAGE.started, true);
+        // Prime playback on the same user gesture before navigation.
+        if (getBool(STORAGE.enabled, true)) {
+          tryPlay();
+        }
       });
     }
   }

@@ -1,1 +1,1 @@
-Fix body-scan end fade: gradient now fades out on the spot (opacity-only keyframes) together with body outline and text, no corner jump artifact.
+Fix audio start persistence: sound remains default ON, keeps user mute preference, and now primes playback on Enter click gesture before navigation.
