@@ -603,6 +603,15 @@ body {
   transition: opacity 1.6s ease;
 }
 
+.burn-video-layer--mobile-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 90;
+  opacity: 1 !important;
+}
+
 @keyframes burnEdgeUndulate {
   0% {
     transform: translateY(0);
@@ -802,6 +811,15 @@ body {
   .body-figure {
     height: min(560px, 62svh);
     max-width: min(180px, calc(100vw - 60px));
+  }
+
+  .burn-video-layer--mobile-canvas .burn-video-source,
+  .burn-video-layer--mobile-canvas .burn-video-canvas {
+    left: 50%;
+    top: 47%;
+    width: 360vw;
+    height: 360vw;
+    transform: translate(-50%, -50%);
   }
 
 }

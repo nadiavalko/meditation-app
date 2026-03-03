@@ -140,12 +140,24 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
 
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
-  const preferMobileFallback = window.matchMedia?.("(max-width: 440px)")?.matches;
+  const iosAlphaSrc = videoEl.dataset.alphaIosSrc || "";
+  const layerHomeParent = layerEl.parentElement;
+  const layerHomeNextSibling = layerEl.nextSibling;
 
-  if (preferMobileFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
-    videoEl.src = fallbackSrc;
-    videoEl.load();
-  }
+  const restoreLayerHome = () => {
+    if (!layerHomeParent) {
+      return;
+    }
+    if (layerEl.parentElement === layerHomeParent) {
+      return;
+    }
+    if (layerHomeNextSibling) {
+      layerHomeParent.insertBefore(layerEl, layerHomeNextSibling);
+    } else {
+      layerHomeParent.appendChild(layerEl);
+    }
+  };
+
   return ({ duration, fadeOutAt, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
@@ -154,8 +166,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
-    const forceCanvasKeyOnMobile = window.matchMedia?.("(max-width: 440px)")?.matches;
-    let useCanvasKey = false;
+    const isMobileDevice = Boolean(
+      window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
+        /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+    );
+    const useIOSAlpha = Boolean(isMobileDevice && iosAlphaSrc);
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
@@ -164,9 +179,12 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let ctx = null;
     let targetWidth = 0;
     let targetHeight = 0;
+    const useCanvasKey = false;
     layerEl.style.opacity = "1";
     layerEl.style.removeProperty("mix-blend-mode");
-    layerEl.classList.remove("burn-video-layer--mobile-global");
+    layerEl.classList.remove("burn-video-layer--mobile-canvas");
+    document.body.classList.remove("is-mobile-burn-active");
+    restoreLayerHome();
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
     if (canvasEl) {
@@ -184,6 +202,18 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     videoEl.pause();
     videoEl.loop = false;
     videoEl.style.removeProperty("display");
+    if (useIOSAlpha && iosAlphaSrc) {
+      if (videoEl.getAttribute("src") !== iosAlphaSrc) {
+        videoEl.src = iosAlphaSrc;
+      }
+    } else if (fallbackSrc) {
+      if (videoEl.getAttribute("src") !== fallbackSrc) {
+        videoEl.src = fallbackSrc;
+      }
+    } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
+      videoEl.src = primarySrc;
+    }
+    videoEl.load();
     try {
       videoEl.currentTime = 0;
     } catch {}
@@ -199,6 +229,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.classList.remove("is-visible");
       canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
+      layerEl.classList.remove("burn-video-layer--mobile-canvas");
+      document.body.classList.remove("is-mobile-burn-active");
+      restoreLayerHome();
       if (rafId) {
         window.cancelAnimationFrame(rafId);
         rafId = 0;
@@ -229,11 +262,11 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             const g = px[i + 1];
             const b = px[i + 2];
             const maxCh = Math.max(r, g, b);
-            if (maxCh <= 35) {
+            if (maxCh <= 24) {
               px[i + 3] = 0;
             } else {
-              const normalized = Math.min(1, (maxCh - 35) / 220);
-              px[i + 3] = Math.round(Math.pow(normalized, 1.35) * 255);
+              const normalized = Math.min(1, (maxCh - 24) / 231);
+              px[i + 3] = Math.round(Math.pow(normalized, 1.25) * 255);
             }
           }
           ctx.putImageData(frameData, 0, 0);
@@ -245,13 +278,20 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
-      useCanvasKey = false;
       if (useCanvasKey) {
+        document.body.classList.add("is-mobile-burn-active");
+        if (layerEl.parentElement !== document.body) {
+          document.body.appendChild(layerEl);
+        }
+        layerEl.classList.add("burn-video-layer--mobile-canvas");
         videoEl.classList.remove("is-visible");
         videoEl.style.display = "none";
-        canvasEl.classList.add("is-visible");
+        canvasEl?.classList.add("is-visible");
         renderKeyedFrame();
       } else {
+        layerEl.classList.remove("burn-video-layer--mobile-canvas");
+        document.body.classList.remove("is-mobile-burn-active");
+        restoreLayerHome();
         videoEl.style.removeProperty("display");
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");
@@ -262,7 +302,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       const playAttempt = videoEl.play();
       if (playAttempt && typeof playAttempt.catch === "function") {
         playAttempt.catch(() => {
-          if (!triedFallback && fallbackSrc && !forceCanvasKeyOnMobile) {
+          if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
             triedFallback = true;
             videoEl.src = fallbackSrc;
             videoEl.load();
@@ -275,7 +315,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const handleError = () => {
-      if (!triedFallback && fallbackSrc) {
+      if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
         triedFallback = true;
         videoEl.src = fallbackSrc;
         videoEl.load();

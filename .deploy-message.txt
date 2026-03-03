@@ -1,1 +1,1 @@
-Burn video parity fix: remove mobile-only global burn overlay/scaling overrides and use the same burn-video layout/render path as web to match sizing/compositing behavior
+Burn video mobile strategy update: alpha-first on all mobile devices (CENTER_FIRE_alpha_ios.mov), automatic fallback to CENTER_FIRE_web.mp4 if alpha playback fails, while preserving existing desktop burn behavior
