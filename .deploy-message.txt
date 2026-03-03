@@ -1,1 +1,1 @@
-Audio toggle UI tweak: remove icon button border and keep speaker-on/off SVG icons for state switching
+Journey->finish transition now runs in-page (no page reload) so background audio stays continuous; added in-journey finish UI/animation sequence.

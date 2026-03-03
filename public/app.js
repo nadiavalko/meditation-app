@@ -132,6 +132,15 @@ const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude
 const burnVideoLayer = document.querySelector("[data-burn-video-layer]");
 const burnVideo = document.querySelector("[data-burn-video]");
 const burnVideoCanvas = document.querySelector("[data-burn-video-canvas]");
+const journeyFinish = document.querySelector("[data-journey-finish]");
+const journeyFinishPhase1 = document.querySelector("[data-finish-phase-1]");
+const journeyFinishIntroLine1 = document.querySelector("[data-finish-intro-line-1]");
+const journeyFinishIntroLine2 = document.querySelector("[data-finish-intro-line-2]");
+const journeyFinishPhase2 = document.querySelector("[data-finish-phase-2]");
+const journeyFinishFlower = document.querySelector("[data-finish-flower]");
+const journeyFinishFlowerWrap = document.querySelector("[data-finish-flower-wrap]");
+const journeyFinishReturnText = document.querySelector("[data-finish-return-text]");
+const journeyFinishButtons = document.querySelector("[data-finish-buttons]");
 
 const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   if (!videoEl || !layerEl) {
@@ -626,6 +635,79 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
         burnTitle.classList.add("is-fading");
       }, delayMs);
     };
+
+    const startJourneyFinishSequence = () => {
+      if (
+        !journeyFinish ||
+        !journeyFinishPhase1 ||
+        !journeyFinishIntroLine1 ||
+        !journeyFinishIntroLine2 ||
+        !journeyFinishPhase2 ||
+        !journeyFinishFlower ||
+        !journeyFinishFlowerWrap ||
+        !journeyFinishReturnText ||
+        !journeyFinishButtons
+      ) {
+        window.location.href = "/finish/";
+        return;
+      }
+
+      if (journeyBodyFigureStage) {
+        journeyBodyFigureStage.classList.add("is-hidden");
+        journeyBodyFigureStage.setAttribute("aria-hidden", "true");
+      }
+      resetBodyGradients();
+      resetJourneyGratitudeGradient();
+      burnTitle.classList.remove("is-fading", "is-revealing");
+      burnTitle.style.display = "none";
+      burnTitle.style.visibility = "hidden";
+      if (journeyBreathingPhaseTitle) {
+        journeyBreathingPhaseTitle.classList.add("is-hidden");
+        journeyBreathingPhaseTitle.style.display = "none";
+      }
+      if (journeyBreathingStage) {
+        journeyBreathingStage.classList.add("is-hidden");
+        journeyBreathingStage.setAttribute("aria-hidden", "true");
+      }
+      if (burnInputStack) {
+        burnInputStack.classList.add("is-hidden");
+      }
+
+      journeyFinish.classList.remove("is-hidden");
+      journeyFinishPhase1.style.display = "";
+      journeyFinishPhase2.classList.add("is-hidden");
+      journeyFinishIntroLine1.classList.remove("finish-fade-out");
+      journeyFinishIntroLine2.classList.remove("finish-fade-out");
+      journeyFinishReturnText.classList.remove("burn-seq", "burn-seq-1");
+      journeyFinishFlowerWrap.classList.remove("burn-seq", "burn-seq-2");
+      journeyFinishButtons.classList.remove("burn-seq", "burn-seq-3");
+      journeyFinishFlower.classList.remove("is-rotating");
+
+      const flowers = ["/assets/flower 1.png", "/assets/flower 2.png", "/assets/flower 3.png"];
+      journeyFinishFlower.src = flowers[Math.floor(Math.random() * flowers.length)];
+      void journeyFinishIntroLine1.offsetWidth;
+
+      const finishFadeOutDelayFromStart = 4600;
+      const finishFadeOutDuration = 1200;
+      const finishPhase2Start = finishFadeOutDelayFromStart + finishFadeOutDuration;
+
+      window.setTimeout(() => {
+        journeyFinishIntroLine1.classList.add("finish-fade-out");
+        journeyFinishIntroLine2.classList.add("finish-fade-out");
+      }, finishFadeOutDelayFromStart);
+
+      window.setTimeout(() => {
+        journeyFinishPhase1.style.display = "none";
+        journeyFinishPhase2.classList.remove("is-hidden");
+        journeyFinishReturnText.classList.add("burn-seq", "burn-seq-1");
+        journeyFinishFlowerWrap.classList.add("burn-seq", "burn-seq-2");
+        journeyFinishButtons.classList.add("burn-seq", "burn-seq-3");
+        journeyFinishReturnText.style.animationDelay = "1s";
+        journeyFinishFlowerWrap.style.animationDelay = "2.8s";
+        journeyFinishButtons.style.animationDelay = "3.5s";
+        journeyFinishFlower.classList.add("is-rotating");
+      }, finishPhase2Start);
+    };
     burnFrame.classList.add("is-burning");
     burnTitle.style.display = "";
     burnTitle.style.visibility = "visible";
@@ -987,7 +1069,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           }, completePromptFadeAt + fadeOutDuration);
 
           window.setTimeout(() => {
-            window.location.href = "/finish/";
+            startJourneyFinishSequence();
           }, completePromptFadeAt + fadeOutDuration + closingBodyScanStepDurationMs + fadeOutDuration);
         }, fadeOutDuration);
       };
