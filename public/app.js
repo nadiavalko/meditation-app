@@ -131,8 +131,9 @@ const journeyBodyFigure = document.querySelector("[data-journey-body-figure]");
 const journeyGratitudeGradient = document.querySelector("[data-journey-gratitude-gradient]");
 const burnVideoLayer = document.querySelector("[data-burn-video-layer]");
 const burnVideo = document.querySelector("[data-burn-video]");
+const burnVideoCanvas = document.querySelector("[data-burn-video-canvas]");
 
-const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
+const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   if (!videoEl || !layerEl) {
     return null;
   }
@@ -145,12 +146,33 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
+    const useCanvasKey =
+      window.matchMedia?.("(max-width: 440px)")?.matches &&
+      !!canvasEl &&
+      typeof canvasEl.getContext === "function";
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
     let triedFallback = false;
+    let rafId = 0;
+    let ctx = null;
+    let targetWidth = 0;
+    let targetHeight = 0;
+    if (useCanvasKey) {
+      ctx = canvasEl.getContext("2d", { willReadFrequently: true });
+      if (ctx) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        targetHeight = 1080;
+        targetWidth = Math.round(targetHeight * (16 / 9));
+        canvasEl.width = Math.round(targetWidth * dpr);
+        canvasEl.height = Math.round(targetHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, targetWidth, targetHeight);
+      }
+    }
     layerEl.style.opacity = "1";
     videoEl.classList.remove("is-visible");
+    canvasEl?.classList.remove("is-visible");
     videoEl.pause();
     videoEl.loop = false;
 
@@ -166,7 +188,12 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
       videoEl.pause();
       videoEl.loop = false;
       videoEl.classList.remove("is-visible");
+      canvasEl?.classList.remove("is-visible");
       layerEl.style.opacity = "0";
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       if (fadeTimer) {
         window.clearTimeout(fadeTimer);
         fadeTimer = 0;
@@ -177,6 +204,29 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
       }
       videoEl.removeEventListener("error", handleError);
       onComplete?.();
+    };
+
+    const renderKeyedFrame = () => {
+      if (done || !ctx || !targetWidth || !targetHeight) {
+        return;
+      }
+      if (videoEl.readyState >= 2) {
+        ctx.drawImage(videoEl, 0, 0, targetWidth, targetHeight);
+        const frameData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+        const px = frameData.data;
+        for (let i = 0; i < px.length; i += 4) {
+          const r = px[i];
+          const g = px[i + 1];
+          const b = px[i + 2];
+          const maxCh = Math.max(r, g, b);
+          const sum = r + g + b;
+          if (maxCh < 80 || sum < 250) {
+            px[i + 3] = 0;
+          }
+        }
+        ctx.putImageData(frameData, 0, 0);
+      }
+      rafId = window.requestAnimationFrame(renderKeyedFrame);
     };
 
     const tryStartPlayback = () => {
@@ -209,10 +259,19 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl }) => {
     };
     videoEl.addEventListener("error", handleError);
     window.requestAnimationFrame(() => {
-      videoEl.classList.add("is-visible");
+      if (useCanvasKey && ctx && canvasEl) {
+        canvasEl.classList.add("is-visible");
+        renderKeyedFrame();
+      } else {
+        videoEl.classList.add("is-visible");
+      }
     });
     fadeTimer = window.setTimeout(() => {
-      videoEl.classList.remove("is-visible");
+      if (useCanvasKey && canvasEl) {
+        canvasEl.classList.remove("is-visible");
+      } else {
+        videoEl.classList.remove("is-visible");
+      }
     }, fadeOutAtMs);
     completeTimer = window.setTimeout(() => {
       complete();
@@ -231,7 +290,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
   let lastValue = "";
   const runVideoBurn = createBurnInputVideoAnimator({
     videoEl: burnVideo,
-    layerEl: burnVideoLayer
+    layerEl: burnVideoLayer,
+    canvasEl: burnVideoCanvas
   });
 
   const clampToField = () => {

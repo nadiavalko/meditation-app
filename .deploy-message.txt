@@ -1,1 +1,1 @@
-Fix body-scan intro text glitch: guard breathing-complete sequence to run once so “I’ll guide you through a quick body scan.” uses single fade-in/fade-out like “Now, last stop.”
+Mobile fixes: remove fire black square with canvas alpha-key fallback on <=440, move fire lower, enlarge body outline while keeping no-scroll layout on all pages
