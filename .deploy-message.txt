@@ -1,1 +1,1 @@
-Burn video stability fix: removed mobile preselection that caused disappearing playback, restored default source flow, and only switch to alpha MOV on supported mobile devices at burn start; keep fallback handling intact
+Fix burn-video scaling drift on responsive/mobile preview: removed mobile global-overlay class usage from the normal video path and recompute mobile capability checks at burn-time so resized viewport state does not keep stale placement/scaling

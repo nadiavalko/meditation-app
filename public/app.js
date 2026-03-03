@@ -141,16 +141,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   const primarySrc = videoEl.getAttribute("src");
   const fallbackSrc = videoEl.dataset.fallbackSrc || "";
   const iosAlphaSrc = videoEl.dataset.alphaIosSrc || "";
-  const isMobileDevice = Boolean(
-    window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
-      /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
-  );
-  const canPlayAlphaMov = Boolean(
-    iosAlphaSrc &&
-      typeof videoEl.canPlayType === "function" &&
-      (videoEl.canPlayType('video/quicktime; codecs="ap4h"') ||
-        videoEl.canPlayType('video/mp4; codecs="hvc1"'))
-  );
   const layerHomeParent = layerEl.parentElement;
   const layerHomeNextSibling = layerEl.nextSibling;
 
@@ -176,6 +166,16 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
+    const isMobileDevice = Boolean(
+      window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
+        /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+    );
+    const canPlayAlphaMov = Boolean(
+      iosAlphaSrc &&
+        typeof videoEl.canPlayType === "function" &&
+        (videoEl.canPlayType('video/quicktime; codecs="ap4h"') ||
+          videoEl.canPlayType('video/mp4; codecs="hvc1"'))
+    );
     const useIOSAlpha = Boolean(isMobileDevice && canPlayAlphaMov);
     let done = false;
     let fadeTimer = 0;
@@ -290,17 +290,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         canvasEl?.classList.add("is-visible");
         renderKeyedFrame();
       } else {
-        if (isMobileDevice) {
-          document.body.classList.add("is-mobile-burn-active");
-          if (layerEl.parentElement !== document.body) {
-            document.body.appendChild(layerEl);
-          }
-          layerEl.classList.add("burn-video-layer--mobile-canvas");
-        } else {
-          layerEl.classList.remove("burn-video-layer--mobile-canvas");
-          document.body.classList.remove("is-mobile-burn-active");
-          restoreLayerHome();
-        }
+        layerEl.classList.remove("burn-video-layer--mobile-canvas");
+        document.body.classList.remove("is-mobile-burn-active");
+        restoreLayerHome();
         videoEl.style.removeProperty("display");
         canvasEl?.classList.remove("is-visible");
         videoEl.classList.add("is-visible");
