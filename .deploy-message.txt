@@ -1,1 +1,1 @@
-Burn video black-box fix: render burn through canvas-only keyed frames (hide source video during burn), remove fallback raw-frame draw, strengthen black-pixel alpha cutoff, keep existing fire placement
+Burn video fix: restore desktop path quality, move mobile burn layer to global fixed overlay so black blends against page (not note container), keep fire placement slightly above center

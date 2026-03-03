@@ -603,6 +603,14 @@ body {
   transition: opacity 1.6s ease;
 }
 
+.burn-video-layer--mobile-global {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  z-index: 90;
+}
+
 @keyframes burnEdgeUndulate {
   0% {
     transform: translateY(0);
@@ -807,6 +815,15 @@ body {
   .burn-video-source,
   .burn-video-canvas {
     top: -178%;
+  }
+
+  .burn-video-layer--mobile-global .burn-video-source,
+  .burn-video-layer--mobile-global .burn-video-canvas {
+    left: 50%;
+    top: 46%;
+    width: 380vw;
+    height: 380vw;
+    transform: translate(-50%, -50%);
   }
 
 }
