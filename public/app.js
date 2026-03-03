@@ -431,19 +431,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     let bodyGradientPulseTimer = 0;
     let bodyScanSequenceStarted = false;
     const bodyScanFixedHeightTexts = new Set([
-      "Notice any sensations in your feet.",
       "Feel your legs grow heavy.",
-      "Notice your stomach.",
-      "Feel its emptiness or fullness.",
-      "See if you can relax your arms.",
-      "Feel your chest rise and fall.",
-      "Allow your shoulders to drop.",
-      "Release what they’ve been holding.",
-      "Notice any tension in your face.",
-      "Relax your jaw, eyes, and forehead.",
-      "Bring awareness to your whole body.",
-      "Send gratitude to your vessel, your home.",
-      "Notice how complete you are."
+      "Notice your stomach."
     ]);
 
     const clearBodyGradientPulseTimer = () => {

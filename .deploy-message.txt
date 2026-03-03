@@ -1,1 +1,1 @@
-Mobile body-scan layout stabilization: added mobile-only fixed-height title container for body-scan text steps (from feet prompt through final completion prompt) so header block stays constant and body outline spacing remains stable across one-line/two-line text
+Mobile-only copy box scope tweak: apply fixed 80px header-height treatment only to "Feel your legs grow heavy." and "Notice your stomach." body-scan phrases
