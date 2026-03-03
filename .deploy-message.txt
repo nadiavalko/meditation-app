@@ -1,1 +1,1 @@
-Audio defaults to ON across reloads unless user explicitly turns it OFF; added autoplay-resume on first interaction when browser blocks autoplay.
+Fix body-scan end fade: gradient now fades out on the spot (opacity-only keyframes) together with body outline and text, no corner jump artifact.

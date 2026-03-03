@@ -252,6 +252,15 @@ body {
   }
 }
 
+@keyframes introGradientHide {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes burnField {
   0% {
     opacity: 1;
@@ -430,7 +439,7 @@ body {
 
 .journey-gratitude-gradient.is-fading {
   visibility: visible;
-  animation: fadeOnlyOut var(--motion-fade-out-duration) var(--motion-ease) forwards;
+  animation: introGradientHide var(--motion-fade-out-duration) var(--motion-ease) forwards;
 }
 
 .burn-title {
