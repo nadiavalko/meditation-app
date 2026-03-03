@@ -1,1 +1,1 @@
-Fix mobile fire sequence positioning: keep mobile PNG-sequence renderer inside the original burn layer/container (no body reparent or mobile global overlay class) so it stays aligned with desktop center and no off-screen scaling drift
+Fix mobile journey content jump with keyboard: lock coarse-pointer/mobile layout to stable viewport (100lvh), fix body positioning, disable page scrolling, and keep screen/content top padding stable so opening the keyboard does not shift headers off-screen

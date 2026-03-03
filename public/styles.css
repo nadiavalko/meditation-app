@@ -829,6 +829,34 @@ body {
 
 }
 
+@media (hover: none) and (pointer: coarse) {
+  html,
+  body {
+    height: 100lvh;
+    overflow: hidden;
+  }
+
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+  }
+
+  .screen,
+  .screen-intro,
+  .screen-burn,
+  .screen-finish {
+    min-height: 100lvh;
+    height: 100lvh;
+    overflow: hidden;
+  }
+
+  .screen-content {
+    padding-top: 60px;
+    padding-bottom: 0;
+  }
+}
+
 /* Breathing screen */
 .screen-breathing {
   width: 100%;
