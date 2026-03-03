@@ -1,1 +1,1 @@
-Mobile burn black-square fix: strengthened alpha-key thresholds in burn canvas renderer to remove dark background blocks
+Mobile burn video fix: force MP4 + canvas chroma key on <=440px (remove black background), preserve desktop alpha source, start burn video immediately on button click, and nudge mobile fire position upward

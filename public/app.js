@@ -138,6 +138,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     return null;
   }
 
+  const primarySrc = videoEl.getAttribute("src");
+  const fallbackSrc = videoEl.dataset.fallbackSrc || "";
+
   return ({ duration, fadeOutAt, onComplete }) => {
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reducedMotion) {
@@ -146,7 +149,8 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     }
     const burnDurationMs = duration || 4000;
     const fadeOutAtMs = fadeOutAt || 3000;
-    const useCanvasKey = !!canvasEl && typeof canvasEl.getContext === "function";
+    const forceCanvasKeyOnMobile = window.matchMedia?.("(max-width: 440px)")?.matches;
+    let useCanvasKey = false;
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
@@ -155,7 +159,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let ctx = null;
     let targetWidth = 0;
     let targetHeight = 0;
-    if (useCanvasKey) {
+    layerEl.style.opacity = "1";
+    videoEl.classList.remove("is-visible");
+    canvasEl?.classList.remove("is-visible");
+    if (canvasEl) {
       ctx = canvasEl.getContext("2d", { willReadFrequently: true });
       if (ctx) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -167,11 +174,15 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         ctx.clearRect(0, 0, targetWidth, targetHeight);
       }
     }
-    layerEl.style.opacity = "1";
-    videoEl.classList.remove("is-visible");
-    canvasEl?.classList.remove("is-visible");
     videoEl.pause();
     videoEl.loop = false;
+    if (forceCanvasKeyOnMobile && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
+      videoEl.src = fallbackSrc;
+      videoEl.load();
+    } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
+      videoEl.src = primarySrc;
+      videoEl.load();
+    }
 
     try {
       videoEl.currentTime = 0;
@@ -232,10 +243,18 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
+      useCanvasKey = Boolean(ctx && canvasEl && forceCanvasKeyOnMobile);
+      if (useCanvasKey) {
+        videoEl.classList.remove("is-visible");
+        canvasEl.classList.add("is-visible");
+        renderKeyedFrame();
+      } else {
+        canvasEl?.classList.remove("is-visible");
+        videoEl.classList.add("is-visible");
+      }
       const tryPlay = videoEl.play();
       if (tryPlay && typeof tryPlay.catch === "function") {
         tryPlay.catch(() => {
-          const fallbackSrc = videoEl.dataset.fallbackSrc;
           if (!triedFallback && fallbackSrc) {
             triedFallback = true;
             videoEl.src = fallbackSrc;
@@ -249,7 +268,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const handleError = () => {
-      const fallbackSrc = videoEl.dataset.fallbackSrc;
       if (!triedFallback && fallbackSrc) {
         triedFallback = true;
         videoEl.src = fallbackSrc;
@@ -260,14 +278,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       complete();
     };
     videoEl.addEventListener("error", handleError);
-    window.requestAnimationFrame(() => {
-      if (useCanvasKey && ctx && canvasEl) {
-        canvasEl.classList.add("is-visible");
-        renderKeyedFrame();
-      } else {
-        videoEl.classList.add("is-visible");
-      }
-    });
     fadeTimer = window.setTimeout(() => {
       if (useCanvasKey && canvasEl) {
         canvasEl.classList.remove("is-visible");
@@ -312,7 +322,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }
     const burnFieldDurationMs = 4000;
     const preBurnFadeMs = 1600;
-    const burnVideoStartDelay = Math.round(preBurnFadeMs * 0.2);
+    const burnVideoStartDelay = 0;
     const fadeOutDelay = burnVideoStartDelay + burnFieldDurationMs + 100;
     const fadeOutDuration = 1200;
     const revealDuration = 1600;
@@ -573,7 +583,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     }, preBurnFadeMs);
 
     let burnAnimationController = null;
-    setTimeout(() => {
+    const startBurnVideo = () => {
       if (typeof runVideoBurn === "function") {
         burnFrame.classList.add("is-burning-video");
         burnAnimationController = runVideoBurn({
@@ -592,7 +602,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       if (!burnAnimationController) {
         setTimeout(() => burnFrame.classList.add("is-hidden"), burnFieldDurationMs);
       }
-    }, burnVideoStartDelay);
+    };
+    if (burnVideoStartDelay <= 0) {
+      startBurnVideo();
+    } else {
+      setTimeout(startBurnVideo, burnVideoStartDelay);
+    }
 
     setTimeout(() => {
       burnTitle.classList.remove("is-fading");
