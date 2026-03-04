@@ -1,1 +1,1 @@
-Finish flower selection updated from random to guaranteed cycle (1 -> 2 -> 3 -> repeat) using localStorage, so each completed journey shows the next flower.
+Audio toggle reliability fix during journey: removed duplicate pointerup handler, simplified to click-only toggle, and made ON explicitly call audio.play() from user gesture; OFF now fades out then pauses cleanly.

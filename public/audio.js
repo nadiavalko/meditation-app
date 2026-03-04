@@ -137,6 +137,7 @@
       durationMs: 480,
       onDone: () => {
         audio.muted = true;
+        audio.pause();
         audio.volume = 0;
         persistProgress();
       }
@@ -208,10 +209,10 @@
           durationMs: 520,
           onStart: () => {
             audio.muted = false;
-            if (audio.paused) {
-              audio.volume = 0;
+            audio.volume = 0;
+            audio.play().catch(() => {
               tryPlay();
-            }
+            });
           }
         });
       } else {
@@ -221,14 +222,10 @@
       syncUi();
       window.setTimeout(() => {
         toggleGuard = false;
-      }, 250);
+      }, 160);
     };
 
     btn.addEventListener("click", toggleAudio);
-    btn.addEventListener("pointerup", (event) => {
-      event.preventDefault();
-      toggleAudio();
-    });
 
     audio.addEventListener("play", syncUi);
     audio.addEventListener("pause", syncUi);
