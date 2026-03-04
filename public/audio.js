@@ -239,6 +239,7 @@
     const enterButton = document.querySelector(".intro-button");
     if (enterButton) {
       enterButton.addEventListener("click", (event) => {
+        const INTRO_EXIT_MS = 420;
         const href =
           enterButton instanceof HTMLAnchorElement
             ? enterButton.href
@@ -258,12 +259,12 @@
           tryPlay();
           window.setTimeout(() => {
             window.location.href = href;
-          }, 700);
+          }, INTRO_EXIT_MS);
           return;
         }
         window.setTimeout(() => {
           window.location.href = href;
-        }, 700);
+        }, INTRO_EXIT_MS);
       });
     }
   }

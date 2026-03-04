@@ -18,6 +18,7 @@
   --seq-step-1-delay: 1s;
   --seq-step-2-delay: 2s;
   --seq-step-3-delay: 3.2s;
+  --intro-exit-duration: 420ms;
 }
 
 * {
@@ -216,7 +217,8 @@ body {
 .is-intro-exiting .intro-line,
 .is-intro-exiting .screen-intro::before {
   opacity: 0 !important;
-  transition: opacity var(--motion-fade-out-duration) var(--motion-ease);
+  transition: opacity var(--intro-exit-duration) var(--motion-ease);
+  transform: none !important;
 }
 
 @keyframes introFadeUp {
