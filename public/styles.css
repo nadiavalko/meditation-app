@@ -727,11 +727,12 @@ body {
   width: 32px;
   height: 32px;
   display: block;
-  fill: #ffffff;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 
 .burn-button:hover .burn-button-icon {
-  fill: #ffffff;
+  filter: brightness(0) invert(1);
 }
 
 .burn-input-frame.is-burning {
