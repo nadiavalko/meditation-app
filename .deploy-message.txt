@@ -1,1 +1,1 @@
-Tablet portrait now matches web behavior too: removed portrait-only centering override so all tablet orientations inherit web layout/alignment.
+Audio tweak: on Enter click, reset playback to 0s so each new journey starts music from the beginning, then loops.

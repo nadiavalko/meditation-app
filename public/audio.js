@@ -199,6 +199,10 @@
     if (enterButton) {
       enterButton.addEventListener("click", () => {
         setBool(STORAGE.started, true);
+        localStorage.setItem(STORAGE.currentTime, "0");
+        try {
+          audio.currentTime = 0;
+        } catch {}
         // Prime playback on the same user gesture before navigation.
         if (getBool(STORAGE.enabled, true)) {
           tryPlay();
