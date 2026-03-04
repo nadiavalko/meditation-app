@@ -1,1 +1,1 @@
-Tablet layout rules: keep web behavior for tablet by limiting coarse-pointer mobile overrides to <=440px; for tablet portrait, center page content vertically.
+Fix missing music on deploy: rename audio asset to lowercase public/assets/light.mp3 to match runtime URL on case-sensitive servers.
