@@ -79,16 +79,16 @@ body {
 .audio-toggle-icon {
   position: absolute;
   inset: 0;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: block;
   transition: opacity 0.24s ease, transform 0.24s ease;
 }
 
 .audio-toggle-icons {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: block;
 }
 
