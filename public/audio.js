@@ -193,7 +193,12 @@
     };
     syncUi();
 
-    btn.addEventListener("click", () => {
+    let toggleGuard = false;
+    const toggleAudio = () => {
+      if (toggleGuard) {
+        return;
+      }
+      toggleGuard = true;
       const currentlyEnabled = getBool(STORAGE.enabled, true);
       if (!currentlyEnabled) {
         setBool(STORAGE.enabled, true);
@@ -214,6 +219,15 @@
         pauseAudio();
       }
       syncUi();
+      window.setTimeout(() => {
+        toggleGuard = false;
+      }, 250);
+    };
+
+    btn.addEventListener("click", toggleAudio);
+    btn.addEventListener("pointerup", (event) => {
+      event.preventDefault();
+      toggleAudio();
     });
 
     audio.addEventListener("play", syncUi);
@@ -236,6 +250,7 @@
         setBool(STORAGE.started, true);
         localStorage.setItem(STORAGE.gestureAt, String(Date.now()));
         localStorage.setItem(STORAGE.currentTime, "0");
+        body.classList.add("is-intro-exiting");
         try {
           audio.currentTime = 0;
         } catch {}
@@ -246,10 +261,12 @@
           tryPlay();
           window.setTimeout(() => {
             window.location.href = href;
-          }, 120);
+          }, 700);
           return;
         }
-        window.location.href = href;
+        window.setTimeout(() => {
+          window.location.href = href;
+        }, 700);
       });
     }
   }

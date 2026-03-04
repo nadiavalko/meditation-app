@@ -210,6 +210,13 @@ body {
   text-decoration: none;
 }
 
+.is-intro-exiting .intro-copy,
+.is-intro-exiting .intro-figure,
+.is-intro-exiting .screen-intro::before {
+  opacity: 0 !important;
+  transition: opacity var(--motion-fade-out-duration) var(--motion-ease);
+}
+
 @keyframes introFadeUp {
   0% {
     opacity: 0;

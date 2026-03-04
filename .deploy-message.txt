@@ -1,1 +1,1 @@
-Increase body outline size for web/tablet only (>=441px) while keeping mobile unchanged.
+Intro transition: Enter now fades out all first-page elements together before navigation. Audio toggle debug fix: improved reliability with guarded toggle handling for click/pointerup on journey.
