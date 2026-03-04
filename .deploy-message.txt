@@ -1,1 +1,1 @@
-Tablet fire alignment tweak: dedicated touch-tablet canvas/video sizing to avoid scaled look. Intro Enter transition tweak: force heading, image, button, and gradient to fade out together in sync.
+Tablet-only layout tweak: set top padding to 10vh (heading offset) across pages, without changing phone or desktop rules.

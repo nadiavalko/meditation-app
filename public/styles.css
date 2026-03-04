@@ -940,6 +940,10 @@ body {
 }
 
 @media (hover: none) and (pointer: coarse) and (min-width: 441px) {
+  .screen-content {
+    padding-top: 10vh;
+  }
+
   .burn-video-layer--mobile-canvas .burn-video-source,
   .burn-video-layer--mobile-canvas .burn-video-canvas {
     left: 50%;
