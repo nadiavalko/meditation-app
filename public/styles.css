@@ -975,8 +975,8 @@ body {
   }
 
   .screen-burn .body-figure {
-    height: min(580px, 68vh);
-    max-width: min(190px, calc(100vw - 48px));
+    height: min(640px, 74vh);
+    max-width: min(215px, calc(100vw - 48px));
   }
 
   .burn-video-layer--mobile-canvas .burn-video-source,
