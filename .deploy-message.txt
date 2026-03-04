@@ -1,1 +1,1 @@
-Audio toggle reliability fix during journey: removed duplicate pointerup handler, simplified to click-only toggle, and made ON explicitly call audio.play() from user gesture; OFF now fades out then pauses cleanly.
+Audio toggle hardening: switch to single pointerup-driven toggle path, add keyboard support, and use direct user-gesture play on ON to avoid intermittent non-responsive sound toggle states.
