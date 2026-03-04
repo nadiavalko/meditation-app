@@ -142,6 +142,16 @@ const journeyFinishFlowerWrap = document.querySelector("[data-finish-flower-wrap
 const journeyFinishReturnText = document.querySelector("[data-finish-return-text]");
 const journeyFinishButtons = document.querySelector("[data-finish-buttons]");
 
+const getNextFinishFlower = () => {
+  const flowers = ["/assets/flower 1.png", "/assets/flower 2.png", "/assets/flower 3.png"];
+  const key = "journey_finish_flower_index";
+  const raw = Number(localStorage.getItem(key) || "0");
+  const current = Number.isFinite(raw) ? raw : 0;
+  const next = ((current % flowers.length) + flowers.length) % flowers.length;
+  localStorage.setItem(key, String(next + 1));
+  return flowers[next];
+};
+
 const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
   if (!videoEl || !layerEl) {
     return null;
@@ -729,8 +739,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       journeyFinishButtons.classList.remove("burn-seq", "burn-seq-3");
       journeyFinishFlower.classList.remove("is-rotating");
 
-      const flowers = ["/assets/flower 1.png", "/assets/flower 2.png", "/assets/flower 3.png"];
-      journeyFinishFlower.src = flowers[Math.floor(Math.random() * flowers.length)];
+      journeyFinishFlower.src = getNextFinishFlower();
       void journeyFinishIntroLine1.offsetWidth;
 
       const finishFadeOutDelayFromStart = 4600;
