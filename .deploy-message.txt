@@ -1,1 +1,1 @@
-Audio toggle hardening: switch to single pointerup-driven toggle path, add keyboard support, and use direct user-gesture play on ON to avoid intermittent non-responsive sound toggle states.
+Tablet-only body outline size increase: enlarged journey body figure gradients block to better use available tablet space.

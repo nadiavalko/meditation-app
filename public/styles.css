@@ -974,6 +974,11 @@ body {
     padding-top: 10vh;
   }
 
+  .screen-burn .body-figure {
+    height: min(580px, 68vh);
+    max-width: min(190px, calc(100vw - 48px));
+  }
+
   .burn-video-layer--mobile-canvas .burn-video-source,
   .burn-video-layer--mobile-canvas .burn-video-canvas {
     left: 50%;
