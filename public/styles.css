@@ -698,7 +698,7 @@ body {
 }
 
 .burn-button {
-  width: 136px;
+  width: auto;
   height: 60px;
   border: none;
   border-radius: 12px;
@@ -714,13 +714,24 @@ body {
 }
 
 .burn-button:hover {
-  background: #2b4198;
+  background: #222973;
 }
 
-.burn-button .hgi {
-  font-size: 32px;
-  color: #ffffff;
-  line-height: 1;
+.burn-button-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.burn-button-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+  fill: #ffffff;
+}
+
+.burn-button:hover .burn-button-icon {
+  fill: #ffffff;
 }
 
 .burn-input-frame.is-burning {
