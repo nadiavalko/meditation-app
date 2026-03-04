@@ -195,6 +195,16 @@
     syncUi();
 
     let toggleGuard = false;
+    const playFromUserGesture = () => {
+      audio.muted = false;
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.catch === "function") {
+        playPromise.catch(() => {
+          armInteractionResume();
+        });
+      }
+    };
+
     const toggleAudio = () => {
       if (toggleGuard) {
         return;
@@ -210,9 +220,7 @@
           onStart: () => {
             audio.muted = false;
             audio.volume = 0;
-            audio.play().catch(() => {
-              tryPlay();
-            });
+            playFromUserGesture();
           }
         });
       } else {
@@ -225,7 +233,16 @@
       }, 160);
     };
 
-    btn.addEventListener("click", toggleAudio);
+    btn.addEventListener("pointerup", (event) => {
+      event.preventDefault();
+      toggleAudio();
+    });
+    btn.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleAudio();
+      }
+    });
 
     audio.addEventListener("play", syncUi);
     audio.addEventListener("pause", syncUi);
