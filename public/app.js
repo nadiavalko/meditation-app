@@ -202,13 +202,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       window.matchMedia?.("(hover: none) and (pointer: coarse)")?.matches ||
         /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
     );
-    const canPlayAlphaMov = Boolean(
-      iosAlphaSrc &&
-        typeof videoEl.canPlayType === "function" &&
-        (videoEl.canPlayType('video/quicktime; codecs="ap4h"') ||
-          videoEl.canPlayType('video/mp4; codecs="hvc1"'))
+    const isIOSMobile = Boolean(
+      isMobileDevice && /iphone|ipad|ipod/i.test(navigator.userAgent || "")
     );
-    const useIOSAlpha = Boolean(isMobileDevice && canPlayAlphaMov);
+    const useIOSAlpha = Boolean(isIOSMobile && iosAlphaSrc);
     const canUseMobileSequenceFallback = Boolean(isMobileDevice && canvasEl);
     let done = false;
     let fadeTimer = 0;
@@ -216,6 +213,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let timersArmed = false;
     let triedFallback = false;
     let rafId = 0;
+    let playbackGuardTimer = 0;
     let sequenceCtx = null;
     let sequenceWidth = 0;
     let sequenceHeight = 0;
@@ -271,6 +269,10 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       if (completeTimer) {
         window.clearTimeout(completeTimer);
         completeTimer = 0;
+      }
+      if (playbackGuardTimer) {
+        window.clearTimeout(playbackGuardTimer);
+        playbackGuardTimer = 0;
       }
       videoEl.removeEventListener("error", handleError);
       onComplete?.();
@@ -329,7 +331,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       }
     };
 
-    const tryStartPlayback = () => {
+    const startVideoPlayback = () => {
       layerEl.classList.remove("burn-video-layer--mobile-canvas");
       document.body.classList.remove("is-mobile-burn-active");
       restoreLayerHome();
@@ -345,8 +347,15 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.classList.add("is-visible");
       armCompletionTimers();
       const playAttempt = videoEl.play();
-      if (playAttempt && typeof playAttempt.catch === "function") {
-        playAttempt.catch(() => {
+      if (playbackGuardTimer) {
+        window.clearTimeout(playbackGuardTimer);
+      }
+      playbackGuardTimer = window.setTimeout(() => {
+        if (done) {
+          return;
+        }
+        if (videoEl.classList.contains("is-visible") && !videoEl.ended && videoEl.currentTime < 0.03) {
+          videoEl.pause();
           if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
             triedFallback = true;
             videoEl.src = fallbackSrc;
@@ -365,8 +374,52 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             return;
           }
           complete();
+        }
+      }, 450);
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {
+          if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
+            triedFallback = true;
+            videoEl.src = fallbackSrc;
+            videoEl.load();
+            startVideoPlayback();
+            return;
+          }
+          if (canUseMobileSequenceFallback) {
+            videoEl.classList.remove("is-visible");
+            videoEl.style.display = "none";
+            runMobileSequence().then((started) => {
+              if (!started) {
+                complete();
+              }
+            });
+            return;
+          }
+          complete();
         });
       }
+    };
+
+    const tryStartPlayback = () => {
+      if (!canUseMobileSequenceFallback) {
+        startVideoPlayback();
+        return;
+      }
+
+      layerEl.classList.remove("burn-video-layer--mobile-canvas");
+      document.body.classList.remove("is-mobile-burn-active");
+      restoreLayerHome();
+      videoEl.classList.remove("is-visible");
+      videoEl.style.display = "none";
+      canvasEl?.classList.remove("is-visible", "is-fire-sequence");
+
+      runMobileSequence().then((started) => {
+        if (started || done) {
+          return;
+        }
+        videoEl.style.removeProperty("display");
+        startVideoPlayback();
+      });
     };
 
     const handleError = () => {

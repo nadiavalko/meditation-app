@@ -2,7 +2,8 @@
   const STORAGE = {
     enabled: "meditation_audio_enabled",
     currentTime: "meditation_audio_current_time",
-    started: "meditation_audio_started"
+    started: "meditation_audio_started",
+    gestureAt: "meditation_audio_gesture_at"
   };
   const AUDIO_SRC = "/assets/light.mp3";
 
@@ -145,6 +146,17 @@
   if (started && enabled && body.dataset.audioAutostart === "true") {
     tryPlay();
     armInteractionResume();
+    const gestureAt = Number(localStorage.getItem(STORAGE.gestureAt) || "0");
+    if (Number.isFinite(gestureAt) && gestureAt > 0 && Date.now() - gestureAt < 12000) {
+      const retryDelays = [120, 380, 760];
+      retryDelays.forEach((delay) => {
+        window.setTimeout(() => {
+          if (audio.paused && getBool(STORAGE.enabled, true) && getBool(STORAGE.started, false)) {
+            tryPlay();
+          }
+        }, delay);
+      });
+    }
   }
 
   if (body.dataset.audioUi === "true") {
@@ -194,6 +206,9 @@
 
     audio.addEventListener("play", syncUi);
     audio.addEventListener("pause", syncUi);
+    audio.addEventListener("play", () => {
+      localStorage.removeItem(STORAGE.gestureAt);
+    });
     body.appendChild(btn);
   }
 
@@ -202,6 +217,7 @@
     if (enterButton) {
       enterButton.addEventListener("click", () => {
         setBool(STORAGE.started, true);
+        localStorage.setItem(STORAGE.gestureAt, String(Date.now()));
         localStorage.setItem(STORAGE.currentTime, "0");
         try {
           audio.currentTime = 0;

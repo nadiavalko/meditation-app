@@ -1,1 +1,1 @@
-Fix mobile audio toggle: OFF now fades to silent without pausing (muted), and ON reliably unmutes/fades back in (starts playback if paused).
+Mobile fixes: fire effect now prefers stable PNG sequence (video fallback), preventing intermittent blank burn; audio start reliability improved on Enter->Journey with gesture timestamp + retry attempts.
