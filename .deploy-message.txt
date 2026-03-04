@@ -1,1 +1,1 @@
-Intro transition: Enter now fades out all first-page elements together before navigation. Audio toggle debug fix: improved reliability with guarded toggle handling for click/pointerup on journey.
+Apply no-vertical-scroll behavior to all touch devices (tablet both orientations + mobile landscape), while keeping phone-specific spacing/layout overrides only for <=440px.

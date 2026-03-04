@@ -898,7 +898,7 @@ body {
 
 }
 
-@media (hover: none) and (pointer: coarse) and (max-width: 440px) {
+@media (hover: none) and (pointer: coarse) {
   html,
   body {
     height: 100lvh;
@@ -919,7 +919,9 @@ body {
     height: 100lvh;
     overflow: hidden;
   }
+}
 
+@media (hover: none) and (pointer: coarse) and (max-width: 440px) {
   .screen-content {
     padding-top: 40px;
     padding-bottom: 0;
