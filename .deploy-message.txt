@@ -1,1 +1,1 @@
-Fix intermittent blank fire on mobile: start burn fade/complete timers only after fire visual actually starts (canvas/video), preventing early hide before frames load.
+Improve audio start reliability: if autoplay is blocked after Enter/navigation, music now retries on first touch/click/key interaction while preserving ON/OFF preference.

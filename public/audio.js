@@ -115,6 +115,20 @@
     }
   };
 
+  const armInteractionResume = () => {
+    const resume = () => {
+      window.removeEventListener("pointerdown", resume);
+      window.removeEventListener("touchstart", resume);
+      window.removeEventListener("keydown", resume);
+      if (getBool(STORAGE.enabled, true) && getBool(STORAGE.started, false) && audio.paused) {
+        tryPlay();
+      }
+    };
+    window.addEventListener("pointerdown", resume, { once: true, passive: true });
+    window.addEventListener("touchstart", resume, { once: true, passive: true });
+    window.addEventListener("keydown", resume, { once: true });
+  };
+
   const pauseAudio = () => {
     fadeAudioVolume({
       from: audio.volume,
@@ -130,6 +144,7 @@
 
   if (started && enabled && body.dataset.audioAutostart === "true") {
     tryPlay();
+    armInteractionResume();
   }
 
   if (body.dataset.audioUi === "true") {
@@ -201,6 +216,7 @@
   const handlePageHide = () => {
     persistProgress();
     window.clearInterval(persistTimer);
+    stopVolumeFade();
   };
 
   window.addEventListener("pagehide", handlePageHide, { once: true });
