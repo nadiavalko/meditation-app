@@ -717,6 +717,12 @@ body {
   background: #2b4198;
 }
 
+.burn-button .hgi {
+  font-size: 32px;
+  color: #ffffff;
+  line-height: 1;
+}
+
 .burn-input-frame.is-burning {
   animation: none;
   opacity: 1;
