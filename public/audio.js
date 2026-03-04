@@ -157,6 +157,18 @@
         }, delay);
       });
     }
+    let bootstrapAttempts = 0;
+    const bootstrapTimer = window.setInterval(() => {
+      if (!getBool(STORAGE.enabled, true) || !getBool(STORAGE.started, false) || !audio.paused) {
+        window.clearInterval(bootstrapTimer);
+        return;
+      }
+      tryPlay();
+      bootstrapAttempts += 1;
+      if (bootstrapAttempts >= 10) {
+        window.clearInterval(bootstrapTimer);
+      }
+    }, 1000);
   }
 
   if (body.dataset.audioUi === "true") {
@@ -215,7 +227,12 @@
   if (location.pathname === "/") {
     const enterButton = document.querySelector(".intro-button");
     if (enterButton) {
-      enterButton.addEventListener("click", () => {
+      enterButton.addEventListener("click", (event) => {
+        const href =
+          enterButton instanceof HTMLAnchorElement
+            ? enterButton.href
+            : "/journey/";
+        event.preventDefault();
         setBool(STORAGE.started, true);
         localStorage.setItem(STORAGE.gestureAt, String(Date.now()));
         localStorage.setItem(STORAGE.currentTime, "0");
@@ -224,8 +241,15 @@
         } catch {}
         // Prime playback on the same user gesture before navigation.
         if (getBool(STORAGE.enabled, true)) {
+          audio.muted = false;
+          audio.volume = 1;
           tryPlay();
+          window.setTimeout(() => {
+            window.location.href = href;
+          }, 120);
+          return;
         }
+        window.location.href = href;
       });
     }
   }

@@ -206,7 +206,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       isMobileDevice && /iphone|ipad|ipod/i.test(navigator.userAgent || "")
     );
     const useIOSAlpha = Boolean(isIOSMobile && iosAlphaSrc);
-    const canUseMobileSequenceFallback = Boolean(isMobileDevice && canvasEl);
+    const useTouchSequence = Boolean(isMobileDevice && canvasEl);
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
@@ -225,7 +225,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     restoreLayerHome();
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
-    if (canvasEl && canUseMobileSequenceFallback) {
+    if (canvasEl && useTouchSequence) {
       sequenceCtx = canvasEl.getContext("2d");
       if (sequenceCtx) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -284,7 +284,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       }
       timersArmed = true;
       fadeTimer = window.setTimeout(() => {
-        if (canUseMobileSequenceFallback && canvasEl) {
+        if (useTouchSequence && canvasEl) {
           canvasEl.classList.remove("is-visible");
           canvasEl.classList.remove("is-fire-sequence");
         } else {
@@ -363,7 +363,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             tryStartPlayback();
             return;
           }
-          if (canUseMobileSequenceFallback) {
+          if (useTouchSequence) {
             videoEl.classList.remove("is-visible");
             videoEl.style.display = "none";
             runMobileSequence().then((started) => {
@@ -385,7 +385,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
             startVideoPlayback();
             return;
           }
-          if (canUseMobileSequenceFallback) {
+          if (useTouchSequence) {
             videoEl.classList.remove("is-visible");
             videoEl.style.display = "none";
             runMobileSequence().then((started) => {
@@ -401,7 +401,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
-      if (!canUseMobileSequenceFallback) {
+      if (!useTouchSequence) {
         startVideoPlayback();
         return;
       }
@@ -417,8 +417,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         if (started || done) {
           return;
         }
-        videoEl.style.removeProperty("display");
-        startVideoPlayback();
+        complete();
       });
     };
 
@@ -433,7 +432,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       complete();
     };
     videoEl.addEventListener("error", handleError);
-    if (canUseMobileSequenceFallback) {
+    if (useTouchSequence) {
       loadMobileFireFrames().catch(() => {});
     }
     tryStartPlayback();
