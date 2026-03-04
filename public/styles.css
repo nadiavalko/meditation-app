@@ -76,6 +76,12 @@ body {
   fill: currentColor;
 }
 
+.audio-toggle-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
 .screen {
   min-height: 100vh;
   display: flex;
