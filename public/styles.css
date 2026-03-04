@@ -577,6 +577,13 @@ body {
   max-width: min(135px, calc(100vw - 48px));
 }
 
+@media (min-width: 441px) {
+  .screen-burn .body-figure {
+    height: min(500px, 60vh);
+    max-width: min(165px, calc(100vw - 48px));
+  }
+}
+
 .body-figure.is-revealing {
   opacity: 0;
   transform: translateY(var(--motion-distance));

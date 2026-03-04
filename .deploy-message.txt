@@ -1,1 +1,1 @@
-Fix touch-device burn + audio start: use PNG fire sequence on mobile/tablet (no touch-video path), and make Enter gesture reliably prime audio before navigation with additional autostart retries on journey.
+Increase body outline size for web/tablet only (>=441px) while keeping mobile unchanged.
