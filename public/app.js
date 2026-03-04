@@ -209,7 +209,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
           videoEl.canPlayType('video/mp4; codecs="hvc1"'))
     );
     const useIOSAlpha = Boolean(isMobileDevice && canPlayAlphaMov);
-    const useMobileSequence = Boolean(isMobileDevice && canvasEl);
+    const canUseMobileSequenceFallback = Boolean(isMobileDevice && canvasEl);
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
@@ -227,7 +227,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     restoreLayerHome();
     videoEl.classList.remove("is-visible");
     canvasEl?.classList.remove("is-visible");
-    if (canvasEl && useMobileSequence) {
+    if (canvasEl && canUseMobileSequenceFallback) {
       sequenceCtx = canvasEl.getContext("2d");
       if (sequenceCtx) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -255,8 +255,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       videoEl.loop = false;
       videoEl.style.removeProperty("display");
       videoEl.classList.remove("is-visible");
-      canvasEl?.classList.remove("is-visible");
-      canvasEl?.classList.remove("is-fire-sequence");
+      canvasEl?.classList.remove("is-visible", "is-fire-sequence");
       layerEl.style.opacity = "0";
       layerEl.classList.remove("burn-video-layer--mobile-canvas");
       document.body.classList.remove("is-mobile-burn-active");
@@ -283,7 +282,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       }
       timersArmed = true;
       fadeTimer = window.setTimeout(() => {
-        if (useMobileSequence && canvasEl) {
+        if (canUseMobileSequenceFallback && canvasEl) {
           canvasEl.classList.remove("is-visible");
           canvasEl.classList.remove("is-fire-sequence");
         } else {
@@ -331,61 +330,42 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     };
 
     const tryStartPlayback = () => {
-      if (useMobileSequence) {
-        layerEl.classList.remove("burn-video-layer--mobile-canvas");
-        document.body.classList.remove("is-mobile-burn-active");
-        restoreLayerHome();
-        videoEl.classList.remove("is-visible");
-        videoEl.style.display = "none";
-        runMobileSequence().then((started) => {
-          if (!started && !done) {
-            videoEl.style.removeProperty("display");
-            canvasEl?.classList.remove("is-visible");
-            canvasEl?.classList.remove("is-fire-sequence");
-            if (useIOSAlpha && iosAlphaSrc && videoEl.getAttribute("src") !== iosAlphaSrc) {
-              videoEl.src = iosAlphaSrc;
-              videoEl.load();
-            } else if (fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
-              videoEl.src = fallbackSrc;
-              videoEl.load();
-            }
-            videoEl.classList.add("is-visible");
-            armCompletionTimers();
-            const fallbackPlay = videoEl.play();
-            if (fallbackPlay && typeof fallbackPlay.catch === "function") {
-              fallbackPlay.catch(() => complete());
-            }
+      layerEl.classList.remove("burn-video-layer--mobile-canvas");
+      document.body.classList.remove("is-mobile-burn-active");
+      restoreLayerHome();
+      videoEl.style.removeProperty("display");
+      canvasEl?.classList.remove("is-visible", "is-fire-sequence");
+      if (useIOSAlpha && iosAlphaSrc && videoEl.getAttribute("src") !== iosAlphaSrc) {
+        videoEl.src = iosAlphaSrc;
+        videoEl.load();
+      } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
+        videoEl.src = primarySrc;
+        videoEl.load();
+      }
+      videoEl.classList.add("is-visible");
+      armCompletionTimers();
+      const playAttempt = videoEl.play();
+      if (playAttempt && typeof playAttempt.catch === "function") {
+        playAttempt.catch(() => {
+          if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
+            triedFallback = true;
+            videoEl.src = fallbackSrc;
+            videoEl.load();
+            tryStartPlayback();
+            return;
           }
+          if (canUseMobileSequenceFallback) {
+            videoEl.classList.remove("is-visible");
+            videoEl.style.display = "none";
+            runMobileSequence().then((started) => {
+              if (!started) {
+                complete();
+              }
+            });
+            return;
+          }
+          complete();
         });
-      } else {
-        layerEl.classList.remove("burn-video-layer--mobile-canvas");
-        document.body.classList.remove("is-mobile-burn-active");
-        restoreLayerHome();
-        videoEl.style.removeProperty("display");
-        canvasEl?.classList.remove("is-visible");
-        canvasEl?.classList.remove("is-fire-sequence");
-        if (useIOSAlpha && iosAlphaSrc && videoEl.getAttribute("src") !== iosAlphaSrc) {
-          videoEl.src = iosAlphaSrc;
-          videoEl.load();
-        } else if (primarySrc && videoEl.getAttribute("src") !== primarySrc) {
-          videoEl.src = primarySrc;
-          videoEl.load();
-        }
-        videoEl.classList.add("is-visible");
-        armCompletionTimers();
-        const playAttempt = videoEl.play();
-        if (playAttempt && typeof playAttempt.catch === "function") {
-          playAttempt.catch(() => {
-            if (!triedFallback && fallbackSrc && videoEl.getAttribute("src") !== fallbackSrc) {
-              triedFallback = true;
-              videoEl.src = fallbackSrc;
-              videoEl.load();
-              tryStartPlayback();
-              return;
-            }
-            complete();
-          });
-        }
       }
     };
 
@@ -400,6 +380,9 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       complete();
     };
     videoEl.addEventListener("error", handleError);
+    if (canUseMobileSequenceFallback) {
+      loadMobileFireFrames().catch(() => {});
+    }
     tryStartPlayback();
 
     return {
