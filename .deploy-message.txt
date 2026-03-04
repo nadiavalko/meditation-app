@@ -1,1 +1,1 @@
-Fix missing music on deploy: rename audio asset to lowercase public/assets/light.mp3 to match runtime URL on case-sensitive servers.
+Tablet portrait now matches web behavior too: removed portrait-only centering override so all tablet orientations inherit web layout/alignment.
