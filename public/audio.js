@@ -155,7 +155,8 @@
     syncUi();
 
     btn.addEventListener("click", () => {
-      if (audio.paused) {
+      const currentlyEnabled = getBool(STORAGE.enabled, true);
+      if (!currentlyEnabled) {
         setBool(STORAGE.enabled, true);
         fadeAudioVolume({
           from: 0,

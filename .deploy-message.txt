@@ -1,1 +1,1 @@
-Switch app background music source to /assets/light.mp3.
+Fix audio toggle reliability: icon now toggles based on saved enabled state (not paused state), so click always flips ON/OFF and resumes playback correctly.
