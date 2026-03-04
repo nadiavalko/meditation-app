@@ -77,9 +77,39 @@ body {
 }
 
 .audio-toggle-icon {
+  position: absolute;
+  inset: 0;
   width: 24px;
   height: 24px;
   display: block;
+  transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.audio-toggle-icons {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.audio-toggle-icon--on {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.audio-toggle-icon--off {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.audio-toggle.is-sound-on .audio-toggle-icon--on {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.audio-toggle.is-sound-on .audio-toggle-icon--off {
+  opacity: 0;
+  transform: scale(0.92);
 }
 
 .screen {

@@ -176,13 +176,26 @@
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "audio-toggle";
-    const iconOn =
-      '<img class="audio-toggle-icon" src="/assets/volume-high-stroke-rounded.svg" alt="" aria-hidden="true" />';
-    const iconOff =
-      '<img class="audio-toggle-icon" src="/assets/volume-mute-02-stroke-rounded.svg" alt="" aria-hidden="true" />';
+    const icons = document.createElement("span");
+    icons.className = "audio-toggle-icons";
+    icons.setAttribute("aria-hidden", "true");
+
+    const iconOn = document.createElement("img");
+    iconOn.className = "audio-toggle-icon audio-toggle-icon--on";
+    iconOn.src = "/assets/volume-high-stroke-rounded.svg";
+    iconOn.alt = "";
+
+    const iconOff = document.createElement("img");
+    iconOff.className = "audio-toggle-icon audio-toggle-icon--off";
+    iconOff.src = "/assets/volume-mute-02-stroke-rounded.svg";
+    iconOff.alt = "";
+
+    icons.append(iconOn, iconOff);
+    btn.appendChild(icons);
+
     const syncUi = () => {
       const isOn = getBool(STORAGE.enabled, true);
-      btn.innerHTML = isOn ? iconOn : iconOff;
+      btn.classList.toggle("is-sound-on", isOn);
       btn.setAttribute("aria-label", isOn ? "Turn sound off" : "Turn sound on");
     };
     syncUi();
