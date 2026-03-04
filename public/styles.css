@@ -1353,17 +1353,17 @@ body {
 }
 
 .finish-action:hover {
-  background: #2b4198;
+  background: #222973;
 }
 
 .finish-action-coffee {
-  background: transparent;
+  background: #0c0e1c;
   border: 1px solid #3c5f89;
   color: #f7efe2;
 }
 
 .finish-action-coffee:hover {
-  background: transparent;
+  background: #171b36;
   border-color: #4b78ad;
 }
 
