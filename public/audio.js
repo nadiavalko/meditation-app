@@ -135,8 +135,8 @@
       to: 0,
       durationMs: 480,
       onDone: () => {
-        audio.pause();
-        audio.volume = 1;
+        audio.muted = true;
+        audio.volume = 0;
         persistProgress();
       }
     });
@@ -174,12 +174,15 @@
       if (!currentlyEnabled) {
         setBool(STORAGE.enabled, true);
         fadeAudioVolume({
-          from: 0,
+          from: audio.volume || 0,
           to: 1,
           durationMs: 520,
           onStart: () => {
-            audio.volume = 0;
-            tryPlay();
+            audio.muted = false;
+            if (audio.paused) {
+              audio.volume = 0;
+              tryPlay();
+            }
           }
         });
       } else {
