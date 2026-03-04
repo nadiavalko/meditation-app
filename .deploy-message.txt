@@ -1,1 +1,1 @@
-Apply no-vertical-scroll behavior to all touch devices (tablet both orientations + mobile landscape), while keeping phone-specific spacing/layout overrides only for <=440px.
+Tablet fire alignment tweak: dedicated touch-tablet canvas/video sizing to avoid scaled look. Intro Enter transition tweak: force heading, image, button, and gradient to fade out together in sync.
