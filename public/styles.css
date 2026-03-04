@@ -711,6 +711,10 @@ body {
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
+.burn-button:hover {
+  background: #2b4198;
+}
+
 .burn-input-frame.is-burning {
   animation: none;
   opacity: 1;
