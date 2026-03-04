@@ -943,6 +943,30 @@ body {
   }
 }
 
+@media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+  .screen,
+  .audio-toggle {
+    display: none !important;
+  }
+
+  body::after {
+    content: "Please use portrait orientation";
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    text-align: center;
+    background: #0c0e1c;
+    color: #ffffff;
+    font-family: "Cormorant", serif;
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 600;
+    z-index: 9999;
+  }
+}
+
 @media (hover: none) and (pointer: coarse) and (min-width: 441px) {
   .screen-content {
     padding-top: 10vh;

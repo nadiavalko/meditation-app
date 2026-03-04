@@ -1,1 +1,1 @@
-Tablet-only layout tweak: set top padding to 10vh (heading offset) across pages, without changing phone or desktop rules.
+Mobile portrait-only guard: when device is in landscape on touch devices, app UI is hidden and a portrait-orientation message is shown.
