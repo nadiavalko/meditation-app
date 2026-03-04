@@ -213,6 +213,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
     let done = false;
     let fadeTimer = 0;
     let completeTimer = 0;
+    let timersArmed = false;
     let triedFallback = false;
     let rafId = 0;
     let sequenceCtx = null;
@@ -276,6 +277,24 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       onComplete?.();
     };
 
+    const armCompletionTimers = () => {
+      if (timersArmed || done) {
+        return;
+      }
+      timersArmed = true;
+      fadeTimer = window.setTimeout(() => {
+        if (useMobileSequence && canvasEl) {
+          canvasEl.classList.remove("is-visible");
+          canvasEl.classList.remove("is-fire-sequence");
+        } else {
+          videoEl.classList.remove("is-visible");
+        }
+      }, fadeOutAtMs);
+      completeTimer = window.setTimeout(() => {
+        complete();
+      }, burnDurationMs);
+    };
+
     const runMobileSequence = async () => {
       if (!canvasEl || !sequenceCtx || !sequenceWidth || !sequenceHeight) {
         return false;
@@ -287,6 +306,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
         }
         const startAt = performance.now();
         canvasEl.classList.add("is-visible", "is-fire-sequence");
+        armCompletionTimers();
         const draw = (now) => {
           if (done) {
             return;
@@ -330,6 +350,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
               videoEl.load();
             }
             videoEl.classList.add("is-visible");
+            armCompletionTimers();
             const fallbackPlay = videoEl.play();
             if (fallbackPlay && typeof fallbackPlay.catch === "function") {
               fallbackPlay.catch(() => complete());
@@ -351,6 +372,7 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
           videoEl.load();
         }
         videoEl.classList.add("is-visible");
+        armCompletionTimers();
         const playAttempt = videoEl.play();
         if (playAttempt && typeof playAttempt.catch === "function") {
           playAttempt.catch(() => {
@@ -378,17 +400,6 @@ const createBurnInputVideoAnimator = ({ videoEl, layerEl, canvasEl }) => {
       complete();
     };
     videoEl.addEventListener("error", handleError);
-    fadeTimer = window.setTimeout(() => {
-      if (useMobileSequence && canvasEl) {
-        canvasEl.classList.remove("is-visible");
-        canvasEl.classList.remove("is-fire-sequence");
-      } else {
-        videoEl.classList.remove("is-visible");
-      }
-    }, fadeOutAtMs);
-    completeTimer = window.setTimeout(() => {
-      complete();
-    }, burnDurationMs);
     tryStartPlayback();
 
     return {
