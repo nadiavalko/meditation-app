@@ -45,6 +45,8 @@ body {
   width: 48px;
   height: 48px;
   border: none;
+  outline: none;
+  box-shadow: none;
   border-radius: 12px;
   background: rgba(12, 14, 28, 0.72);
   color: #5779A2;
@@ -56,6 +58,15 @@ body {
   cursor: pointer;
   z-index: 999;
   backdrop-filter: blur(2px);
+}
+
+.audio-toggle:hover,
+.audio-toggle:active,
+.audio-toggle:focus,
+.audio-toggle:focus-visible {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .audio-toggle svg {
