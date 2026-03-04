@@ -1,1 +1,1 @@
-Tablet-only body outline size increase: enlarged journey body figure gradients block to better use available tablet space.
+Add theme-aware favicon from door icon asset: white icon for dark mode and #1B205A icon for light mode on welcome and journey pages.
