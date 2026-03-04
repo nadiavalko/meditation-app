@@ -1,1 +1,1 @@
-Add theme-aware favicon from door icon asset: white icon for dark mode and #1B205A icon for light mode on welcome and journey pages.
+Audio toggle reliability refactor: deterministic ON/OFF handlers, click-only toggle path, and race-safe fade transitions so rapid switching no longer gets stuck.

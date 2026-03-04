@@ -200,7 +200,7 @@
     };
     syncUi();
 
-    let toggleGuard = false;
+    let toggleVersion = 0;
     const playFromUserGesture = () => {
       audio.muted = false;
       const playPromise = audio.play();
@@ -211,38 +211,53 @@
       }
     };
 
-    const toggleAudio = () => {
-      if (toggleGuard) {
-        return;
+    const turnSoundOn = () => {
+      toggleVersion += 1;
+      setBool(STORAGE.enabled, true);
+      stopVolumeFade();
+      audio.muted = false;
+      if (audio.paused) {
+        audio.volume = 0;
+        playFromUserGesture();
       }
-      toggleGuard = true;
-      const currentlyEnabled = getBool(STORAGE.enabled, true);
-      if (!currentlyEnabled) {
-        setBool(STORAGE.enabled, true);
-        fadeAudioVolume({
-          from: audio.volume || 0,
-          to: 1,
-          durationMs: 520,
-          onStart: () => {
-            audio.muted = false;
-            audio.volume = 0;
-            playFromUserGesture();
-          }
-        });
-      } else {
-        setBool(STORAGE.enabled, false);
-        pauseAudio();
-      }
-      syncUi();
-      window.setTimeout(() => {
-        toggleGuard = false;
-      }, 160);
+      fadeAudioVolume({
+        from: audio.volume || 0,
+        to: 1,
+        durationMs: 420
+      });
     };
 
-    btn.addEventListener("pointerup", (event) => {
-      event.preventDefault();
-      toggleAudio();
-    });
+    const turnSoundOff = () => {
+      toggleVersion += 1;
+      const version = toggleVersion;
+      setBool(STORAGE.enabled, false);
+      fadeAudioVolume({
+        from: audio.volume,
+        to: 0,
+        durationMs: 360,
+        onDone: () => {
+          if (version !== toggleVersion) {
+            return;
+          }
+          audio.muted = true;
+          audio.pause();
+          audio.volume = 0;
+          persistProgress();
+        }
+      });
+    };
+
+    const toggleAudio = () => {
+      const currentlyEnabled = getBool(STORAGE.enabled, true);
+      if (!currentlyEnabled) {
+        turnSoundOn();
+      } else {
+        turnSoundOff();
+      }
+      syncUi();
+    };
+
+    btn.addEventListener("click", toggleAudio);
     btn.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
