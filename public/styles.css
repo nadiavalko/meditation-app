@@ -873,7 +873,7 @@ body {
 
 }
 
-@media (hover: none) and (pointer: coarse) {
+@media (hover: none) and (pointer: coarse) and (max-width: 440px) {
   html,
   body {
     height: 100lvh;
@@ -907,6 +907,20 @@ body {
     align-items: flex-start;
     justify-content: center;
     text-align: center;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 441px) and (orientation: portrait) {
+  .screen,
+  .screen-intro,
+  .screen-burn,
+  .screen-finish {
+    align-items: center;
+  }
+
+  .screen-content {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 

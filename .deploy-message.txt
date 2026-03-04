@@ -1,1 +1,1 @@
-Improve audio start reliability: if autoplay is blocked after Enter/navigation, music now retries on first touch/click/key interaction while preserving ON/OFF preference.
+Tablet layout rules: keep web behavior for tablet by limiting coarse-pointer mobile overrides to <=440px; for tablet portrait, center page content vertically.
