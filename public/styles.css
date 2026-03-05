@@ -18,7 +18,7 @@
   --seq-step-1-delay: 1s;
   --seq-step-2-delay: 2s;
   --seq-step-3-delay: 3.2s;
-  --intro-exit-duration: 420ms;
+  --intro-exit-duration: 120ms;
 }
 
 * {
@@ -250,11 +250,16 @@ body {
 .is-intro-exiting .intro-copy,
 .is-intro-exiting .intro-figure,
 .is-intro-exiting .intro-button,
-.is-intro-exiting .intro-line,
-.is-intro-exiting .screen-intro::before {
+.is-intro-exiting .intro-line {
   opacity: 0 !important;
   transition: opacity var(--intro-exit-duration) var(--motion-ease);
   transform: none !important;
+}
+
+.is-intro-exiting .screen-intro::before {
+  opacity: 0 !important;
+  transition: opacity var(--intro-exit-duration) var(--motion-ease);
+  transform: translate(-50%, -50%) !important;
 }
 
 @keyframes introFadeUp {

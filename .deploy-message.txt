@@ -1,1 +1,1 @@
-Fix audio toggle reliability: clamp volume fade math to [0..1], prevent invalid negative volume, and force started=true when turning sound on.
+Fix intro exit glitch: keep gradient centered during fade-out and make first-page exit near-instant (120ms fade, 140ms navigation delay).

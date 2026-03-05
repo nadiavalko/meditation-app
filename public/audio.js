@@ -310,7 +310,7 @@
     const enterButton = document.querySelector(".intro-button");
     if (enterButton) {
       enterButton.addEventListener("click", (event) => {
-        const INTRO_EXIT_MS = 420;
+        const INTRO_EXIT_MS = 140;
         const href =
           enterButton instanceof HTMLAnchorElement
             ? enterButton.href
