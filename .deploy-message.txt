@@ -1,1 +1,1 @@
-Add social preview image tags (og:image, og:image:alt, twitter:image) for home and journey using /assets/seo image.png.
+Update journey opening title text: 'Write something you’d like to let go of.' -> 'Type something you’d like to let go of.'
