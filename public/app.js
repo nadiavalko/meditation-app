@@ -950,12 +950,12 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             if (journeyBodyFigureStage) {
               journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing", "is-fading");
               journeyBodyFigureStage.setAttribute("aria-hidden", "false");
+              journeyBodyFigureStage.style.setProperty("--seq-fade-duration", "3200ms");
+              void journeyBodyFigureStage.offsetWidth;
+              journeyBodyFigureStage.classList.add("is-revealing");
             }
             if (journeyBodyFigure) {
               journeyBodyFigure.classList.remove("is-revealing");
-              journeyBodyFigure.style.setProperty("--seq-fade-duration", "3200ms");
-              void journeyBodyFigure.offsetWidth;
-              journeyBodyFigure.classList.add("is-revealing");
             }
           }, bodyFigureRevealAt);
 

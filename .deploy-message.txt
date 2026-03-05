@@ -1,1 +1,1 @@
-Fix intro exit glitch: keep gradient centered during fade-out and make first-page exit near-instant (120ms fade, 140ms navigation delay).
+Fix body outline entrance twitch: animate the body figure stage with fade-only reveal and remove object-level reveal transform to keep first appearance smooth.
