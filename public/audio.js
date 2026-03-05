@@ -45,6 +45,16 @@
   if (Number.isFinite(savedTime) && savedTime > 0) {
     audio.currentTime = savedTime;
   }
+  audio.addEventListener("loadedmetadata", () => {
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+      return;
+    }
+    // If persisted time is at/near the end after a track trim, restart cleanly.
+    if (audio.currentTime >= audio.duration - 0.25) {
+      audio.currentTime = 0;
+      persistProgress();
+    }
+  });
 
   let persistTimer = 0;
   let volumeFadeRaf = 0;
@@ -116,6 +126,17 @@
     }
   };
 
+  const ensurePlayback = () => {
+    if (
+      body.dataset.audioAutostart === "true" &&
+      getBool(STORAGE.enabled, true) &&
+      getBool(STORAGE.started, false) &&
+      audio.paused
+    ) {
+      tryPlay();
+    }
+  };
+
   const armInteractionResume = () => {
     const resume = () => {
       window.removeEventListener("pointerdown", resume);
@@ -170,6 +191,13 @@
         window.clearInterval(bootstrapTimer);
       }
     }, 1000);
+    window.addEventListener("pageshow", ensurePlayback);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        ensurePlayback();
+      }
+    });
+    window.addEventListener("focus", ensurePlayback);
   }
 
   if (body.dataset.audioUi === "true") {
