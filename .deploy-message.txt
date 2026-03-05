@@ -1,1 +1,1 @@
-Switch SEO canonical/OG/Twitter image URLs to primary domain doortoself.com on home and journey pages.
+Trim audio tail slightly for tighter loop: shortened light.mp3 end by ~0.15s; backup saved as public/assets/light.before-endtrim.mp3.
