@@ -1,1 +1,1 @@
-Trimmed light.mp3 leading/trailing silence for smoother loop; added backup at public/assets/light.original.mp3.
+Switch SEO canonical/OG/Twitter image URLs to primary domain doortoself.com on home and journey pages.
