@@ -308,6 +308,7 @@
 
   if (location.pathname === "/") {
     const enterButton = document.querySelector(".intro-button");
+    const introImage = document.querySelector(".intro-image");
     if (enterButton) {
       enterButton.addEventListener("click", (event) => {
         const INTRO_EXIT_MS = 140;
@@ -336,6 +337,11 @@
         window.setTimeout(() => {
           window.location.href = href;
         }, INTRO_EXIT_MS);
+      });
+    }
+    if (enterButton && introImage) {
+      introImage.addEventListener("click", () => {
+        enterButton.click();
       });
     }
   }

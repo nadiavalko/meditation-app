@@ -1,1 +1,1 @@
-Fix body outline entrance twitch: animate the body figure stage with fade-only reveal and remove object-level reveal transform to keep first appearance smooth.
+Make full intro door image clickable: clicking the door now triggers Enter flow to journey; add pointer cursor on intro image.
