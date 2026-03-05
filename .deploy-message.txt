@@ -1,1 +1,1 @@
-Audio toggle reliability refactor: deterministic ON/OFF handlers, click-only toggle path, and race-safe fade transitions so rapid switching no longer gets stuck.
+Add social preview image tags (og:image, og:image:alt, twitter:image) for home and journey using /assets/seo image.png.
