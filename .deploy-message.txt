@@ -1,1 +1,1 @@
-Fix audio not resuming after refresh: auto-retry on pageshow/visibility/focus and reset persisted near-end playback position after track trim.
+Fix audio toggle reliability: clamp volume fade math to [0..1], prevent invalid negative volume, and force started=true when turning sound on.

@@ -76,20 +76,24 @@
     onStart,
     onDone
   }) => {
+    const clamp01 = (value) => Math.min(1, Math.max(0, Number(value) || 0));
     stopVolumeFade();
     if (typeof onStart === "function") {
       onStart();
     }
-    if (durationMs <= 0 || from === to) {
-      audio.volume = to;
+    const safeFrom = clamp01(from);
+    const safeTo = clamp01(to);
+    if (durationMs <= 0 || safeFrom === safeTo) {
+      audio.volume = safeTo;
       onDone?.();
       return;
     }
     const start = performance.now();
     const tick = (now) => {
-      const t = Math.min(1, (now - start) / durationMs);
+      const t = Math.min(1, Math.max(0, (now - start) / durationMs));
       const eased = 1 - Math.pow(1 - t, 3);
-      audio.volume = from + (to - from) * eased;
+      const nextVolume = clamp01(safeFrom + (safeTo - safeFrom) * eased);
+      audio.volume = nextVolume;
       if (t < 1) {
         volumeFadeRaf = window.requestAnimationFrame(tick);
         return;
@@ -241,6 +245,7 @@
 
     const turnSoundOn = () => {
       toggleVersion += 1;
+      setBool(STORAGE.started, true);
       setBool(STORAGE.enabled, true);
       stopVolumeFade();
       audio.muted = false;
