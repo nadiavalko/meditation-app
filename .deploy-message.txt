@@ -1,1 +1,1 @@
-Make full intro door image clickable: clicking the door now triggers Enter flow to journey; add pointer cursor on intro image.
+Update one body-scan phrase only: 'Notice your stomach.' -> 'Notice your belly.' (leave all other stomach copy unchanged).

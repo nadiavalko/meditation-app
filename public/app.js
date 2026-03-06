@@ -497,7 +497,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     let bodyScanSequenceStarted = false;
     const bodyScanFixedHeightTexts = new Set([
       "Feel your legs grow heavy.",
-      "Notice your stomach."
+      "Notice your belly."
     ]);
 
     const clearBodyGradientPulseTimer = () => {
@@ -993,7 +993,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           const stomachPromptRevealAt = stomachPromptFadeAt + fadeOutDuration;
           window.setTimeout(() => {
             burnTitle.classList.remove("is-fading");
-            revealJourneyTitle("Notice your stomach.");
+            revealJourneyTitle("Notice your belly.");
             setBodyGradients([6]);
           }, stomachPromptRevealAt);
 
