@@ -1,2 +1,4 @@
 public/assets/*.mov
 public/assets/*.MOV
+node_modules/
+test-results/

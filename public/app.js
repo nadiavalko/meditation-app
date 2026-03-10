@@ -4,6 +4,40 @@ const STORAGE_KEYS = {
   sessions: "stillwave_sessions"
 };
 
+const JOURNEY_CONFIG = {
+  preBurnFadeMs: 1600,
+  burnDurationMs: 4000,
+  fadeOutDuration: 1200,
+  revealDuration: 1600,
+  guidanceRevealDuration: 2200,
+  stageRevealDuration: 1600,
+  holdAfterWellDoneMs: 900,
+  holdAfterBodyScanIntroMs: 1200,
+  bodyScanStepDurationMs: 15000,
+  longBodyScanStepDurationMs: 15000,
+  longBodyScanMidTextSwapMs: 7000,
+  closingBodyScanStepDurationMs: 4800,
+  gradientFadeLeadMs: 2200,
+  finishFadeOutDelayFromStart: 4600,
+  finishFadeOutDuration: 1200,
+  breathingCanvas: {
+    rounds: 3,
+    inhaleMs: 4000,
+    exhaleMs: 6000,
+    introDotHoldMs: 120,
+    introDotFadeInMs: 420,
+    phaseLabelLagMs: 180,
+    dotCount: 220,
+    sphereSizePx: 400,
+    baseDotSizePx: 9,
+    centerDotSizePx: 18,
+    dotColor: "#93BBED",
+    dprCap: 2,
+    driftSpeed: 0.00028,
+    driftTiltSpeed: 0.00017
+  }
+};
+
 const defaultStats = {
   totalMinutes: 320,
   streakDays: 12,
@@ -34,89 +68,6 @@ function updateStats(updateFn) {
   saveToStorage(STORAGE_KEYS.stats, updated);
   return updated;
 }
-
-const signupForm = document.querySelector("[data-signup-form]");
-const signupStatus = document.querySelector("[data-signup-status]");
-
-if (signupForm) {
-  signupForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const formData = new FormData(signupForm);
-    const payload = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      createdAt: new Date().toISOString()
-    };
-    saveToStorage(STORAGE_KEYS.user, payload);
-    signupStatus.textContent = `Welcome, ${payload.name}! Your space is ready.`;
-    signupForm.reset();
-  });
-}
-
-const statsTarget = document.querySelector("[data-stats]");
-if (statsTarget) {
-  const stats = getStats();
-  statsTarget.querySelector("[data-minutes]").textContent = stats.totalMinutes;
-  statsTarget.querySelector("[data-streak]").textContent = `${stats.streakDays} days`;
-  statsTarget.querySelector("[data-breaths]").textContent = stats.breathsCompleted;
-  statsTarget.querySelector("[data-calm]").textContent = `${stats.calmScore}%`;
-}
-
-const breathText = document.querySelector("[data-breath-text]");
-const breathTimer = document.querySelector("[data-breath-timer]");
-
-if (breathText && breathTimer) {
-  const inhaleSeconds = 4;
-  const exhaleSeconds = 6;
-  const total = inhaleSeconds + exhaleSeconds;
-  let counter = 0;
-
-  setInterval(() => {
-    const phaseTime = counter % total;
-    const isInhale = phaseTime < inhaleSeconds;
-    const remaining = (isInhale ? inhaleSeconds : exhaleSeconds) - (phaseTime % (isInhale ? inhaleSeconds : exhaleSeconds));
-
-    breathText.textContent = isInhale ? "Inhale" : "Exhale";
-    breathTimer.textContent = `Slow ${isInhale ? "inhale" : "exhale"} · ${remaining}s`;
-
-    counter += 1;
-  }, 1000);
-}
-
-const logButton = document.getElementById("log-session");
-const sessionStatus = document.getElementById("session-status");
-
-if (logButton && sessionStatus) {
-  logButton.addEventListener("click", () => {
-    sessionStatus.textContent = "Saving your session...";
-    const sessions = loadFromStorage(STORAGE_KEYS.sessions, []);
-    const newSession = {
-      id: `session_${Date.now()}`,
-      durationMinutes: 3,
-      breaths: 18,
-      createdAt: new Date().toISOString()
-    };
-    sessions.push(newSession);
-    saveToStorage(STORAGE_KEYS.sessions, sessions);
-
-    const stats = updateStats((current) => ({
-      totalMinutes: current.totalMinutes + newSession.durationMinutes,
-      breathsCompleted: current.breathsCompleted + newSession.breaths,
-      streakDays: Math.min(30, current.streakDays + 1),
-      calmScore: Math.min(100, current.calmScore + 1)
-    }));
-
-    sessionStatus.textContent = `Session saved. Total minutes: ${stats.totalMinutes}`;
-  });
-}
-
-const settings = document.querySelectorAll("[data-setting]");
-settings.forEach((setting) => {
-  setting.addEventListener("click", () => {
-    const on = setting.getAttribute("data-on") === "true";
-    setting.setAttribute("data-on", String(!on));
-  });
-});
 
 const burnInput = document.querySelector("[data-burn-input]");
 const burnButton = document.querySelector("[data-burn-button]");
@@ -477,21 +428,21 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
     if (burnFrame.classList.contains("is-burning")) {
       return;
     }
-    const burnFieldDurationMs = 4000;
-    const preBurnFadeMs = 1600;
+    const burnFieldDurationMs = JOURNEY_CONFIG.burnDurationMs;
+    const preBurnFadeMs = JOURNEY_CONFIG.preBurnFadeMs;
     const burnVideoStartDelay = 0;
     const fadeOutDelay = burnVideoStartDelay + burnFieldDurationMs + 100;
-    const fadeOutDuration = 1200;
-    const revealDuration = 1600;
-    const guidanceRevealDuration = 2200;
-    const stageRevealDuration = 1600;
-    const holdAfterWellDoneMs = 900;
-    const holdAfterBodyScanIntroMs = 1200;
-    const shortBodyScanStepDurationMs = 15000;
-    const longBodyScanStepDurationMs = 15000;
-    const longBodyScanMidTextSwapMs = 7000;
-    const closingBodyScanStepDurationMs = 4800;
-    const gradientFadeLeadMs = 2200;
+    const fadeOutDuration = JOURNEY_CONFIG.fadeOutDuration;
+    const revealDuration = JOURNEY_CONFIG.revealDuration;
+    const guidanceRevealDuration = JOURNEY_CONFIG.guidanceRevealDuration;
+    const stageRevealDuration = JOURNEY_CONFIG.stageRevealDuration;
+    const holdAfterWellDoneMs = JOURNEY_CONFIG.holdAfterWellDoneMs;
+    const holdAfterBodyScanIntroMs = JOURNEY_CONFIG.holdAfterBodyScanIntroMs;
+    const shortBodyScanStepDurationMs = JOURNEY_CONFIG.bodyScanStepDurationMs;
+    const longBodyScanStepDurationMs = JOURNEY_CONFIG.longBodyScanStepDurationMs;
+    const longBodyScanMidTextSwapMs = JOURNEY_CONFIG.longBodyScanMidTextSwapMs;
+    const closingBodyScanStepDurationMs = JOURNEY_CONFIG.closingBodyScanStepDurationMs;
+    const gradientFadeLeadMs = JOURNEY_CONFIG.gradientFadeLeadMs;
     let pendingBodyGradientIndexes = [];
     let bodyGradientPulseTimer = 0;
     let bodyScanSequenceStarted = false;
@@ -742,8 +693,8 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       journeyFinishFlower.src = getNextFinishFlower();
       void journeyFinishIntroLine1.offsetWidth;
 
-      const finishFadeOutDelayFromStart = 4600;
-      const finishFadeOutDuration = 1200;
+      const finishFadeOutDelayFromStart = JOURNEY_CONFIG.finishFadeOutDelayFromStart;
+      const finishFadeOutDuration = JOURNEY_CONFIG.finishFadeOutDuration;
       const finishPhase2Start = finishFadeOutDelayFromStart + finishFadeOutDuration;
 
       window.setTimeout(() => {
@@ -1188,22 +1139,7 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
   const breathingAutoStart = breathingCanvas.dataset.breathingAutostart !== "false";
 
   if (ctx) {
-    const config = {
-      rounds: 3,
-      inhaleMs: 4000,
-      exhaleMs: 6000,
-      introDotHoldMs: 120,
-      introDotFadeInMs: 420,
-      phaseLabelLagMs: 180,
-      dotCount: 220,
-      sphereSizePx: 400,
-      baseDotSizePx: 9,
-      centerDotSizePx: 18,
-      dotColor: "#93BBED",
-      dprCap: 2,
-      driftSpeed: 0.00028,
-      driftTiltSpeed: 0.00017
-    };
+    const config = JOURNEY_CONFIG.breathingCanvas;
 
     const stage = breathingCanvas.parentElement;
     const particles = [];
@@ -1623,82 +1559,4 @@ if (breathingCanvas instanceof HTMLCanvasElement) {
 
     window.addEventListener("resize", resizeCanvas, { passive: true });
   }
-}
-
-const roundDisplay = document.querySelector("[data-round-display]");
-
-if (roundDisplay) {
-  const inhaleSeconds = 4;
-  const exhaleSeconds = 6;
-  const roundsTotal = 5;
-  const cycleSeconds = inhaleSeconds + exhaleSeconds;
-  let currentRound = 1;
-
-  roundDisplay.textContent = `Round ${currentRound} of ${roundsTotal}`;
-
-  const roundInterval = setInterval(() => {
-    currentRound += 1;
-    if (currentRound > roundsTotal) {
-      clearInterval(roundInterval);
-      roundDisplay.textContent = "Pause...";
-      setTimeout(() => {
-        window.location.href = "/body-scan/";
-      }, 1200);
-      return;
-    }
-    roundDisplay.textContent = `Round ${currentRound} of ${roundsTotal}`;
-  }, cycleSeconds * 1000);
-}
-
-const bodyScan = document.querySelector("[data-body-scan]");
-
-if (bodyScan) {
-  const bodyText = document.querySelector("[data-body-text]");
-  const highlights = Array.from(document.querySelectorAll("[data-highlight]"));
-
-  const steps = [
-    { text: "Relax your forehead.", highlight: "forehead" },
-    { text: "Soften your eyes.", highlight: "eyes" },
-    { text: "Unclench your jaw.", highlight: "jaw" },
-    { text: "Notice your neck.", highlight: "neck" },
-    { text: "Release your shoulders.", highlight: "shoulders" },
-    { text: "Feel your arms.", highlight: "arms" },
-    { text: "Warmth in both hands.", highlight: "hands" },
-    { text: "Ease into your chest.", highlight: "chest" },
-    { text: "Soften your stomach.", highlight: "stomach" },
-    { text: "Ground your hips.", highlight: "hips" },
-    { text: "Notice your thighs.", highlight: "thighs" },
-    { text: "Relax your knees.", highlight: "knees" },
-    { text: "Release your calves.", highlight: "calves" },
-    { text: "Feel both feet.", highlight: "feet" }
-  ];
-
-  const stepDuration = 2600;
-
-  const setHighlight = (name) => {
-    highlights.forEach((el) => {
-      el.classList.toggle("is-active", el.getAttribute("data-highlight") === name);
-    });
-  };
-
-  steps.forEach((step, index) => {
-    setTimeout(() => {
-      if (bodyText) {
-        bodyText.textContent = step.text;
-      }
-      setHighlight(step.highlight);
-    }, index * stepDuration);
-  });
-
-  const totalDuration = steps.length * stepDuration;
-  setTimeout(() => {
-    if (bodyText) {
-      bodyText.textContent = "Well done.";
-    }
-    setHighlight(null);
-  }, totalDuration + 300);
-
-  setTimeout(() => {
-    window.location.href = "/";
-  }, totalDuration + 1800);
 }

@@ -104,6 +104,12 @@
     volumeFadeRaf = window.requestAnimationFrame(tick);
   };
 
+  const armResume = (callback) => {
+    window.addEventListener("pointerdown", callback, { once: true, passive: true });
+    window.addEventListener("touchstart", callback, { once: true, passive: true });
+    window.addEventListener("keydown", callback, { once: true });
+  };
+
   const tryPlay = () => {
     if (!getBool(STORAGE.enabled, true)) {
       return;
@@ -116,16 +122,11 @@
       playPromise.catch(() => {
         // If autoplay is blocked, retry on first user interaction.
         const resume = () => {
-          window.removeEventListener("pointerdown", resume);
-          window.removeEventListener("touchstart", resume);
-          window.removeEventListener("keydown", resume);
           if (getBool(STORAGE.enabled, true) && getBool(STORAGE.started, false)) {
             audio.play().catch(() => {});
           }
         };
-        window.addEventListener("pointerdown", resume, { once: true, passive: true });
-        window.addEventListener("touchstart", resume, { once: true, passive: true });
-        window.addEventListener("keydown", resume, { once: true });
+        armResume(resume);
       });
     }
   };
@@ -143,16 +144,11 @@
 
   const armInteractionResume = () => {
     const resume = () => {
-      window.removeEventListener("pointerdown", resume);
-      window.removeEventListener("touchstart", resume);
-      window.removeEventListener("keydown", resume);
       if (getBool(STORAGE.enabled, true) && getBool(STORAGE.started, false) && audio.paused) {
         tryPlay();
       }
     };
-    window.addEventListener("pointerdown", resume, { once: true, passive: true });
-    window.addEventListener("touchstart", resume, { once: true, passive: true });
-    window.addEventListener("keydown", resume, { once: true });
+    armResume(resume);
   };
 
   const pauseAudio = () => {
@@ -298,11 +294,11 @@
       }
     });
 
-    audio.addEventListener("play", syncUi);
-    audio.addEventListener("pause", syncUi);
     audio.addEventListener("play", () => {
+      syncUi();
       localStorage.removeItem(STORAGE.gestureAt);
     });
+    audio.addEventListener("pause", syncUi);
     body.appendChild(btn);
   }
 

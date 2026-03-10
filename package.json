@@ -5,9 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "node server.js",
-    "test": "node scripts/layout.test.js"
+    "test": "node scripts/layout.test.js && npx playwright test",
+    "test:unit": "node scripts/layout.test.js",
+    "test:e2e": "npx playwright test",
+    "test:snapshots": "npx playwright test --update-snapshots"
   },
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
   }
 }
