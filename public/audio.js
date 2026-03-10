@@ -105,9 +105,18 @@
   };
 
   const armResume = (callback) => {
-    window.addEventListener("pointerdown", callback, { once: true, passive: true });
-    window.addEventListener("touchstart", callback, { once: true, passive: true });
-    window.addEventListener("keydown", callback, { once: true });
+    const cleanup = () => {
+      window.removeEventListener("pointerdown", wrapped);
+      window.removeEventListener("touchstart", wrapped);
+      window.removeEventListener("keydown", wrapped);
+    };
+    const wrapped = () => {
+      cleanup();
+      callback();
+    };
+    window.addEventListener("pointerdown", wrapped, { once: true, passive: true });
+    window.addEventListener("touchstart", wrapped, { once: true, passive: true });
+    window.addEventListener("keydown", wrapped, { once: true });
   };
 
   const tryPlay = () => {

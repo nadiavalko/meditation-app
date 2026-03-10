@@ -1,1 +1,1 @@
-Update one body-scan phrase only: 'Notice your stomach.' -> 'Notice your belly.' (leave all other stomach copy unchanged).
+Fix mobile audio: restore cross-cleanup in armResume to prevent double-trigger on tap
