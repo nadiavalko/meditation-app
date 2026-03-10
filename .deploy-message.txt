@@ -1,1 +1,1 @@
-Add Google Analytics (G-WSYF0VHEJJ) to both pages
+Add GA journey funnel events: enter_journey, burn_submitted, breathing_started, breathing_completed, body_scan_started, finish_reached

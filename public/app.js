@@ -681,6 +681,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }
 
       journeyFinish.classList.remove("is-hidden");
+      if (typeof gtag === "function") { gtag("event", "finish_reached"); }
       journeyFinishPhase1.style.display = "";
       journeyFinishPhase2.classList.add("is-hidden");
       journeyFinishIntroLine1.classList.remove("finish-fade-out");
@@ -715,6 +716,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }, finishPhase2Start);
     };
     burnFrame.classList.add("is-burning");
+    if (typeof gtag === "function") { gtag("event", "burn_submitted"); }
     burnTitle.style.display = "";
     burnTitle.style.visibility = "visible";
     burnTitle.classList.remove("is-fading", "is-revealing");
@@ -841,6 +843,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
           return;
         }
         bodyScanSequenceStarted = true;
+        if (typeof gtag === "function") { gtag("event", "breathing_completed"); }
         if (journeyBreathingPhaseTitle) {
           journeyBreathingPhaseTitle.classList.remove("is-breath-revealing", "is-revealing");
           journeyBreathingPhaseTitle.classList.add("is-breath-fading");
@@ -898,6 +901,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
             fadeOutDuration;
 
           window.setTimeout(() => {
+            if (typeof gtag === "function") { gtag("event", "body_scan_started"); }
             if (journeyBodyFigureStage) {
               journeyBodyFigureStage.classList.remove("is-hidden", "is-revealing", "is-fading");
               journeyBodyFigureStage.setAttribute("aria-hidden", "false");
@@ -1122,6 +1126,7 @@ if (burnInput && burnButton && burnFrame && burnTitle) {
       }
       const startBreathing = journeyBreathingCanvas?.__startBreathingSequence;
       if (typeof startBreathing === "function") {
+        if (typeof gtag === "function") { gtag("event", "breathing_started"); }
         startBreathing();
       }
     }, breathingSequenceStartDelay);

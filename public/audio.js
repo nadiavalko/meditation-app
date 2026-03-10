@@ -325,6 +325,9 @@
         setBool(STORAGE.started, true);
         localStorage.setItem(STORAGE.gestureAt, String(Date.now()));
         localStorage.setItem(STORAGE.currentTime, "0");
+        if (typeof gtag === "function") {
+          gtag("event", "enter_journey");
+        }
         body.classList.add("is-intro-exiting");
         try {
           audio.currentTime = 0;
